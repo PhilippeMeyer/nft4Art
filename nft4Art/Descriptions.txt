@@ -1,0 +1,9 @@
+G:\Users\dev\nft4Art\nft4Art>ipfs add -r --cid-version=1 .\descriptions
+ 255 B / 1.21 KiB [==================>------------------------------------------------------------------------]  20.60%←added bafkreifsavucdkxmxiwixv5q2bxeyffb4og5d6ruk6mamln4qlbwwphtwm descriptions/0.json
+ 494 B / 1.21 KiB [====================================>------------------------------------------------------]  39.90%←added bafkreib4qaiorzdzms7agk35nuzvooimm35qt64wg7trzkolthwuxmv7we descriptions/1.json
+ 738 B / 1.21 KiB [======================================================>------------------------------------]  59.61%←added bafkreicek56cktb4qkvsx65rzqnz5pxspkg3qpzmfur7s4hqk34oma3c7m descriptions/2.json
+ 982 B / 1.21 KiB [========================================================================>------------------]  79.32%←added bafkreiefijyi5bjbz4kxzjelpopoxywxttocnj473vhqfngmdj3feexiza descriptions/3.json
+ 1.21 KiB / 1.21 KiB [========================================================================================] 100.00%←added bafkreif6tp7ipnpqb3ntbkuytpv2t2ambcabx3vlt5bn7y2j534evrwx54 descriptions/4.json
+ 1.21 KiB / 1.21 KiB [========================================================================================] 100.00%←added bafybeiadenq4n55hoe6iyiysjfymarbxja2mtreoxc4gr2jabc2d3vg26m descriptions
+ 1.21 KiB / 1.21 KiB [========================================================================================] 100.00%
+G:\Users\dev\nft4Art\nft4Art>
