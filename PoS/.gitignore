@@ -1,5 +1,5 @@
-./server/node_modules/
-./server/cache/
-./server/build/
-./node_modules/
-./build/
+server/node_modules/**
+server/cache/**
+server/build/**
+node_modules/**
+build/**
