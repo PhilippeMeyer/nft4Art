@@ -1,0 +1,13 @@
+.image{
+    position: relative;
+    background-image: url('https://media.geeksforgeeks.org/wp-content/uploads/rk.png');
+    background-size: 'cover';
+    background-repeat: 'no-repeat';
+}
+
+.image a{
+    display: block;      
+    position: absolute;
+    cursor:pointer;
+    color:red;
+}
