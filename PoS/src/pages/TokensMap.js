@@ -102,7 +102,11 @@ function TokenMap() {
           <img src={mapImg} id="physicalimage" style={pictStyle}/>
           {map.areas.map((row) => {
             let s = {top: (row.y *100 / h) + "%", left: (row.x *100 / w) + "%", width: (row.width *100 / w) + "%", height: (row.height *100 /h) + "%"};
-            return <a id={row.index} style={s} onClick={onclick}></a>
+            let cl;
+            if (row.index < tokens.length)  cl = tokens[row.index].isLocked ? 'locked' : 'unLocked';
+            else cl = 'locked';
+            
+            return <a id={row.index} style={s} onClick={onclick} className={cl} ></a>
           })}
         </div>
       </main>
