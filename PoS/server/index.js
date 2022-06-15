@@ -561,16 +561,15 @@ setInterval(() => {
     });
 }, 10000);
 app.put('/lockUnlock', async (req, res) => {
-    console.log('maps:', metasMap.keys());
     let meta = metasMap.get(req.query.id);
-    if (typeof meta === undefined) {
+    if (typeof meta === null) {
         console.log('error: non existing token ' + req.query.id);
         res.status(404).send();
         return;
     }
-    console.log('put : ' + req.query.id, meta);
     meta.isLocked = !meta.isLocked;
     sendLock(req.query.id, meta.isLocked);
+    tokens.update(meta);
     res.status(204).send();
 });
 //
