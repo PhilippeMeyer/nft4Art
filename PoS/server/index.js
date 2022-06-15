@@ -534,7 +534,7 @@ export class LockMessage {
 export class PriceMessage {
     id;
     price;
-    type = 'price';
+    typeMsg = 'price';
     constructor(id, price) {
         this.id = id;
         this.price = price;
@@ -561,13 +561,14 @@ setInterval(() => {
     });
 }, 10000);
 app.put('/lockUnlock', async (req, res) => {
+    console.log('maps:', metasMap.keys());
     let meta = metasMap.get(req.query.id);
-    if (typeof meta == undefined) {
+    if (typeof meta === undefined) {
         console.log('error: non existing token ' + req.query.id);
         res.status(404).send();
         return;
     }
-    console.log('put : ' + req.query.id);
+    console.log('put : ' + req.query.id, meta);
     meta.isLocked = !meta.isLocked;
     sendLock(req.query.id, meta.isLocked);
     res.status(204).send();
@@ -636,7 +637,7 @@ async function init() {
                 logger.error('server.init.loadTokens %s', err); // We log here network errors
         }
         metas.push(data);
-        metasMap.set(data.addr + data.id, data);
+        metasMap.set(data.id, data);
         errTimeout = 0;
     }
     //

@@ -67,8 +67,7 @@ function TokenMap() {
 
   const onclick = (event) => {
     let t = tokens[event.target.id];
-    console.log("url:" + lockUrl + t.addr + t.id);
-    fetch(lockUrl + t.addr + t.id, {method: 'PUT'});
+    fetch(lockUrl + t.id, {method: 'PUT'});
     navigate('/sales/token/' + event.target.id, { state: { token: tokens[event.target.id]  }});
   };
 

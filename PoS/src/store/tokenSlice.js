@@ -42,7 +42,6 @@ export const tokenSlice = createSlice({
     },
 
     updateLock: (state, action) => {
-      console.log('lock update: ', action.payload);
       
       let index;
       if (action.payload.id !== undefined) index = parseInt(action.payload.id.slice(42));    // This is a server update

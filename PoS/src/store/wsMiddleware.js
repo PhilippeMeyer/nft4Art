@@ -21,9 +21,9 @@ const wsMiddleware = store => next => action => {
             console.log('received message: ', e);
             let msg = JSON.parse(e.data);
 
-            if (msg.type === undefined) return
+            if (msg.typeMsg === undefined) return
 
-            switch(msg.type) {
+            switch(msg.typeMsg) {
                 case 'price':
                     store.dispatch(updatePrice(msg));
                     break;
