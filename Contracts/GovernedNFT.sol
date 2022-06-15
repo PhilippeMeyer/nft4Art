@@ -29,6 +29,8 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 // - revoke(address) : revoke the voting right for a given address
 // - getVotes(voteId) : sends back the data associated to a vote
 //
+// Inspired from: https://betterprogramming.pub/ethereum-erc-20-meta-transactions-4cacbb3630ee
+//
 
 contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
     using ECDSA for bytes32;
