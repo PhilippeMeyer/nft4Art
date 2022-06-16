@@ -17,7 +17,6 @@ import { useDispatch } from 'react-redux'
 import { storeJwt, startConnecting } from '../store/tokenSlice'
 
 import logo from './nft.png';
-//import { useAuth } from "../auth";
 
 const httpServer = process.env.REACT_APP_SERVER;
 const deviceItemId = 'nft4ArtPosId';
