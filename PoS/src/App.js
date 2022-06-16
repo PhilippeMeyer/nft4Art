@@ -19,14 +19,7 @@ import './App.css';
 
 
 function App() {
-  /*
-  const [authTokens, setAuthTokens] = useState();
 
-  const setTokens = (data) => {
-    localStorage.setItem("tokens", JSON.stringify(data));
-    setAuthTokens(data);
-  }
-  */
   const darkTheme = createTheme({
     palette: {
       mode: 'dark',
