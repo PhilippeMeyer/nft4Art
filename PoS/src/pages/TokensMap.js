@@ -12,7 +12,7 @@ import { storeJwt, loadTokens } from '../store/tokenSlice'
 const httpServer = process.env.REACT_APP_SERVER;
 const mapUrl = httpServer + 'map';
 const mapImg = httpServer + 'map.jpg';
-const lockUrl = httpServer + 'lockUnlock?id=' ;
+const lockUrl = httpServer + 'lockUnlock?';
 
 
 function TokenMap() {  
@@ -67,7 +67,8 @@ function TokenMap() {
 
   const onclick = (event) => {
     let t = tokens[event.target.id];
-    fetch(lockUrl + t.id, {method: 'PUT'});
+    const params = new URLSearchParams({id: t.id, lock: true})
+    fetch(lockUrl + params.toString(), {method: 'PUT'});
     navigate('/sales/token/' + event.target.id, { state: { token: tokens[event.target.id]  }});
   };
 

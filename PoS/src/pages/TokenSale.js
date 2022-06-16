@@ -1,8 +1,11 @@
 import React, {useEffect, useState} from "react";
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack';
+import Button from '@mui/material/Button';
 import QRcodeScanner from '../QRcodeScanner';
 
+const httpServer = process.env.REACT_APP_SERVER;
+const lockUrl = httpServer + 'lockUnlock?';
 
 
 function TokenSale() {
@@ -19,8 +22,17 @@ function TokenSale() {
     if (!decodedText.startsWith('0x')) return;
 
     enqueueSnackbar('Transfer token to :' + decodedText);
+    clearTimeout(myTimeout);
     navigate('/sales/transfer/', { state: { token: token, address: decodedText  }});
   };
+
+  const cancel = () => {
+    const params = new URLSearchParams({id: token.id, lock: false})
+    fetch(lockUrl + params.toString(), {method: 'PUT'});
+    navigate(-1);
+  };
+
+  const myTimeout = setTimeout(cancel, 8000);
 
   if (token === undefined)
     return (
@@ -39,6 +51,7 @@ function TokenSale() {
                   disableFlip={false}
                   qrCodeSuccessCallback={onNewScanResult}
           />
+          <Button onClick={cancel}>Cancel</Button>
         </main>
       </>
     );
