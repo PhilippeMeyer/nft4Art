@@ -13,7 +13,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { useState } from "react";
 
 const NavbarManager = () => {
-  const navigateTo = [ '/manager/tokens', '/manager/wallets', '/manager/contracts', '/manager/pointOfSale', '/' ];
+  const navigateTo = [ '/manager/tokens', '/manager/wallets', '/manager/contracts', '/manager/pointOfSale', '/login' ];
 
   const location = useLocation();
   const navigate = useNavigate();
