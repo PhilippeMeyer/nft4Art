@@ -9,7 +9,7 @@ const wsMiddleware = store => next => action => {
 
 
     if(startConnecting.match(action)) {
-        if (store.isEstablishingConnection) return
+        if (store.getState().token.isEstablishingConnection) return next(action);
         
         ws  = new WebSocket(wsServer);
 
