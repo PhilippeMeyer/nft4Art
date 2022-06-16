@@ -653,6 +653,7 @@ setInterval(() => {
 
 app.put('/lockUnlock', async (req :Request, res :Response) => {
 	let meta: any = metasMap.get(req.query.id);
+	let lock: any = req.query.lock;
 
 	if (typeof meta === null) {
 		console.log('error: non existing token ' + req.query.id);
@@ -660,7 +661,7 @@ app.put('/lockUnlock', async (req :Request, res :Response) => {
 		return;
 	}
 
-	meta.isLocked = !meta.isLocked;
+	meta.isLocked = lock == 'true' ? true : false; 
 	sendLock(req.query.id as string, meta.isLocked);
 	tokens.update(meta);
 	res.status(204).send();
