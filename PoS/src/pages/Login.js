@@ -14,7 +14,7 @@ import { useSnackbar } from 'notistack';
 import { v4 as uuidv4 } from 'uuid';
 import {browserName, browserVersion} from 'react-device-detect';
 import { useDispatch } from 'react-redux'
-import { storeJwt, startConnecting } from '../store/tokenSlice'
+import { storeJwt, startConnecting, storeDevice } from '../store/tokenSlice'
 
 import logo from './nft.png';
 
@@ -36,7 +36,11 @@ function Login() {
         setConstructorHasRun(true);
 
         let device = localStorage.getItem(deviceItemId);
-        if(device != null) setDeviceId(JSON.parse(device));
+        if(device != null) {
+          let dev = JSON.parse(device);
+          setDeviceId(JSON.parse(device));
+          dispatch(storeDevice(dev));
+        }
     };
 
     const characteristicsDevice = () => {
@@ -78,6 +82,7 @@ function Login() {
             if (response.ok) {
                 if (deviceId == null) {
                     setDeviceId(obj);
+                    dispatch(storeDevice(obj));
                     localStorage.setItem(deviceItemId, JSON.stringify(obj, filterPassword)); 
                 }
                 dispatch(storeJwt((responseJson.accessToken)));
