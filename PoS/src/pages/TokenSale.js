@@ -11,7 +11,6 @@ const lockUrl = httpServer + 'lockUnlock?';
 function TokenSale() {
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -42,7 +41,7 @@ function TokenSale() {
     return (
       <>
         <main>
-          <h2>Sale of token #{id} </h2>
+          <h2>Sale of token #{token.id} </h2>
           <h2>Token price: {token.price}<b></b></h2>
           <p>When the cash transaction is completed, please scan the customer's personnal address</p>
           <QRcodeScanner
