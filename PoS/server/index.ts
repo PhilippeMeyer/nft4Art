@@ -301,8 +301,11 @@ app.post('/apiV1/auth/registerPoS', function (req :Request, res :Response) {
 // server to unlock the wallet, the ende point returns a 403
 //
 app.post('/apiV1/auth/signin', function (req :Request, res :Response) {
-	logger.info('server.signin %s', req.body.device.deviceId);
-	// Check if a password has been provided
+	let dev: any = req.body.device;
+	dev.ip = req.ip;
+	logger.info('server.signin %s %s', dev.deviceId, dev.ip);
+
+	// Check if a password has been provided -> the user is attempting to login as manager
 	if (req.body.password) {
 		let pass: string = req.body.password as string;
 
@@ -312,8 +315,8 @@ app.post('/apiV1/auth/signin', function (req :Request, res :Response) {
 			Wallet.fromEncryptedJson(jsonWallet.toString(), pass)
 				.then(function(data) { 
 					loadWallet(data, pass);
-					req.body.device.authorized = true;
-					registerPoS(req.body.device, pass, res);
+					dev.authorized = true;
+					registerPoS(dev, pass, res);
 				})
 				.catch(function(data) { 
 					logger.info('server.signin.wrongCredentials');
@@ -326,8 +329,8 @@ app.post('/apiV1/auth/signin', function (req :Request, res :Response) {
 			}
 			else {				// The credentials are Ok -> register the device
 				logger.info('server.signin.registerPoS');
-				req.body.device.authorized = true;
-				registerPoS(req.body.device, req.body.password, res);
+				dev.authorized = true;
+				registerPoS(dev, req.body.password, res);
 			}
 		}
 	} else {
@@ -337,7 +340,7 @@ app.post('/apiV1/auth/signin', function (req :Request, res :Response) {
 		}
 		else {					// The wallet is loaded, the server can accept connections. We verify that this PoS has been registered
 			logger.info('server.signin.registerPoS');
-			registerPoS(req.body.device, req.body.password, res);
+			registerPoS(dev, req.body.password, res);
 		}
 	}
 });
@@ -349,7 +352,6 @@ function loadWallet(w: Wallet, pass: string) {
 
 	metas.forEach( async (nft: any) => {
 		let balance = await token.balanceOf(wallet.address, nft.tokenId);
-		console.log('balance: ' + nft.tokenId)
 		nft.availableTokens = balance.toString();
 		if (balance.isZero()) nft.isLocked = true;
 	});
@@ -375,7 +377,7 @@ function registerPoS(device: any, pass: string, res: any) {
 			res.status(403).json({error: {name: 'posNotAuthorized', message: 'The Point of Sale has not been authorized'}});
 			return;
 		} else {						// This is a new PoS connected with the manager's login -> register
-			logger.info('server.signin.newPoS', device);
+			logger.info('server.signin.newPoS %s', device);
 			device.authorized = true;
 			registeredPoS.insert(device);
 			var token = jwt.sign({ id: device.deviceId, manager: manager }, config.secret, { expiresIn: jwtExpiry });
@@ -389,7 +391,7 @@ function registerPoS(device: any, pass: string, res: any) {
 			return;
 		}
 		else {							// The PoS is authorized -> Ok
-			logger.info('server.signin.success', device);
+			logger.info('server.signin.success %s', device);
 			var token = jwt.sign({ id: device.deviceId, manager: manager}, config.secret, { expiresIn: jwtExpiry });
 			res.status(200).send({ id: device.deviceId, accessToken: token });
 			return;
