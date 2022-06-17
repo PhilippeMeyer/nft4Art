@@ -113,7 +113,7 @@ function Login() {
                 <TextField
                   autoFocus
                   margin="dense"
-                  id="name"
+                  id="password"
                   label="Wallet's password"
                   type="password"
                   fullWidth
