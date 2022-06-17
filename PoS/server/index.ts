@@ -46,6 +46,7 @@ let passHash: string = "";					// Hash of the password. If empty, means that the
 var databaseInitialized = false;			// Is the database initialized? Used to wait for the database init before starting the server
 var registeredPoS: any;						// Database collection of registered point of sale
 var tokens: any;							// Database collection of tokens
+var saleEvents: any;						// Database collection of events (lock/unlock/transfer/completedTransfer)
 var wallet: Wallet;							// Wallet 
 let ethProvider: providers.JsonRpcProvider;	// Connection provider to Ethereum
 let token: Contract;						// Proxy to the Nft
@@ -89,15 +90,27 @@ var db = new Loki( config.database, {
 // When the database is initialized, the flag is set so that the server can start
 
 function loadHandler() {
-  // if database did not exist it will be empty so I will intitialize here
-  registeredPoS = db.getCollection('registeredPoS');
-  if (registeredPoS === null) registeredPoS = db.addCollection('registeredPoS');
-  tokens = db.getCollection('tokens');
-  if (tokens === null) tokens = db.addCollection('tokens'); 
+	// if database did not exist it will be empty so I will intitialize here
+	registeredPoS = db.getCollection('registeredPoS');
+	if (registeredPoS === null) registeredPoS = db.addCollection('registeredPoS');
+	tokens = db.getCollection('tokens');
+	if (tokens === null) tokens = db.addCollection('tokens'); 
+	saleEvents = db.getCollection('saleEvents');
+	if (saleEvents === null) saleEvents = db.addCollection('saleEvents');
 
-  databaseInitialized = true;
+  	databaseInitialized = true;
 }
 
+export class saleEventRecord {
+    constructor(
+		public typeMsg: string,
+        public id: string,
+		public isLocked : boolean,
+		public isTransfered?: boolean,
+		public isFinalized? : boolean,
+		public txId? : string 
+    ) { }
+}
 
 function noOp() {};
 
@@ -476,6 +489,22 @@ app.get('/apiV1/auth/registeredPoS', verifyTokenManager, function(req :Request, 
 });
 
 //
+// /apiV1/log/allEvents
+//
+// This end point sends back the registered PoS
+//
+app.get('/apiV1/log/allEvents', verifyTokenManager, function(req :Request, res :Response) {
+	let start: Date = new Date();
+	start.setUTCHours(0,0,0,0);
+	let end: Date = new Date();
+	end.setUTCHours(23,59,59,999);
+		
+	//var results: any = saleEvents.find({when: {between: [start, end]}});
+	var results: any = saleEvents.find({'meta.created': { $between: [start.getTime(), end.getTime()] }});
+	res.status(200).json(results);
+});
+
+//
 // /apiV1/auth/authorizePoS, parameter: PoS, the name of the PoS, authorized: true or false
 //
 // This end point sends back the registered PoS
@@ -623,10 +652,10 @@ export class PriceMessage {
     ) { }
 }
 
-wss.on('connection', (ws: WebSocket) => {
+wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const extWs = ws as ExtWebSocket;
 
-	logger.info('server.ws.connection %s', extWs);
+	logger.info('server.ws.connection %s', req.socket.remoteAddress);
     extWs.isAlive = true;
 
     ws.on('pong', () => {
@@ -652,18 +681,20 @@ setInterval(() => {
 
 
 app.put('/lockUnlock', async (req :Request, res :Response) => {
-	let meta: any = metasMap.get(req.query.id);
+	let id: any = req.query.id;
+	let token: any = metasMap.get(id);
 	let lock: any = req.query.lock;
 
-	if (typeof meta === null) {
+	if (typeof token === null) {
 		console.log('error: non existing token ' + req.query.id);
 		res.status(404).send();
 		return;
 	}
 
-	meta.isLocked = lock == 'true' ? true : false; 
-	sendLock(req.query.id as string, meta.isLocked);
-	tokens.update(meta);
+	token.isLocked = lock == 'true' ? true : false; 
+	saleEvents.insert(new saleEventRecord('lock', id, lock));
+	sendLock(req.query.id as string, token.isLocked);
+	tokens.update(token);
 	res.status(204).send();
 });
 
