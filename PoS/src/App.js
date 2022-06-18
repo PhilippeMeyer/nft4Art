@@ -14,7 +14,7 @@ import Contracts from './pages/Contracts';
 import TokensMap from "./pages/TokensMap";
 import TokenSale from "./pages/TokenSale";
 import TokenTransfer from "./pages/TokenTransfer";
-import PoS from './pages/PoS';
+import RegisteredPoS from './pages/RegisteredPoS';
 import './App.css';
 
 
@@ -37,7 +37,7 @@ function App() {
             <Route path="/manager/tokens" element={<PrivateRoute><Tokens /></PrivateRoute>} />
             <Route path="/manager/wallets" element={<PrivateRoute><Wallets /></PrivateRoute>} />
             <Route path="/manager/contracts" element={<PrivateRoute><Contracts /></PrivateRoute>} />
-            <Route path="/manager/pointOfSale" element={<PrivateRoute><PoS /></PrivateRoute>} />
+            <Route path="/manager/pointOfSale" element={<PrivateRoute><RegisteredPoS /></PrivateRoute>} />
             <Route path="/sales/map" element={<PrivateRoute><TokensMap /></PrivateRoute>} />
             <Route path="/sales/token/:id" element={<TokenSale />} />
             <Route path="/sales/transfer" element={<TokenTransfer />} />
