@@ -38,7 +38,6 @@ function RegisteredPoS() {
         { field: 'ip', headerName: 'IP address', width: 150},
         { field: 'authorized', headerName: 'Authorized', width: 100, 
             renderCell: (params) => {
-                //console.log(params);
                 let disabled = (params.id == device.device.deviceId);
                 return (
                 <Checkbox
@@ -47,10 +46,19 @@ function RegisteredPoS() {
                     disableFocusRipple
                     onClick={() => handleToggleCompleted(params)}
                     disabled={disabled}
-                />
-                );
+                /> );
             }, 
         },
+        { field: 'isConnected', headerName: 'Connected', width: 100,
+            renderCell: (params) => (
+                <Checkbox
+                    checked={params.value || false}
+                    disableRipple
+                    disableFocusRipple
+                    disabled={true}
+                />
+            )
+        }, 
         { field: 'meta', headerName: 'Date', width: 250,
             valueFormatter: (params) => { return new Date(params.value.created).toISOString();} },
     ];
@@ -71,7 +79,7 @@ function RegisteredPoS() {
   
     return (
         <>
-            <div style={{ height: 500, width: 1000 }}>
+            <div style={{ height: 500, width: 1100 }}>
                 <DataGrid
                     rows={data}
                     columns={columns}

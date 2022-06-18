@@ -392,6 +392,8 @@ function registerPoS(device: any, pass: string, res: any) {
 		}
 		else {							// The PoS is authorized -> Ok
 			logger.info('server.signin.success %s', device);
+			pos.ip = device.ip;			// Updating the client's ip address
+			registeredPoS.update(pos);
 			var token = jwt.sign({ id: device.deviceId, manager: manager}, config.secret, { expiresIn: jwtExpiry });
 			res.status(200).send({ id: device.deviceId, accessToken: token });
 			return;
@@ -484,7 +486,7 @@ app.put('/apiV1/price/updates', verifyTokenManager, function(req :Request, res :
 //
 // /apiV1/auth/registeredPoS
 //
-// This end point sends back the registered PoS
+// This end point sends back all the registered PoS
 //
 app.get('/apiV1/auth/registeredPoS', verifyTokenManager, function(req :Request, res :Response) {
 	res.status(200).json(registeredPoS.find());
@@ -622,6 +624,8 @@ app.get('/apiV1/generateWallets', verifyTokenManager, async function(req :Reques
 
 interface ExtWebSocket extends WebSocket {
     isAlive: boolean;
+	address: string;
+	pos: any;
 }
 
 function sendLock(id: string, isLocked: boolean) {
@@ -657,15 +661,40 @@ export class PriceMessage {
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const extWs = ws as ExtWebSocket;
 
-	logger.info('server.ws.connection %s', req.socket.remoteAddress);
+	extWs.address = req.socket.remoteAddress as string;
+	logger.info('server.ws.connection %s', extWs.address);
+	const pos: any = registeredPoS.findOne({ip: extWs.address});
+	if (pos == null) {
+		logger.warning('server.ws.connection.rejected %s', extWs.address);
+		ws.close();
+		return;
+	}
+	if (!pos.authorized) {
+		logger.warning('server.ws.connection.unauthorized %s', extWs.address);
+		ws.close();
+		return;
+	}
+
+	pos.isConnected = true;
+	registeredPoS.update(pos);
+	extWs.pos = pos;
+
     extWs.isAlive = true;
 
-    ws.on('pong', () => {
+    extWs.on('pong', () => {
         extWs.isAlive = true;
     });
 
- 	ws.on('error', (err) => {
-        logger.warn('server.ws.disconnection %s', err);
+	extWs.on('error', (err) => {
+        logger.warn('server.ws.disconnection %s %s', err, extWs.address);
+		extWs.pos.isConnected = false;
+		registeredPoS.update(pos);
+    })
+
+	extWs.on('close', (code: any, buffer: any) => {
+        logger.info('server.ws.close %s', buffer);
+		extWs.pos.isConnected = false;
+		registeredPoS.update(pos);
     })
 });
 
