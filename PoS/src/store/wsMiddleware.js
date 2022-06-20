@@ -1,8 +1,7 @@
 import { StateManagerFactory } from 'html5-qrcode/esm/state-manager';
 import { startConnecting, connectionEstalished, updatePrice, updateLock } from './tokenSlice'
 
-const wsServer = process.env.REACT_APP_WS_SERVER;
-
+const wsServer = process.env.REACT_APP_WS_SERVER || "ws://" + window.location.host;
 
 const wsMiddleware = store => next => action => {
     let ws;
@@ -10,7 +9,7 @@ const wsMiddleware = store => next => action => {
 
     if(startConnecting.match(action)) {
         if (store.getState().token.isEstablishingConnection) return next(action);
-        
+        console.log('middleware - startConnect to: ', wsServer);
         ws  = new WebSocket(wsServer);
 
         ws.onopen = () => {
