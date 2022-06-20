@@ -570,6 +570,13 @@ app.post('/apiV1/sale/transfer', verifyToken, async function(req :RequestCustom,
 				.then((transactionReceipt: TransactionReceipt) => {
 					saleEvents.insert(new saleEventRecord('transferCompleted', req.body.tokenId as string , true, destinationAddress, true, true, transactionReceipt.transactionHash));
 					logger.info('server.transfer.performed token %s destination %s - TxHash: %s', tokenId, destinationAddress, transactionReceipt.transactionHash);
+					// Update the balance once the transfer has been performed
+					let balance = await token.balanceOf(wallet.address, tokenId);
+					nft.availableTokens = balance.toString();
+					if (balance.isZero()) {
+						nft.isLocked = true;
+						sendLock(tokenId, true);
+					}
 				})
 		})
 		.catch((error: errors) => {
