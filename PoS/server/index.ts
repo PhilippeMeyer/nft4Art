@@ -472,19 +472,7 @@ app.put('/apiV1/price/updates', verifyTokenManager, function(req :Request, res :
 	var tokensUpdate = req.body;
 	console.log(tokensUpdate);
 	if (tokensUpdate.length == 0) { res.sendStatus(400); return; }
-/*
-	for (let i = 0 ; i < tokensUpdate.length ; i++) {
-		var token: any = tokens.findOne({id: tokensUpdate[i].id});
-		if (token == null) {
-			res.status(404).json({error: {name: 'tokenNotFound', message: `The specified token ${tokensUpdate[i].tokenId} is not in the database`}});
-			return;
-		}
 
-		token.price = tokensUpdate[i].price;
-		tokens.update(token);
-		sendPrice(token.id, token.price);
-	}
-*/
 	tokensUpdate.forEach((item: any) => {
 		var token: any = tokens.findOne({id: item.id});
 		if (token == null) {
