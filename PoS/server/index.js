@@ -20,20 +20,22 @@ const webSite = 'http://192.168.1.5:8999';
 const imgUrl = webSite + '/image?id=';
 const iconUrl = webSite + '/icon?id=';
 const jwtExpiry = 60 * 60;
-var config = {};
-config.secret = "nft4Artsessionsecret";
-config.walletFileName = 'wallet.json';
-config.database = 'nft4Art.json';
-config.infuraKey = '1d5baee48e63437682fcd58d6b1ad730';
-config.network = 'rinkeby';
-config.addressToken = '0xCd4BE43E6200e894e2F2DFCF9737726015ced3e2';
-config.cacheFolder = './cache/';
 const ERC1155ABI = [{ "inputs": [{ "internalType": "string", "name": "name_", "type": "string" }, { "internalType": "string", "name": "symbol_", "type": "string" }, { "internalType": "address", "name": "proxyAddr_", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "account", "type": "address" }, { "indexed": true, "internalType": "address", "name": "operator", "type": "address" }, { "indexed": false, "internalType": "bool", "name": "approved", "type": "bool" }], "name": "ApprovalForAll", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "operator", "type": "address" }, { "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256[]", "name": "ids", "type": "uint256[]" }, { "indexed": false, "internalType": "uint256[]", "name": "values", "type": "uint256[]" }], "name": "TransferBatch", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "operator", "type": "address" }, { "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "TransferSingle", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "string", "name": "value", "type": "string" }, { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" }], "name": "URI", "type": "event" }, { "inputs": [], "name": "BOUQUET", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "COFFEE", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "FLOWER", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "GLOBAL", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "SUNSET", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }, { "internalType": "uint256", "name": "id", "type": "uint256" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address[]", "name": "accounts", "type": "address[]" }, { "internalType": "uint256[]", "name": "ids", "type": "uint256[]" }], "name": "balanceOfBatch", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }, { "internalType": "address", "name": "operator", "type": "address" }], "name": "isApprovedForAll", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256[]", "name": "ids", "type": "uint256[]" }, { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }, { "internalType": "bytes", "name": "data", "type": "bytes" }], "name": "safeBatchTransferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "id", "type": "uint256" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }, { "internalType": "bytes", "name": "data", "type": "bytes" }], "name": "safeTransferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "operator", "type": "address" }, { "internalType": "bool", "name": "approved", "type": "bool" }], "name": "setApprovalForAll", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }], "name": "supportsInterface", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_tokenId", "type": "uint256" }], "name": "uri", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }];
+var config = {};
+config.secret = process.env.APP_SECRET;
+config.walletFileName = process.env.APP_WALLET_FILE;
+config.database = process.env.APP_DB_FILE;
+config.infuraKey = process.env.APP_INFURA_KEY;
+config.network = process.env.APP_NETWORK;
+config.addressToken = process.env.APP_TOKEN_ADDR;
+config.cacheFolder = process.env.APP_CACHE_FOLDER;
+console.log(config);
 // Global variables
 let passHash = ""; // Hash of the password. If empty, means that the wallet has not been loaded
 var databaseInitialized = false; // Is the database initialized? Used to wait for the database init before starting the server
 var registeredPoS; // Database collection of registered point of sale
 var tokens; // Database collection of tokens
+var saleEvents; // Database collection of events (lock/unlock/transfer/completedTransfer)
 var wallet; // Wallet 
 let ethProvider; // Connection provider to Ethereum
 let token; // Proxy to the Nft
@@ -73,7 +75,30 @@ function loadHandler() {
     tokens = db.getCollection('tokens');
     if (tokens === null)
         tokens = db.addCollection('tokens');
+    saleEvents = db.getCollection('saleEvents');
+    if (saleEvents === null)
+        saleEvents = db.addCollection('saleEvents');
     databaseInitialized = true;
+}
+export class saleEventRecord {
+    typeMsg;
+    id;
+    isLocked;
+    destinationAddr;
+    isTransfered;
+    isFinalized;
+    txId;
+    error;
+    constructor(typeMsg, id, isLocked, destinationAddr, isTransfered, isFinalized, txId, error) {
+        this.typeMsg = typeMsg;
+        this.id = id;
+        this.isLocked = isLocked;
+        this.destinationAddr = destinationAddr;
+        this.isTransfered = isTransfered;
+        this.isFinalized = isFinalized;
+        this.txId = txId;
+        this.error = error;
+    }
 }
 function noOp() { }
 ;
@@ -231,8 +256,10 @@ app.post('/apiV1/auth/registerPoS', function (req, res) {
 // server to unlock the wallet, the ende point returns a 403
 //
 app.post('/apiV1/auth/signin', function (req, res) {
-    logger.info('server.signin %s', req.body.device.deviceId);
-    // Check if a password has been provided
+    let dev = req.body.device;
+    dev.ip = req.ip;
+    logger.info('server.signin %s %s', dev.deviceId, dev.ip);
+    // Check if a password has been provided -> the user is attempting to login as manager
     if (req.body.password) {
         let pass = req.body.password;
         if (passHash == "") { // The password has not been provided yet -> try to unlock the wallet
@@ -240,8 +267,8 @@ app.post('/apiV1/auth/signin', function (req, res) {
             Wallet.fromEncryptedJson(jsonWallet.toString(), pass)
                 .then(function (data) {
                 loadWallet(data, pass);
-                req.body.device.authorized = true;
-                registerPoS(req.body.device, pass, res);
+                dev.authorized = true;
+                registerPoS(dev, pass, res);
             })
                 .catch(function (data) {
                 logger.info('server.signin.wrongCredentials');
@@ -255,8 +282,8 @@ app.post('/apiV1/auth/signin', function (req, res) {
             }
             else { // The credentials are Ok -> register the device
                 logger.info('server.signin.registerPoS');
-                req.body.device.authorized = true;
-                registerPoS(req.body.device, req.body.password, res);
+                dev.authorized = true;
+                registerPoS(dev, req.body.password, res);
             }
         }
     }
@@ -267,17 +294,18 @@ app.post('/apiV1/auth/signin', function (req, res) {
         }
         else { // The wallet is loaded, the server can accept connections. We verify that this PoS has been registered
             logger.info('server.signin.registerPoS');
-            registerPoS(req.body.device, req.body.password, res);
+            registerPoS(dev, req.body.password, res);
         }
     }
 });
 function loadWallet(w, pass) {
-    wallet = w;
+    wallet = w.connect(ethProvider);
+    ;
     logger.info('server.signin.loadedWallet');
     passHash = utils.keccak256(utils.toUtf8Bytes(pass));
+    //console.log(w.mnemonic);
     metas.forEach(async (nft) => {
         let balance = await token.balanceOf(wallet.address, nft.tokenId);
-        console.log('balance: ' + nft.tokenId);
         nft.availableTokens = balance.toString();
         if (balance.isZero())
             nft.isLocked = true;
@@ -303,7 +331,7 @@ function registerPoS(device, pass, res) {
             return;
         }
         else { // This is a new PoS connected with the manager's login -> register
-            logger.info('server.signin.newPoS', device);
+            logger.info('server.signin.newPoS %s', device);
             device.authorized = true;
             registeredPoS.insert(device);
             var token = jwt.sign({ id: device.deviceId, manager: manager }, config.secret, { expiresIn: jwtExpiry });
@@ -318,7 +346,9 @@ function registerPoS(device, pass, res) {
             return;
         }
         else { // The PoS is authorized -> Ok
-            logger.info('server.signin.success', device);
+            logger.info('server.signin.success %s', device);
+            pos.ip = device.ip; // Updating the client's ip address
+            registeredPoS.update(pos);
             var token = jwt.sign({ id: device.deviceId, manager: manager }, config.secret, { expiresIn: jwtExpiry });
             res.status(200).send({ id: device.deviceId, accessToken: token });
             return;
@@ -387,25 +417,39 @@ app.put('/apiV1/price/updates', verifyTokenManager, function (req, res) {
         res.sendStatus(400);
         return;
     }
-    for (let i = 0; i < tokensUpdate.length; i++) {
-        var token = tokens.findOne({ id: tokensUpdate[i].id });
+    tokensUpdate.forEach((item) => {
+        var token = tokens.findOne({ id: item.id });
         if (token == null) {
-            res.status(404).json({ error: { name: 'tokenNotFound', message: `The specified token ${tokensUpdate[i].tokenId} is not in the database` } });
+            res.status(404).json({ error: { name: 'tokenNotFound', message: `The specified token ${item.tokenId} is not in the database` } });
             return;
         }
-        token.price = tokensUpdate[i].price;
+        token.price = item.price;
         tokens.update(token);
         sendPrice(token.id, token.price);
-    }
+    });
     res.sendStatus(200);
 });
 //
 // /apiV1/auth/registeredPoS
 //
-// This end point sends back the registered PoS
+// This end point sends back all the registered PoS
 //
 app.get('/apiV1/auth/registeredPoS', verifyTokenManager, function (req, res) {
     res.status(200).json(registeredPoS.find());
+});
+//
+// /apiV1/log/allEvents
+//
+// This end point sends back the registered PoS
+//
+app.get('/apiV1/log/allEvents', verifyTokenManager, function (req, res) {
+    let start = new Date();
+    start.setUTCHours(0, 0, 0, 0);
+    let end = new Date();
+    end.setUTCHours(23, 59, 59, 999);
+    //var results: any = saleEvents.find({when: {between: [start, end]}});
+    var results = saleEvents.find({ 'meta.created': { $between: [start.getTime(), end.getTime()] } });
+    res.status(200).json(results);
 });
 //
 // /apiV1/auth/authorizePoS, parameter: PoS, the name of the PoS, authorized: true or false
@@ -437,15 +481,46 @@ app.put('/apiV1/auth/authorizePoS', verifyTokenManager, function (req, res) {
 // It performs the Blockchain transaction
 //
 app.post('/apiV1/sale/transfer', verifyToken, async function (req, res) {
-    const tokenAddr = req.body.tokenId.substr(0, 42);
-    const tokenId = req.body.substr(42);
+    const tokenAddr = req.body.tokenAddr;
+    const tokenId = req.body.tokenId;
     const destinationAddress = req.body.destinationAddress;
-    logger.info('server.transfer.requested token %s destination %s', tokenId, destinationAddress);
+    console.log('transfer tokenId: ', tokenAddr, tokenId, destinationAddress);
+    logger.info('server.transfer.requested - token: %s, destination: %s', tokenId, destinationAddress);
+    saleEvents.insert(new saleEventRecord('transferRequest', req.body.tokenId, true, destinationAddress));
     let tokenWithSigner = token.connect(wallet);
-    let tx = await tokenWithSigner.safeTransferFrom(wallet.address, destinationAddress, tokenId, 1);
-    await tx.wait();
-    res.status(200).json({ txHash: tx.hash });
-    logger.info('server.transfer.performed token %s destination %s - TxHash: %s', tokenId, destinationAddress, tx.hash);
+    console.log(tokenWithSigner);
+    console.log('token');
+    console.log(token);
+    console.log('wallet');
+    console.log(wallet);
+    tokenWithSigner.safeTransferFrom(wallet.address, destinationAddress, tokenId, 1, [])
+        .then((transferResult) => {
+        res.sendStatus(200);
+        saleEvents.insert(new saleEventRecord('transferInitiated', req.body.tokenId, true, destinationAddress, true));
+        logger.info('server.transfer.initiated - token: %s, destination: %s', tokenId, destinationAddress);
+        transferResult.wait()
+            .then((transactionReceipt) => {
+            saleEvents.insert(new saleEventRecord('transferCompleted', req.body.tokenId, true, destinationAddress, true, true, transactionReceipt.transactionHash));
+            logger.info('server.transfer.performed token %s destination %s - TxHash: %s', tokenId, destinationAddress, transactionReceipt.transactionHash);
+            // Update the balance once the transfer has been performed
+            token.balanceOf(wallet.address, tokenId)
+                .then((balance) => {
+                const tk = metasMap.get(tokenAddr + tokenId);
+                if (tk != null) {
+                    tk.availableTokens = balance.toString();
+                    if (balance.isZero()) {
+                        tk.isLocked = true;
+                        sendLock(tokenId, true);
+                    }
+                }
+            });
+        });
+    })
+        .catch((error) => {
+        res.status(412).json(error);
+        logger.error('server.transfer.error %s', error);
+        saleEvents.insert(new saleEventRecord('transferInitiated', req.body.tokenId, true, destinationAddress, false, false, undefined, error));
+    });
 });
 app.get('/apiV1/generateWallets', verifyTokenManager, async function (req, res) {
     let nbWallets = 10;
@@ -541,15 +616,37 @@ export class PriceMessage {
         this.price = price;
     }
 }
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
     const extWs = ws;
-    logger.info('server.ws.connection %s', extWs);
+    extWs.address = req.socket.remoteAddress;
+    logger.info('server.ws.connection %s', extWs.address);
+    const pos = registeredPoS.findOne({ ip: extWs.address });
+    if (pos == null) {
+        logger.warning('server.ws.connection.rejected %s', extWs.address);
+        ws.close();
+        return;
+    }
+    if (!pos.authorized) {
+        logger.warning('server.ws.connection.unauthorized %s', extWs.address);
+        ws.close();
+        return;
+    }
+    pos.isConnected = true;
+    registeredPoS.update(pos);
+    extWs.pos = pos;
     extWs.isAlive = true;
-    ws.on('pong', () => {
+    extWs.on('pong', () => {
         extWs.isAlive = true;
     });
-    ws.on('error', (err) => {
-        logger.warn('server.ws.disconnection %s', err);
+    extWs.on('error', (err) => {
+        logger.warn('server.ws.disconnection %s %s', err, extWs.address);
+        extWs.pos.isConnected = false;
+        registeredPoS.update(pos);
+    });
+    extWs.on('close', (code, buffer) => {
+        logger.info('server.ws.close %s', buffer);
+        extWs.pos.isConnected = false;
+        registeredPoS.update(pos);
     });
 });
 setInterval(() => {
@@ -562,16 +659,18 @@ setInterval(() => {
     });
 }, 10000);
 app.put('/lockUnlock', async (req, res) => {
-    let meta = metasMap.get(req.query.id);
+    let id = req.query.id;
+    let token = metasMap.get(id);
     let lock = req.query.lock;
-    if (typeof meta === null) {
+    if (typeof token === null) {
         console.log('error: non existing token ' + req.query.id);
         res.status(404).send();
         return;
     }
-    meta.isLocked = lock == 'true' ? true : false;
-    sendLock(req.query.id, meta.isLocked);
-    tokens.update(meta);
+    token.isLocked = lock == 'true' ? true : false;
+    saleEvents.insert(new saleEventRecord('lock', id, lock));
+    sendLock(req.query.id, token.isLocked);
+    tokens.update(token);
     res.status(204).send();
 });
 //
@@ -647,8 +746,7 @@ async function init() {
     // Retrieve the icons, looking at the cache in case the icon has been already retrieved
     //
     let buf;
-    for (i = 0; i < metas.length; i++) {
-        const meta = metas[i];
+    metas.forEach(async (meta) => {
         let cid = config.cacheFolder + meta.image.replace('ipfs://', ''); // We remove the ipfs prefix to only keep the cid
         let icon = meta.image.replace('ipfs', 'https').concat('.ipfs.dweb.link'); // We form an url for dweb containing the ipfs cid
         try {
@@ -668,12 +766,11 @@ async function init() {
             logger.error('server.init.loadIcons %s', error);
         }
         meta.iconUrl = iconUrl + meta.addr + meta.id; // Reference the icon's url
-    }
+    });
     //
     // Retrieve the images, looking at the cache in case the image has been already retrieved
     //
-    for (i = 0; i < metas.length; i++) {
-        const meta = metas[i];
+    metas.forEach(async (meta) => {
         let cid = config.cacheFolder + meta.image_raw.replace('ipfs://', '');
         try {
             if (fs.existsSync(cid)) {
@@ -693,5 +790,5 @@ async function init() {
             logger.error('server.init.loadIcons %s', error);
         }
         meta.imgUrl = imgUrl + meta.addr + meta.id;
-    }
+    });
 }

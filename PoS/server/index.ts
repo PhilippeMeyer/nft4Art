@@ -38,25 +38,25 @@ config.cacheFolder = process.env.APP_CACHE_FOLDER;
 
 export interface RequestCustom extends Request
 {
-    	deviceId?: string;
+    deviceId?: string;
 	manager?: string;
 }
 
 // Global variables
 
-let passHash: string = "";					// Hash of the password. If empty, means that the wallet has not been loaded
+let passHash: string = "";						// Hash of the password. If empty, means that the wallet has not been loaded
 var databaseInitialized = false;				// Is the database initialized? Used to wait for the database init before starting the server
-var registeredPoS: any;						// Database collection of registered point of sale
-var tokens: any;						// Database collection of tokens
-var saleEvents: any;						// Database collection of events (lock/unlock/transfer/completedTransfer)
-var wallet: Wallet;						// Wallet 
-let ethProvider: providers.JsonRpcProvider;			// Connection provider to Ethereum
-let token: Contract;						// Proxy to the Nft
-let metas: Object[] = [];					// list of the Nfts loaded from the smart contract
-let metasMap = new Map();					// Same but as a map
-let icons = new Map();						// Icons of the Nfts
-let images = new Map();						// Images of the Nfts
-var wait_on = 0;						// pdf files synchronization
+var registeredPoS: any;							// Database collection of registered point of sale
+var tokens: any;								// Database collection of tokens
+var saleEvents: any;							// Database collection of events (lock/unlock/transfer/completedTransfer)
+var wallet: Wallet;								// Wallet 
+let ethProvider: providers.JsonRpcProvider;		// Connection provider to Ethereum
+let token: Contract;							// Proxy to the Nft
+let metas: Object[] = [];						// list of the Nfts loaded from the smart contract
+let metasMap = new Map();						// Same but as a map
+let icons = new Map();							// Icons of the Nfts
+let images = new Map();							// Images of the Nfts
+var wait_on = 0;								// pdf files synchronization
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -571,12 +571,17 @@ app.post('/apiV1/sale/transfer', verifyToken, async function(req :RequestCustom,
 					saleEvents.insert(new saleEventRecord('transferCompleted', req.body.tokenId as string , true, destinationAddress, true, true, transactionReceipt.transactionHash));
 					logger.info('server.transfer.performed token %s destination %s - TxHash: %s', tokenId, destinationAddress, transactionReceipt.transactionHash);
 					// Update the balance once the transfer has been performed
-					let balance = await token.balanceOf(wallet.address, tokenId);
-					nft.availableTokens = balance.toString();
-					if (balance.isZero()) {
-						nft.isLocked = true;
-						sendLock(tokenId, true);
-					}
+					token.balanceOf(wallet.address, tokenId)
+						.then((balance: any) => {
+							const tk = metasMap.get(tokenAddr + tokenId);
+							if (tk != null) {
+								tk.availableTokens = balance.toString();
+								if (balance.isZero()) {
+									tk.isLocked = true;
+									sendLock(tokenId, true);
+								}	
+							}
+					});
 				})
 		})
 		.catch((error: errors) => {
