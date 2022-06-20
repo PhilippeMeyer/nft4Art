@@ -27,13 +27,13 @@ const jwtExpiry: number = 60 * 60;
 const ERC1155ABI = [{"inputs":[{"internalType":"string","name":"name_","type":"string"},{"internalType":"string","name":"symbol_","type":"string"},{"internalType":"address","name":"proxyAddr_","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256[]","name":"ids","type":"uint256[]"},{"indexed":false,"internalType":"uint256[]","name":"values","type":"uint256[]"}],"name":"TransferBatch","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"id","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"TransferSingle","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"value","type":"string"},{"indexed":true,"internalType":"uint256","name":"id","type":"uint256"}],"name":"URI","type":"event"},{"inputs":[],"name":"BOUQUET","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"COFFEE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"FLOWER","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"GLOBAL","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SUNSET","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"uint256","name":"id","type":"uint256"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address[]","name":"accounts","type":"address[]"},{"internalType":"uint256[]","name":"ids","type":"uint256[]"}],"name":"balanceOfBatch","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256[]","name":"ids","type":"uint256[]"},{"internalType":"uint256[]","name":"amounts","type":"uint256[]"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeBatchTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tokenId","type":"uint256"}],"name":"uri","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
 
 var config : any = {};
-config.secret = process.env.APP_SECRET;
-config.walletFileName = process.env.APP_WALLET_FILE;
-config.database = process.env.APP_DB_FILE;
-config.infuraKey = process.env.APP_INFURA_KEY;
-config.network = process.env.APP_NETWORK;
-config.addressToken = process.env.APP_TOKEN_ADDR;
-config.cacheFolder = process.env.APP_CACHE_FOLDER;
+config.secret = process.env.APP_SECRET;						// Secret used in the JWT tokens
+config.walletFileName = process.env.APP_WALLET_FILE;				// Name of the file containing the shop's wallet
+config.database = process.env.APP_DB_FILE;					// File of the Loki database
+config.infuraKey = process.env.APP_INFURA_KEY;					// Infura key to access Ethereum
+config.network = process.env.APP_NETWORK;					// On which network do we operate
+config.addressTokens = JSON.parse(process.env.APP_TOKEN_ADDR);			// This is an array of the tokens' addresses
+config.cacheFolder = process.env.APP_CACHE_FOLDER;				// Folder used to cache picture anf NFT information
 
 
 export interface RequestCustom extends Request
@@ -178,7 +178,6 @@ const app = express();
 const server = http.createServer(app);
 
 //initialize the WebSocket server instance
-//const wss = new WebSocketServer({ noServer: true });
 const wss = new WebSocketServer({ server: server });
 
 app.use(express.static('public'));
@@ -190,7 +189,6 @@ app.use(expressWinston.logger(logConf));
 
 waitFor(() => databaseInitialized == true).then(() =>
 	server.listen(process.env.PORT || 8999, () => {
-	    //console.log(`Server started on port ${server.address().port} :)`);
 		logger.info('server.started %s', `on port ${process.env.PORT || 8999}`);
 	})
 );
@@ -411,13 +409,29 @@ app.get('/tokens', verifyToken, function (req :Request, res :Response) {
 });
 
 app.get('/token', verifyToken, function (req :Request, res :Response) {
-	console.log(req.query.id);
-	let i = parseInt(req.query.id as string);
-	res.status(200).json(metas[i]);
+	if(req.query.index !== undefined) {
+		let i = parseInt(req.query.id as string);
+		if(i < metas.length) res.status(200).json(metas[i]);
+		else res.sendStatus(404);
+	} else if(req.query.tokenId !== undefined) {
+		out = metas.filter((meta) => meta.tokenId == req.query.tokenId;);
+		if (out.length != 0) res.status(200).json(out);
+		else res.sendStatus(404);
+	} else if (req.query.tokenAddr !== undefined) {
+		out = metas.filter((meta) => meta.addr == req.query.tokenAddr;);
+		if (out.length != 0) res.status(200).json(out);
+		else res.sendStatus(404);
+	}
 });
 
 app.get('/map', function (req :Request, res :Response) {
-	res.sendFile(path.join(__dirname, 'public/mapping_rects.json'));
+	if(req.query.index !== undefined) {
+		let i = parseInt(req.query.id as string);
+		if(i < metas.length) res.sendFile(path.join(__dirname, 'public/maps/' + metas[i].addr + '.json');
+		else res.sendStatus(404);
+	} else if(req.query.tokenAddr !== undefined) {
+		res.sendFile(path.join(__dirname, 'public/maps/' + req.query.tokenAddr + '.json'));
+	} else res.sendFile(path.join(__dirname, 'public/mapping_rects.json'));
 });
 
 app.get('/icon', function (req :Request, res :Response) {
@@ -775,12 +789,19 @@ app.put('/lockUnlock', async (req :Request, res :Response) => {
 //	- the image map (global variable) with the images
 //
 async function init() {
-	// Connect to Infura and connect to the token
+	logger.info('server.init');
+	// Connect to Infura
 	ethProvider = await new providers.InfuraProvider(config.network, config.infuraKey);
-	token = await new Contract(config.addressToken, ERC1155ABI, ethProvider);
-	logger.info('server.init %s', await token.name());
-
+	// Create if needed the cache folder
 	if (!fs.existsSync(config.cacheFolder)) fs.mkdirSync(config.cacheFolder);
+	
+	await config.addressTokens.forEach((addr) => initAToken(addr));
+}
+
+async function initAToken(addrToken: string) {
+	// Connect to the token
+	token = await new Contract(addrToken, ERC1155ABI, ethProvider);
+	logger.info('server.initAToken %s', await token.name());
 	
 	let i: number = 0;
 	let str: string;
@@ -793,22 +814,22 @@ async function init() {
 
 	const events = await token.queryFilter(token.filters.TransferSingle(null, '0x0000000000000000000000000000000000000000'), 0, 'latest');
 	
-	for(i = 0 ; i < events.length ; i++) {
-		str = await token.uri(events[i]?.args?.id);
+	events.forEach((event) => {
+		str = await token.uri(event?.args?.id);
 
 		if (errTimeout == 2) break;														// If we face a timeout we retry twice
 
 		try {
 		
-			data = tokens.findOne({id: config.addressToken + events[i]?.args?.id});		// Store information in the database if not existing
+			data = tokens.findOne({id: addrToken + event?.args?.id});		// Store information in the database if not existing
 			if (data == null) {
 				logger.info('server.init.loadTokens.fromIpfs %s', str)
 				let resp = await axios.get(str);										// The data is not in cache, we retrive the JSON from Ipfs
 				data = resp.data;
-				data.id = config.addressToken + events[i]?.args?.id;
-				data.tokenIdStr = events[i]?.args?.id.toString();
-				data.tokenId = events[i]?.args?.id;
-				data.addr = config.addressToken;
+				data.id = config.addressTokens + event?.args?.id;
+				data.tokenIdStr = event?.args?.id.toString();
+				data.tokenId = event?.args?.id;
+				data.addr = addrToken;
 				data.isLocked = false;
 				data.price = 0
 				tokens.insert(data);
