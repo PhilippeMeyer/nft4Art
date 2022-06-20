@@ -2,7 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import http from 'http';
 import { WebSocketServer, WebSocket} from 'ws';
-import {Wallet, Contract, utils, providers, getDefaultProvider} from 'ethers';
+import { Wallet, Contract, utils, providers, getDefaultProvider, errors } from 'ethers';
+import { Block, TransactionReceipt, TransactionResponse } from "@ethersproject/abstract-provider";
 import fs from 'fs';
 import winston from 'winston';
 import expressWinston  from 'express-winston';
@@ -106,9 +107,11 @@ export class saleEventRecord {
 		public typeMsg: string,
         public id: string,
 		public isLocked : boolean,
+		public destinationAddr?: string,
 		public isTransfered?: boolean,
 		public isFinalized? : boolean,
-		public txId? : string 
+		public txId? : string,
+		public error? : string
     ) { }
 }
 
@@ -346,9 +349,10 @@ app.post('/apiV1/auth/signin', function (req :Request, res :Response) {
 });
 
 function loadWallet(w: Wallet, pass: string) {
-	wallet = w;
+	wallet = w.connect(ethProvider);;
 	logger.info('server.signin.loadedWallet');
 	passHash = utils.keccak256(utils.toUtf8Bytes(pass));
+	//console.log(w.mnemonic);
 
 	metas.forEach( async (nft: any) => {
 		let balance = await token.balanceOf(wallet.address, nft.tokenId);
@@ -468,7 +472,7 @@ app.put('/apiV1/price/updates', verifyTokenManager, function(req :Request, res :
 	var tokensUpdate = req.body;
 	console.log(tokensUpdate);
 	if (tokensUpdate.length == 0) { res.sendStatus(400); return; }
-
+/*
 	for (let i = 0 ; i < tokensUpdate.length ; i++) {
 		var token: any = tokens.findOne({id: tokensUpdate[i].id});
 		if (token == null) {
@@ -480,6 +484,19 @@ app.put('/apiV1/price/updates', verifyTokenManager, function(req :Request, res :
 		tokens.update(token);
 		sendPrice(token.id, token.price);
 	}
+*/
+	tokensUpdate.forEach((item: any) => {
+		var token: any = tokens.findOne({id: item.id});
+		if (token == null) {
+			res.status(404).json({error: {name: 'tokenNotFound', message: `The specified token ${item.tokenId} is not in the database`}});
+			return;
+		}
+
+		token.price = item.price;
+		tokens.update(token);
+		sendPrice(token.id, token.price);
+	});
+
 	res.sendStatus(200);
 });
 
@@ -540,16 +557,37 @@ app.put('/apiV1/auth/authorizePoS', verifyTokenManager, function(req :Request, r
 // It performs the Blockchain transaction
 //
 app.post('/apiV1/sale/transfer', verifyToken, async function(req :RequestCustom, res :Response) {
-	const tokenAddr  = req.body.tokenId.substr(0,42);
-	const tokenId = req.body.substr(42);
-	const destinationAddress = req.body.destinationAddress;
+	const tokenAddr: string  = req.body.tokenAddr;
+	const tokenId: string = req.body.tokenId;
+	const destinationAddress: string = req.body.destinationAddress;
+	console.log('transfer tokenId: ', tokenAddr, tokenId, destinationAddress);
 
-	logger.info('server.transfer.requested token %s destination %s', tokenId, destinationAddress);
+
+	logger.info('server.transfer.requested - token: %s, destination: %s', tokenId, destinationAddress);
+	saleEvents.insert(new saleEventRecord('transferRequest', req.body.tokenId as string , true, destinationAddress));
+
 	let tokenWithSigner = token.connect(wallet);
-	let tx = await tokenWithSigner.safeTransferFrom(wallet.address, destinationAddress, tokenId, 1);
-	await tx.wait();
-	res.status(200).json({txHash: tx.hash});
-	logger.info('server.transfer.performed token %s destination %s - TxHash: %s', tokenId, destinationAddress, tx.hash);
+	console.log(tokenWithSigner);
+	console.log('token');
+	console.log(token);
+	console.log('wallet');
+	console.log(wallet);
+	tokenWithSigner.safeTransferFrom(wallet.address, destinationAddress, tokenId, 1, [])
+		.then((transferResult:  TransactionResponse) => {
+			res.sendStatus(200);
+			saleEvents.insert(new saleEventRecord('transferInitiated', req.body.tokenId as string , true, destinationAddress, true));
+			logger.info('server.transfer.initiated - token: %s, destination: %s', tokenId, destinationAddress);
+			transferResult.wait()
+				.then((transactionReceipt: TransactionReceipt) => {
+					saleEvents.insert(new saleEventRecord('transferCompleted', req.body.tokenId as string , true, destinationAddress, true, true, transactionReceipt.transactionHash));
+					logger.info('server.transfer.performed token %s destination %s - TxHash: %s', tokenId, destinationAddress, transactionReceipt.transactionHash);
+				})
+		})
+		.catch((error: errors) => {
+			res.status(412).json(error);
+			logger.error('server.transfer.error %s', error);
+			saleEvents.insert(new saleEventRecord('transferInitiated', req.body.tokenId as string , true, destinationAddress, false, false, undefined, error ));
+		});
 });
 
 app.get('/apiV1/generateWallets', verifyTokenManager, async function(req :Request, res :Response) {
@@ -802,9 +840,9 @@ async function init() {
 	// Retrieve the icons, looking at the cache in case the icon has been already retrieved
 	//
 	let buf: Buffer;
-	for (i = 0; i < metas.length ; i++) {
-		const meta: any = metas[i];
-		let cid = config.cacheFolder + meta.image.replace('ipfs://', '');						// We remove the ipfs prefix to only keep the cid
+
+	metas.forEach( async (meta: any) => {
+		let cid = config.cacheFolder + meta.image.replace('ipfs://', '');				// We remove the ipfs prefix to only keep the cid
 		let icon = meta.image.replace('ipfs', 'https').concat('.ipfs.dweb.link');		// We form an url for dweb containing the ipfs cid
 		try {
 			if (fs.existsSync(cid)) {													// We try to find this cid in the cache
@@ -823,13 +861,12 @@ async function init() {
 		} catch(error) { logger.error('server.init.loadIcons %s', error); }
 		
 		meta.iconUrl = iconUrl + meta.addr + meta.id; 									// Reference the icon's url
-	}
+	});
 
 	//
 	// Retrieve the images, looking at the cache in case the image has been already retrieved
 	//
-	for (i = 0; i < metas.length ; i++) {
-		const meta: any = metas[i];
+	metas.forEach( async (meta: any) => {
 		let cid = config.cacheFolder + meta.image_raw.replace('ipfs://', '');
 		try {
 
@@ -850,5 +887,5 @@ async function init() {
 		} catch(error) { logger.error('server.init.loadIcons %s', error); }
 
 		meta.imgUrl = imgUrl + meta.addr + meta.id; 
-	}
+	});
 }
