@@ -49,11 +49,10 @@ function TokenMap() {
     setPictSize({pictWidth: renderWidth, pictHeight: renderHeight});
   };
 
+  const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt };
+
   const loadMap = async (jwt) => {
-    const response = await fetch(mapUrl, {
-      method: 'get',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt }
-    });
+    const response = await fetch(mapUrl, { method: 'GET', headers: jwtHeader });
     const responseJson = await response.json();
     return (responseJson);
   }
@@ -68,7 +67,7 @@ function TokenMap() {
   const onclick = (event) => {
     let t = tokens[event.target.id];
     const params = new URLSearchParams({id: t.id, lock: true})
-    fetch(lockUrl + params.toString(), {method: 'PUT'});
+    fetch(lockUrl + params.toString(), { method: 'PUT', headers: jwtHeader });
     navigate('/sales/token/' + event.target.id, { state: { token: tokens[event.target.id]  }});
   };
 
@@ -106,7 +105,7 @@ function TokenMap() {
             if (row.index < tokens.length)  cl = tokens[row.index].isLocked ? 'locked' : 'unLocked';
             else cl = 'locked';
             
-            return <a id={row.index} style={s} onClick={onclick} className={cl} ></a>
+            return <a id={row.index} key={row.index} style={s} onClick={onclick} className={cl} ></a>
           })}
         </div>
       </main>
