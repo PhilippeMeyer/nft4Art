@@ -36,8 +36,6 @@ class QRcodeScanner extends React.Component {
             return config;
         }
 
-        console.log(this.props);
-
         var config = createConfig(this.props);
         var verbose = this.props.verbose === true;
 
@@ -46,8 +44,7 @@ class QRcodeScanner extends React.Component {
             throw "qrCodeSuccessCallback is required callback.";
         }
 
-        this.html5QrcodeScanner = new Html5QrcodeScanner(
-            qrcodeRegionId, config, verbose);
+        this.html5QrcodeScanner = new Html5QrcodeScanner( qrcodeRegionId, config, verbose);
         this.html5QrcodeScanner.render(
             this.props.qrCodeSuccessCallback,
             this.props.qrCodeErrorCallback);
