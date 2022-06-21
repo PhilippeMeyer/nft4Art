@@ -9,7 +9,7 @@ const wsMiddleware = store => next => action => {
 
     if(startConnecting.match(action)) {
         if (store.getState().token.isEstablishingConnection) return next(action);
-        console.log('middleware - startConnect to: ', wsServer);
+
         ws  = new WebSocket(wsServer);
 
         ws.onopen = () => {

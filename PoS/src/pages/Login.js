@@ -77,9 +77,7 @@ function Login() {
          
         try {
             const response = await fetch(httpServer + 'apiV1/auth/signin', { method: 'POST', body: JSON.stringify(obj), headers: {"Content-type": "application/json;charset=UTF-8"}});
-            console.log('rep:', response);
             let responseJson = await response.json();
-            console.log('rep:', responseJson);
 
             if (response.ok) {
                 if (deviceId == null) {
@@ -87,11 +85,8 @@ function Login() {
                     dispatch(storeDevice(obj));
                     localStorage.setItem(deviceItemId, JSON.stringify(obj, filterPassword)); 
                 }
-                console.log('storage done');
                 dispatch(storeJwt(responseJson.accessToken));
-                console.log('redux done1');
                 dispatch(startConnecting());
-                console.log('redux done2');
                 if (pwd !== undefined) navigate('/manager/tokens')
                 else navigate('/sales/map');
             }
