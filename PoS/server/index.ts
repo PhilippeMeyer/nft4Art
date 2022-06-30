@@ -20,7 +20,6 @@ import { fileURLToPath } from "url";
 import os from "os";
 import { waitFor } from "./waitFor.js";
 import { logConf } from "./loggerConfiguration.js";
-import { ERC1155ABI } from "./ERC1155ABI.js";
 
 // TODO: Env var?
 const webSite: string = "http://192.168.1.5:8999";
@@ -36,11 +35,17 @@ config.infuraKey = process.env.APP_INFURA_KEY;
 config.network = process.env.APP_NETWORK;
 config.addressToken = process.env.APP_TOKEN_ADDR;
 config.cacheFolder = process.env.APP_CACHE_FOLDER;
+config.gvdNftAbiFile = process.env.APP_GVDNFT_ABI_FILE;
+
 
 export interface RequestCustom extends Request {
     deviceId?: string;
     manager?: string;
 }
+
+// Read the ABI of the GovernedNft contract
+let rawAbi = fs.readFileSync(config.gvdNftAbiFile);
+const gvdNftDef = JSON.parse(rawAbi.toString());
 
 // Global variables
 
@@ -885,8 +890,8 @@ app.put("/lockUnlock", async (req: Request, res: Response) => {
 async function init() {
     // Connect to Infura and connect to the token
     ethProvider = await new providers.InfuraProvider(config.network, config.infuraKey);
-    token = await new Contract(config.addressToken, ERC1155ABI, ethProvider);
-    logger.info("server.init %s", await token.name());
+    token = await new Contract(config.addressToken, gvdNftDef.abi, ethProvider);
+    logger.info("server.init %s", token.address);
 
     if (!fs.existsSync(config.cacheFolder)) fs.mkdirSync(config.cacheFolder);
 
