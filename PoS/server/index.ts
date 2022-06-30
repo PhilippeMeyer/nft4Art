@@ -18,9 +18,9 @@ import archiver from "archiver";
 import path from "path";
 import { fileURLToPath } from "url";
 import os from "os";
-import { waitFor } from "./waitFor";
-import { logConf } from "./loggerConfiguration";
-import { ERC1155ABI } from "./ERC1155ABI";
+import { waitFor } from "./waitFor.js";
+import { logConf } from "./loggerConfiguration.js";
+import { ERC1155ABI } from "./ERC1155ABI.js";
 
 // TODO: Env var?
 const webSite: string = "http://192.168.1.5:8999";
@@ -47,7 +47,7 @@ export interface RequestCustom extends Request {
 let passHash: string = ""; // Hash of the password. If empty, means that the wallet has not been loaded
 var databaseInitialized = false; // Is the database initialized? Used to wait for the database init before starting the server
 var registeredPoS: any; // Database collection of registered point of sale
-// TODO: have a look if it is possible to type the loki collection
+//TODO: have a look if it is possible to type the loki collection
 var tokens: any; // Database collection of tokens
 var saleEvents: any; // Database collection of events (lock/unlock/transfer/completedTransfer)
 var wallet: Wallet; // Wallet
@@ -55,7 +55,7 @@ let ethProvider: providers.JsonRpcProvider; // Connection provider to Ethereum
 let token: Contract; // Proxy to the Nft
 let metas: Object[] = []; // list of the Nfts loaded from the smart contract
 // TODO: example => const metasMap : Record<string, any> = {};
-let metasMap = new Map(); // Same but as a map
+let metasMap = new Map<String, any>(); // Same but as a map
 let icons = new Map(); // Icons of the Nfts
 let images = new Map(); // Images of the Nfts
 var wait_on = 0; // pdf files synchronization
