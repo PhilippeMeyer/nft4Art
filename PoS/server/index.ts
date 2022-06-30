@@ -35,6 +35,9 @@ config.infuraKey = process.env.APP_INFURA_KEY;
 config.network = process.env.APP_NETWORK;
 config.addressToken = process.env.APP_TOKEN_ADDR;
 config.cacheFolder = process.env.APP_CACHE_FOLDER;
+config.priceFeedETH = process.env.APP_PRICE_FEED_ETH;
+config.priceFeedBTC = process.env.APP_PRICE_FEED_BTC;
+config.priceFeedCHF = process.env.APP_PRICE_FEED_CHF;
 config.gvdNftAbiFile = process.env.APP_GVDNFT_ABI_FILE;
 
 
@@ -449,6 +452,39 @@ app.get("/icon", function (req: Request, res: Response) {
 app.get("/image", function (req: Request, res: Response) {
     res.type("jpeg");
     res.status(200).send(images.get(req.query.id));
+});
+
+//
+// /apiV1/price
+// Get the price of a token in a given currency
+//
+// Parameters:  tokenId: the id of the token (concatenation of the token address and the tokenId)
+//              crypto : crypto currency in which the price is converted (eth or btc)  
+//
+app.get('/apiV1/price', function (req :Request, res :Response) {
+	console.log('price request: ', req.query.tokenId, req.query.crypto);
+	if (typeof req.query.tokenId === 'undefined') {
+		res.status(400).json({error: {name: 'noTokenIdSpecified', message: 'The token Id is missing'}});
+		return;
+	}
+	if (typeof req.query.crypto === 'undefined') {
+		res.status(400).json({error: {name: 'noCryptoSpecified', message: 'The crypto is missing'}});
+		return;
+	}
+
+	var token: any = tokens.findOne({id: req.query.tokenId});
+	if (token == null) {
+		res.status(404).json({error: {name: 'tokenNotFound', message: 'The specified token is not in the database'}});
+		return;
+	}
+  
+  Promise.all([
+    axios.get(config.priceFeedCHF),
+    axios.get(req.query.crypto == 'eth' ? config.priceFeedETH : config.priceFeedBTC)
+  ])
+    .then(response => { 
+      res.status(200).json({tokenid: req.query.tokenId, crypto: req.query.crypto, price: token.price / response[1].data.data.rateUsd * response[0].data.data.rateUsd})
+    });
 });
 
 //
