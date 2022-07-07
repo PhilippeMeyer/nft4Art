@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
-import { Contract, errors, providers, utils, Wallet } from "ethers";
+import { Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
 import { TransactionReceipt, TransactionResponse } from "@ethersproject/abstract-provider";
 import fs from "fs";
 import winston from "winston";
@@ -52,21 +52,24 @@ const gvdNftDef = JSON.parse(rawAbi.toString());
 
 // Global variables
 
-let passHash: string = ""; // Hash of the password. If empty, means that the wallet has not been loaded
-var databaseInitialized = false; // Is the database initialized? Used to wait for the database init before starting the server
-var registeredPoS: any; // Database collection of registered point of sale
+let passHash: string = "";                  // Hash of the password. If empty, means that the wallet has not been loaded
+var databaseInitialized = false;            // Is the database initialized? Used to wait for the database init before starting the server
+
 //TODO: have a look if it is possible to type the loki collection
-var tokens: any; // Database collection of tokens
-var saleEvents: any; // Database collection of events (lock/unlock/transfer/completedTransfer)
-var wallet: Wallet; // Wallet
+var registeredPoS: any;                     // Database collection of registered point of sale
+var tokens: any;                            // Database collection of tokens
+var saleEvents: any;                        // Database collection of events (lock/unlock/transfer/completedTransfer)
+var appIds: Collection<AppLoginMessage>;    // Database collection of companion app Ids
+var wallet: Wallet;                         // Wallet
 let ethProvider: providers.JsonRpcProvider; // Connection provider to Ethereum
-let token: Contract; // Proxy to the Nft
-let metas: Object[] = []; // list of the Nfts loaded from the smart contract
+let token: Contract;                        // Proxy to the Nft
+let metas: Object[] = [];                   // list of the Nfts loaded from the smart contract
+
 // TODO: example => const metasMap : Record<string, any> = {};
-let metasMap = new Map<String, any>(); // Same but as a map
-let icons = new Map(); // Icons of the Nfts
-let images = new Map(); // Images of the Nfts
-var wait_on = 0; // pdf files synchronization
+let metasMap = new Map<String, any>();      // Same but as a map
+let icons = new Map();                      // Icons of the Nfts
+let images = new Map();                     // Images of the Nfts
+var wait_on = 0;                            // pdf files synchronization
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -91,14 +94,15 @@ var db = new Loki(config.database, options);
 
 const PoS_COLLECTION_NAME = "registeredPoS";
 const TOKEN_COLLECTION_NAME = "tokens";
-
 const SALES_EVENTS_COLLECTION_NAME = "saleEvents";
+const APP_ID_COLLECTION_NAME = "appIds";
 
 function loadHandler() {
     // if database did not exist it will be empty so I will intitialize here
     registeredPoS = db.getCollection(PoS_COLLECTION_NAME) ?? db.addCollection(PoS_COLLECTION_NAME);
     tokens = db.getCollection(TOKEN_COLLECTION_NAME) ?? db.addCollection(TOKEN_COLLECTION_NAME);
     saleEvents = db.getCollection(SALES_EVENTS_COLLECTION_NAME) ?? db.addCollection(SALES_EVENTS_COLLECTION_NAME);
+    appIds = db.getCollection(APP_ID_COLLECTION_NAME) ?? db.addCollection(APP_ID_COLLECTION_NAME);
     databaseInitialized = true;
 }
 
@@ -263,7 +267,7 @@ const verifyTokenManager = (req: RequestCustom, res: Response, next: NextFunctio
 //
 // This end point receives the public key the PoS has generated and the encrypted mobile unique Id
 //
-app.post("/apiV1/auth/registerPoS", function (req: Request, res: Response) {});
+//app.post("/apiV1/auth/registerPoS", function (req: Request, res: Response) {});
 
 type DeviceResponse = {
     password: string;
@@ -280,6 +284,7 @@ type DeviceServerSide = {
     ip?: string;
     authorized?: boolean;
 };
+
 //
 // /apiV1/auth/sigin
 // Signin into the server
@@ -429,6 +434,30 @@ function registerPoS(device: DeviceServerSide & DeviceFromClient, pass: string, 
         }
     }
 }
+
+//
+// /apiV1/auth/appLogin
+// Companion app login into the server
+//
+// The companion app stores the customer's private key and sends a signed message for the login
+// This message contains the uuid associated with the app. This end point verifies the signature and checks that 
+// the associated ethereum address is not already associated with a different uuid. If no uuid is associated with that
+// address, the uuid is stored in the server's database
+//
+
+type AppLogin = {
+    signature: string;
+    message: AppLoginMessage;
+};
+type AppLoginMessage = {
+    appId: string;
+    address: string;
+}
+
+app.post("/apiV1/auth/appLogin", function (req: Request, res: Response) {
+    const login = req.body as AppLogin;
+
+});
 
 app.get("/tokens", verifyToken, (req: Request, res: Response) => {
     res.status(200).json(metas);
@@ -633,6 +662,24 @@ app.put("/apiV1/auth/authorizePoS", verifyTokenManager, function (req: Request, 
     res.sendStatus(200);
 });
 
+//
+// /apiV1/sale/createToken, parameters: the token's Uri
+//
+// This end point deploys on the blockchain a new token
+//
+app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCustom, res :Response) {
+    if (typeof req.query.uri === 'undefined') {
+          res.sendStatus(400).json({error: {name: 'noURISpecified', message: 'The Uri for the contract is missing'}});
+          return;
+      }
+  
+    let factory = new ContractFactory(gvdNftDef.abi, gvdNftDef.data.bytecode.object, wallet);
+    let contract = await factory.deploy(req.query.uri);
+    await contract.deployed();
+    res.status(200).json({contractAddress: contract.address});
+    
+  });
+  
 //
 // /apiV1/sale/transfer, parameters: the token's id and the destination address
 //
