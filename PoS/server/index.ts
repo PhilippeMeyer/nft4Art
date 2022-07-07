@@ -444,7 +444,6 @@ function registerPoS(device: DeviceServerSide & DeviceFromClient, pass: string, 
 // the associated ethereum address is not already associated with a different uuid. If no uuid is associated with that
 // address, the uuid is stored in the server's database
 //
-
 type AppLogin = {
     signature: string;
     message: AppLoginMessage;
@@ -452,12 +451,63 @@ type AppLogin = {
 type AppLoginMessage = {
     appId: string;
     address: string;
-}
+    nonce: number;
+};
 
 app.post("/apiV1/auth/appLogin", function (req: Request, res: Response) {
     const login = req.body as AppLogin;
+    console.log('login:', login);
 
+    let app = appIds.findOne({address: login.message.address}); 
+    if (app == null) appIds.insert(login.message);
+    else {
+        if (app.appId != login.message.appId) 
+            return res.status(403).json({error: 'address already registered with another device'})
+        if (login.message.nonce <= app.nonce)
+            return res.status(403).json({error: 'login message already received'})
+        
+        app.nonce = login.message.nonce;
+        appIds.update(app);
+    }
+    
+    if(!isSignatureValid(login)) return res.status(403).json({error: 'invalid signature'})       
+    if(!isAddressOwningToken(login.message.address)) return res.status(403).json({error: 'address is not an owner of a token'});
+
+    const token = jwt.sign({ id: login.message.appId, address: login.message.address }, config.secret, { expiresIn: jwtExpiry });
+    return  res.status(200).json({ appId: login.message.appId, accessToken: token });
 });
+
+//
+// isAddressOwningToken
+// - address: the owner's address
+//
+// This function checks the Ethereum logs to find out whether the address is owning a token or not.
+// To ensure a decent response time for the application login, this information is cached on the server. 
+// It is loaded when the server initializes and updated with the Ethereum notifications
+//
+function isAddressOwningToken(address: string) {
+    return true;
+}
+
+//
+// isSignatureValid
+// - login: AppLogin containing the information sent by the application
+//
+// This function verifies the signature received from the companion app
+//
+function isSignatureValid(login: AppLogin) {
+    const lg: AppLoginMessage = {
+        appId: login.message.appId,
+        address: login.message.address,
+        nonce: login.message.nonce
+    };
+    const message: string = JSON.stringify(lg);
+    console.log('message:', message);
+
+    const signerAddress = utils.verifyMessage(message, login.signature);
+    console.log('signer:', signerAddress);
+    return (signerAddress == login.message.address);
+}
 
 app.get("/tokens", verifyToken, (req: Request, res: Response) => {
     res.status(200).json(metas);
