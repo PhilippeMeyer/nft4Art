@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
-import { Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
+import { BigNumber, constants, Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
 import { TransactionReceipt, TransactionResponse } from "@ethersproject/abstract-provider";
 import fs from "fs";
 import winston from "winston";
@@ -454,24 +454,31 @@ type AppLoginMessage = {
     nonce: number;
 };
 
-app.post("/apiV1/auth/appLogin", function (req: Request, res: Response) {
+app.post("/apiV1/auth/appLogin", async function (req: Request, res: Response) {
     const login = req.body as AppLogin;
-    console.log('login:', login);
+    logger.info('server.loginApp %s', login.message.address);
 
     let app = appIds.findOne({address: login.message.address}); 
     if (app == null) appIds.insert(login.message);
     else {
-        if (app.appId != login.message.appId) 
+        if (app.appId != login.message.appId) {
+            logger.info('server.loginApp.alreadyRegistered');
             return res.status(403).json({error: 'address already registered with another device'})
-        if (login.message.nonce <= app.nonce)
+        }
+        if (login.message.nonce <= app.nonce) {
+            logger.info('server.loginApp.messageAlreadyUsed');
             return res.status(403).json({error: 'login message already received'})
+        }
         
         app.nonce = login.message.nonce;
         appIds.update(app);
     }
     
-    if(!isSignatureValid(login)) return res.status(403).json({error: 'invalid signature'})       
-    if(!isAddressOwningToken(login.message.address)) return res.status(403).json({error: 'address is not an owner of a token'});
+    if(!isSignatureValid(login)) {
+        logger.info('server.loginApp.invalidSinature');
+        return res.status(403).json({error: 'invalid signature'})       
+    }
+    if(! await isAddressOwningToken(login.message.address)) return res.status(403).json({error: 'address is not an owner of a token'});
 
     const token = jwt.sign({ id: login.message.appId, address: login.message.address }, config.secret, { expiresIn: jwtExpiry });
     return  res.status(200).json({ appId: login.message.appId, accessToken: token });
@@ -482,11 +489,35 @@ app.post("/apiV1/auth/appLogin", function (req: Request, res: Response) {
 // - address: the owner's address
 //
 // This function checks the Ethereum logs to find out whether the address is owning a token or not.
-// To ensure a decent response time for the application login, this information is cached on the server. 
-// It is loaded when the server initializes and updated with the Ethereum notifications
+// TODO: to ensure a decent response time for the application login, this information will be cached on the server. 
+// It should be loaded when the server initializes and will be updated with the Ethereum notifications
 //
-function isAddressOwningToken(address: string) {
-    return true;
+async function isAddressOwningToken(address: string) {
+    address = '0x9DF6A10E3AAfd916A2E88E193acD57ff451C445A';
+    const transfersSingle = await token.queryFilter( token.filters.TransferSingle(null, null, address), 0, "latest");
+    const transfersBatch = await token.queryFilter( token.filters.TransferBatch(null, null, address), 0, "latest");
+
+    let ids: BigNumber[] = [];
+    let addresses: string[] = [];
+
+    transfersSingle.forEach((evt) => {
+        ids.push(evt.args?.id);
+        addresses.push(address);
+    });
+    transfersBatch.forEach((evt) => {
+        ids.concat(evt.args?.ids);
+        addresses.push(address);
+    });
+
+    if(ids.length == 0) return false;
+
+    const balances = await token.balanceOfBatch(addresses, ids);
+    let owner: boolean = false;
+    balances.forEach((bal: BigNumber) => {
+        if(bal.gt(constants.Zero)) owner = true;
+    });
+    
+    return owner;
 }
 
 //
@@ -502,10 +533,8 @@ function isSignatureValid(login: AppLogin) {
         nonce: login.message.nonce
     };
     const message: string = JSON.stringify(lg);
-    console.log('message:', message);
 
     const signerAddress = utils.verifyMessage(message, login.signature);
-    console.log('signer:', signerAddress);
     return (signerAddress == login.message.address);
 }
 
@@ -1087,6 +1116,14 @@ async function init() {
 
         errTimeout = 0;
     }
+
+    // TODO: store incrementally the transfers in the database so that the loading time does not increase over time
+    // This can be performed storing the last block id retrieved and re querying from there
+    //const transfersSingle = await token.queryFilter( token.filters.TransferSingle(null, null), 0, "latest");
+    //const transfersBatch = await token.queryFilter( token.filters.TransferBatch(null, null), 0, "latest");
+
+    //console.log('Single transfers', transfersSingle);
+    //console.log('Batch transfers', transfersBatch);
 
     //
     // Retrieve the icons, looking at the cache in case the icon has been already retrieved
