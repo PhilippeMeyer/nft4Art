@@ -1163,12 +1163,12 @@ async function init() {
                     fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache
                 }
 
-                icons.set(meta.addr + meta.id, buf); // Store the icon in memory
+                icons.set(meta.id, buf); // Store the icon in memory
             } catch (error) {
                 logger.error("server.init.loadIcons %s", error);
             }
 
-            meta.iconUrl = iconUrl + meta.addr + meta.id; // Reference the icon's url
+            meta.iconUrl = iconUrl + meta.id; // Reference the icon's url
         }),
     );
 
@@ -1190,12 +1190,12 @@ async function init() {
                     fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" });
                 }
 
-                images.set(meta.addr + meta.id, buf);
+                images.set(meta.id, buf);
             } catch (error) {
                 logger.error("server.init.loadIcons %s", error);
             }
 
-            meta.imgUrl = imgUrl + meta.addr + meta.id;
+            meta.imgUrl = imgUrl + meta.id;
         }),
     );
 

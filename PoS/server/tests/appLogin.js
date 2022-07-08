@@ -1,5 +1,7 @@
 import { Wallet } from "ethers";
 import fetch from 'node-fetch';
+//const url = 'http://localhost:8999/apiV1/auth/appLogin';
+const url = 'https://nft4artpos.glitch.me/apiV1/auth/appLogin';
 const wallet = Wallet.createRandom();
 const addr = await wallet.getAddress();
 const appLoginMessage = { appId: 'test', address: addr, nonce: 1 };
@@ -11,7 +13,7 @@ try {
         message: appLoginMessage,
         signature: signature
     };
-    const res1 = await fetch('http://localhost:8999/apiV1/auth/appLogin', {
+    const res1 = await fetch(url, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -22,7 +24,7 @@ try {
     // Should not work as nonce as not been incremented
     const ret1 = await res1.json();
     console.log(ret1);
-    const res2 = await fetch('http://localhost:8999/apiV1/auth/appLogin', {
+    const res2 = await fetch(url, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -34,7 +36,7 @@ try {
     console.log(ret2);
     msg.message.nonce++;
     msg.signature = await wallet.signMessage(JSON.stringify(msg.message));
-    const res3 = await fetch('http://localhost:8999/apiV1/auth/appLogin', {
+    const res3 = await fetch(url, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -47,7 +49,7 @@ try {
     // Should not work as the address has been registered with test and not test2
     msg.message.appId = 'test2';
     msg.signature = await wallet.signMessage(JSON.stringify(msg.message));
-    const res4 = await fetch('http://localhost:8999/apiV1/auth/appLogin', {
+    const res4 = await fetch(url, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
