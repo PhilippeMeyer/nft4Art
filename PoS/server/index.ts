@@ -991,12 +991,12 @@ wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
     logger.info("server.ws.connection %s", extWs.address);
     const pos: any = registeredPoS.findOne({ ip: extWs.address });
     if (pos == null) {
-        logger.warning("server.ws.connection.rejected %s", extWs.address);
+        logger.warn("server.ws.connection.rejected %s", extWs.address);
         ws.close();
         return;
     }
     if (!pos.authorized) {
-        logger.warning("server.ws.connection.unauthorized %s", extWs.address);
+        logger.warn("server.ws.connection.unauthorized %s", extWs.address);
         ws.close();
         return;
     }
