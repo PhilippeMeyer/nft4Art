@@ -493,7 +493,7 @@ app.post("/apiV1/auth/appLogin", async function (req: Request, res: Response) {
 // It should be loaded when the server initializes and will be updated with the Ethereum notifications
 //
 async function isAddressOwningToken(address: string) {
-    address = '0x9DF6A10E3AAfd916A2E88E193acD57ff451C445A';
+    //address = '0x9DF6A10E3AAfd916A2E88E193acD57ff451C445A';
     const transfersSingle = await token.queryFilter( token.filters.TransferSingle(null, null, address), 0, "latest");
     const transfersBatch = await token.queryFilter( token.filters.TransferBatch(null, null, address), 0, "latest");
 
@@ -505,8 +505,9 @@ async function isAddressOwningToken(address: string) {
         addresses.push(address);
     });
     transfersBatch.forEach((evt) => {
-        ids.concat(evt.args?.ids);
-        addresses.push(address);
+        const idsToInsert = evt.args?.ids;
+        ids.concat(idsToInsert);
+        idsToInsert.forEach(() => addresses.push(address));
     });
 
     if(ids.length == 0) return false;
@@ -562,6 +563,21 @@ app.get("/image", function (req: Request, res: Response) {
     res.status(200).send(images.get(req.query.id));
 });
 
+app.get('/apiV1/information/video', function(req: Request, res: Response) {
+    logger.info('server.playVideo %s', req.query.address);
+
+    //TODO select the video to be played from the customer's address
+
+    const filePath = path.join(__dirname, "public/sample-mp4-file.mp4");
+    const stat = fs.statSync(filePath);
+    const fileSize = stat.size
+    const head = {
+      'Content-Length': fileSize,
+      'Content-Type': 'video/mp4',
+    }
+    res.writeHead(200, head)
+    fs.createReadStream(filePath).pipe(res)
+  })
 //
 // /apiV1/price
 // Get the price of a token in a given currency
