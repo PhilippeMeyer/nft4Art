@@ -8,6 +8,7 @@ import QRcodeScanner from '../QRcodeScanner';
 import NavbarManager from "./NavbarManager";
 
 const httpServer = process.env.REACT_APP_SERVER;
+const timeout = process.env.REACT_APP_SALES_TIMEOUT;
 const lockUrl = httpServer + 'lockUnlock?';
 const tfrUrl = httpServer + 'apiV1/sale/transfer';
 
@@ -44,7 +45,7 @@ function TokenTransfer() {
       });
   };
 
-  const myTimeout = setTimeout(cancel, 8000);
+  const myTimeout = setTimeout(cancel, timeout);
 
   return (
     <>

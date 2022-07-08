@@ -5,6 +5,8 @@ import Button from '@mui/material/Button';
 import QRcodeScanner from '../QRcodeScanner';
 
 const httpServer = process.env.REACT_APP_SERVER;
+const timeout = process.env.REACT_APP_SALES_TIMEOUT;
+
 const lockUrl = httpServer + 'lockUnlock?';
 
 
@@ -31,7 +33,7 @@ function TokenSale() {
     navigate(-1);
   };
 
-  const myTimeout = setTimeout(cancel, 8000);
+  const myTimeout = setTimeout(cancel, timeout);
 
   if (token === undefined)
     return (
