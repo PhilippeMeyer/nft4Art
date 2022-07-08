@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 
+import NavbarManager from "./NavbarManager";
 
 const httpServer = process.env.REACT_APP_SERVER;
 const posUrl = httpServer + 'apiV1/auth/registeredPoS';
@@ -88,6 +89,7 @@ function RegisteredPoS() {
                     getRowId={(row) => row.deviceId || row.id}
                 />
             </div>
+            <NavbarManager />
         </>
     );
 }
