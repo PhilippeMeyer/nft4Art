@@ -5,3 +5,4 @@ PoS/node_modules/**
 PoS/build/**
 PoS/server/nft4Art.json*
 PoS/server/nft4Art.json
+PoS/server/public/sample-mp4-file.mp4

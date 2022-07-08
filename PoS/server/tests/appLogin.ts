@@ -1,6 +1,8 @@
 import { utils, Wallet } from "ethers";
 import fetch from 'node-fetch';
 
+//const url = 'http://localhost:8999/apiV1/auth/appLogin';
+const url = 'https://nft4artpos.glitch.me/apiV1/auth/appLogin';
 const wallet: Wallet = Wallet.createRandom();
 
 type AppLogin = {
@@ -25,7 +27,7 @@ try {
         signature: signature
     };
 
-    const res1 = await fetch('http://localhost:8999/apiV1/auth/appLogin', {
+    const res1 = await fetch(url, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -38,7 +40,7 @@ try {
     const ret1 = await res1.json();
     console.log(ret1);
 
-    const res2 = await fetch('http://localhost:8999/apiV1/auth/appLogin', {
+    const res2 = await fetch(url, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -53,7 +55,7 @@ try {
     msg.message.nonce++;
     msg.signature = await wallet.signMessage(JSON.stringify(msg.message));
 
-    const res3 = await fetch('http://localhost:8999/apiV1/auth/appLogin', {
+    const res3 = await fetch(url, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -69,7 +71,7 @@ try {
     msg.message.appId = 'test2';
     msg.signature = await wallet.signMessage(JSON.stringify(msg.message));
 
-    const res4 = await fetch('http://localhost:8999/apiV1/auth/appLogin', {
+    const res4 = await fetch(url, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
