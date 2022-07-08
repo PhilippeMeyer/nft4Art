@@ -304,7 +304,7 @@ app.post("/apiV1/auth/signin", function (req: Request, res: Response) {
 
     let { device, password } = response;
     const verification: DeviceServerSide = {};
-    verification.ip = req.ip;
+    verification.ip = req.headers['x-forwarded-for'] as string || req.ip ;
     logger.info("server.signin %s %s", device.deviceId, verification.ip);
 
     // Check if a password has been provided -> the user is attempting to login as manager
