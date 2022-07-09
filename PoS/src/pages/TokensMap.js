@@ -1,8 +1,17 @@
-import React, { Component } from "react";
+import * as React from "react";
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSnackbar } from 'notistack';
 import { useSelector, useDispatch } from 'react-redux'
+import Button from '@mui/material/Button';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 import './Map.css';
 
@@ -23,10 +32,14 @@ function TokenMap() {
   const [screenSize, setScreenSize] = useState({});
   const [pictSize, setPictSize] = useState({});
   const [map, setMap] = useState({});
+  const [selected, setSelected] = React.useState();
+  const [currency, setCurrency] = React.useState();
 
   // Redux state for the jwt and the tokens
   const jwt = useSelector((state) => state.token.jwt);
   const tokens = useSelector((state) => state.token.data);
+  const [open, setOpen] = React.useState(false);
+
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
 
@@ -65,10 +78,15 @@ function TokenMap() {
   };
 
   const onclick = (event) => {
-    let t = tokens[event.target.id];
+    setSelected(event.target.id);
+    setOpen(true);
+  };
+
+  const handleSale = () => {  
+    let t = tokens[selected];
     const params = new URLSearchParams({id: t.id, lock: true})
     fetch(lockUrl + params.toString(), { method: 'PUT', headers: jwtHeader });
-    navigate('/sales/token/' + event.target.id, { state: { token: tokens[event.target.id]  }});
+    navigate('/sales/token/' + currency + '/' + selected, { state: { token: tokens[selected]  }});
   };
 
   useEffect( () => {
@@ -87,6 +105,19 @@ function TokenMap() {
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
   }, [map]);
+
+  const handleOpenDialog = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const changeCurrency = (event) => {
+    setCurrency(event.target.value);
+  };
+
 
   if ((map.areas === undefined) || (pictSize.pictWidth === undefined)) return;
 
@@ -107,6 +138,25 @@ function TokenMap() {
             
             return <a id={row.index} key={row.index} style={s} onClick={onclick} className={cl} ></a>
           })}
+
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Sale currency</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Which currency is the customer requesting?
+              </DialogContentText>
+              <RadioGroup name="use-radio-group" defaultValue="fiat" onChange={changeCurrency}>
+                <FormControlLabel value="fiat" label="Chf" control={<Radio />} />
+                <FormControlLabel value="btc" label="Bitcoin" control={<Radio />} />
+                <FormControlLabel value="eth" label="Ether" control={<Radio />} />
+              </RadioGroup>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Cancel</Button>
+              <Button onClick={handleSale}>Sell</Button>
+            </DialogActions>
+          </Dialog>
+
         </div>
       </main>
     </>
