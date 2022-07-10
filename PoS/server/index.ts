@@ -578,14 +578,21 @@ app.get('/apiV1/information/video', function(req: Request, res: Response) {
     res.writeHead(200, head)
     fs.createReadStream(filePath).pipe(res)
   })
+
 //
-// /apiV1/price
+// /apiV1/priceInCrypto
 // Get the price of a token in a given currency
 //
 // Parameters:  tokenId: the id of the token (concatenation of the token address and the tokenId)
 //              crypto : crypto currency in which the price is converted (eth or btc)  
 //
-app.get('/apiV1/price', function (req :Request, res :Response) {
+// Returns:     tokenId: the id of the token (concatenation of the token address and the tokenId)
+//              crypto : crypto currency in which the price is converted (eth or btc)  
+//              price : the price converted in fiat currency
+//              priceFiat : the original price
+//              rate : the rate which has been used for the conversion
+//
+app.get('/apiV1/priceInCrypto', function (req :Request, res :Response) {
 	console.log('price request: ', req.query.tokenId, req.query.crypto);
 	if (typeof req.query.tokenId === 'undefined') {
 		res.status(400).json({error: {name: 'noTokenIdSpecified', message: 'The token Id is missing'}});
@@ -606,8 +613,13 @@ app.get('/apiV1/price', function (req :Request, res :Response) {
     axios.get(config.priceFeedCHF),
     axios.get(req.query.crypto == 'eth' ? config.priceFeedETH : config.priceFeedBTC)
   ])
-    .then(response => { 
-      res.status(200).json({tokenid: req.query.tokenId, crypto: req.query.crypto, price: token.price / response[1].data.data.rateUsd * response[0].data.data.rateUsd})
+    .then(response => {
+        let rate: number = response[1].data.data.rateUsd * response[0].data.data.rateUsd;
+        res.status(200).json({  tokenid: req.query.tokenId, 
+                                crypto: req.query.crypto, 
+                                price: token.price / rate,
+                                priceFiat: token.price,
+                                rate:  rate})
     });
 });
 
@@ -1072,6 +1084,9 @@ async function init() {
     logger.info("server.init %s", token.address);
 
     if (!fs.existsSync(config.cacheFolder)) fs.mkdirSync(config.cacheFolder);
+
+    const QRaddr: string = path.join(__dirname, 'public/', config.addressToken + '.png');
+    if(!fs.existsSync(QRaddr)) await QRCode.toFile(QRaddr, config.addressToken);
 
     let i: number = 0;
     let str: string;
