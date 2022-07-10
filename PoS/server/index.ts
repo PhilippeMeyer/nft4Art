@@ -563,6 +563,12 @@ app.get("/image", function (req: Request, res: Response) {
     res.status(200).send(images.get(req.query.id));
 });
 
+app.get("/QRCode", function (req: Request, res: Response) {
+    res.type("png");
+    res.status(200).sendFile(path.join(__dirname, "public/", config.addressToken + '.png'));
+});
+
+
 app.get('/apiV1/information/video', function(req: Request, res: Response) {
     logger.info('server.playVideo %s', req.query.address);
 
