@@ -27,6 +27,22 @@ const imgUrl: string = webSite + "/image?id=";
 const iconUrl: string = webSite + "/icon?id=";
 const jwtExpiry: number = 60 * 60;
 
+const NFT4ART_ETH_NETWORK = 1;
+const NFT4ART_BTC_NETWORK = 2;
+const NFT4ART_FIAT_NETWORK = 3;
+const NFT4ART_SALE_INITIATED = 1;
+const NFT4ART_SALE_INITIATED_MSG = "saleInitiated";
+const NFT4ART_SALE_STORED_MSG = "saleStored";
+const NFT4ART_SALE_PAID = 2;
+const NFT4ART_SALE_PAID_MSG = "salePaid";
+const NFT4ART_SALE_TRANSFERRED = 3;
+const NFT4ART_SALE_TRANSFERRED_MSG = "saleTransferred";
+
+const PoS_COLLECTION_NAME = "registeredPoS";
+const TOKEN_COLLECTION_NAME = "tokens";
+const SALES_EVENTS_COLLECTION_NAME = "saleEvents";
+const APP_ID_COLLECTION_NAME = "appIds";
+
 var config: any = {};
 config.secret = process.env.APP_SECRET;
 config.walletFileName = process.env.APP_WALLET_FILE;
@@ -92,11 +108,6 @@ var db = new Loki(config.database, options);
 // Database initialization, creating the PoS and tokens collections if they are not already existing
 // When the database is initialized, the flag is set so that the server can start
 
-const PoS_COLLECTION_NAME = "registeredPoS";
-const TOKEN_COLLECTION_NAME = "tokens";
-const SALES_EVENTS_COLLECTION_NAME = "saleEvents";
-const APP_ID_COLLECTION_NAME = "appIds";
-
 function loadHandler() {
     // if database did not exist it will be empty so I will intitialize here
     registeredPoS = db.getCollection(PoS_COLLECTION_NAME) ?? db.addCollection(PoS_COLLECTION_NAME);
@@ -111,7 +122,8 @@ type SaleEventRecord = {
     id: string;
     isLocked: boolean;
     destinationAddr?: string;
-    isTransfered?: boolean;
+    isStored?: boolean,
+    isTransferred?: boolean;
     isFinalized?: boolean;
     txId?: string;
     error?: string;
@@ -565,7 +577,7 @@ app.get("/image", function (req: Request, res: Response) {
 
 app.get("/QRCode", function (req: Request, res: Response) {
     res.type("png");
-    res.status(200).sendFile(path.join(__dirname, "public/", config.addressToken + '.png'));
+    res.status(200).sendFile(path.join(config.cache, config.addressToken + '.png'));
 });
 
 
@@ -829,7 +841,7 @@ app.post("/apiV1/sale/transfer", verifyToken, async function (req: RequestCustom
                 id: req.body.tokenId as string,
                 isLocked: true,
                 destinationAddr,
-                isTransfered: true,
+                isTransferred: true,
             };
             saleEvents.insert(saleEvent);
             logger.info("server.transfer.initiated - token: %s, destination: %s", tokenId, destinationAddr);
@@ -839,7 +851,7 @@ app.post("/apiV1/sale/transfer", verifyToken, async function (req: RequestCustom
                     id: req.body.tokenId as string,
                     isLocked: true,
                     destinationAddr,
-                    isTransfered: true,
+                    isTransferred: true,
                     isFinalized: true,
                     txId: transactionReceipt.transactionHash,
                 };
@@ -872,8 +884,109 @@ app.post("/apiV1/sale/transfer", verifyToken, async function (req: RequestCustom
                 id: req.body.tokenId as string,
                 isLocked: true,
                 destinationAddr,
-                isTransfered: false,
+                isTransferred: false,
                 isFinalized: false,
+                txId: undefined,
+                error,
+            };
+            saleEvents.insert(saleEvent);
+        });
+});
+
+//
+// /apiV1/sale/transferEth
+// parameters: 
+//  - the token's id
+//  - the token's address
+//  - destination address (which the address from which the token is going to be paid)
+//  - the final token's price
+//
+// This end point records the sale of the specified token to the new owner when paid in Ether
+// The effective transfer is performed whan the ethers have been received
+// When ethers are reaching the smart contract, it is triggering an event which is received by the server and triggers the transfer
+//
+app.post("/apiV1/sale/transferEth", verifyToken, async function (req: RequestCustom, res: Response) {
+    const tokenAddr: string = req.body.tokenAddr;
+    const tokenId: string = req.body.tokenId;
+    const finalPrice: string = req.body.finalPrice;
+    const destinationAddr: string = req.body.destinationAddress;
+    const decimalsEth = 18;
+    console.log("transfer tokenId: ", tokenAddr, tokenId, destinationAddr);
+
+    logger.info("server.transfer.requested - token: %s, destination: %s, price: %s", tokenId, destinationAddr, finalPrice);
+    const saleEvent: SaleEventRecord = {
+        typeMsg: "transferRequest",
+        id: req.body.id as string,
+        isLocked: true,
+        destinationAddr,
+    };
+    saleEvents.insert(saleEvent);
+
+    /* 
+    
+    The NFT Smart contract is able to store sales records in the following format:
+
+    struct SaleRecord {
+        bytes32 buyer;                  // Buyer's address (can also be a bitcoin address)
+        uint128 price;                  // Price as an integer
+        uint8   decimals;               // Decimals applied to the price
+        bytes3  currency;               // Currency 3 letters Iso country code + ETH and BTC 
+        bytes1  network;                // Network on which the payment is performed
+        bytes1  status;                 // Sale's status: initiated, payed, completed, ....
+    }
+    */
+
+    const saleRecord = {
+        buyer: utils.formatBytes32String(destinationAddr),
+        decimals: decimalsEth,
+        price: parseFloat(finalPrice) * 10 ** decimalsEth,
+        currency: 'eth',
+        network: NFT4ART_ETH_NETWORK,
+        status: NFT4ART_SALE_INITIATED
+    };
+
+    let tokenWithSigner = token.connect(wallet);
+    tokenWithSigner
+        .saleRecord(tokenId, saleRecord)
+        .then((transferResult: TransactionResponse) => {
+            res.sendStatus(200);
+            const saleEvent: SaleEventRecord = {
+                typeMsg: NFT4ART_SALE_INITIATED_MSG,
+                id: tokenId,
+                isLocked: true,
+                destinationAddr: destinationAddr,
+                isTransferred: false,
+                isStored: false
+            };
+            saleEvents.insert(saleEvent);
+            logger.info("server.store.sale.init - token: %s, destination: %s", tokenId, destinationAddr);
+            transferResult.wait().then((transactionReceipt: TransactionReceipt) => {
+                const saleEvent: SaleEventRecord = {
+                    typeMsg: NFT4ART_SALE_STORED_MSG,
+                    id: tokenId,
+                    isLocked: true,
+                    destinationAddr: destinationAddr,
+                    isTransferred: false,
+                    isFinalized: false,
+                    isStored: true,
+                    txId: transactionReceipt.transactionHash,
+                };
+
+                saleEvents.insert(saleEvent);
+                logger.info("server.store.sale.performed token %s destination %s - TxHash: %s", tokenId, destinationAddr, transactionReceipt.transactionHash );
+            });
+        })
+        .catch((error: errors) => {
+            res.status(412).json(error);
+            logger.error("server.store.sale.error %s", error);
+            const saleEvent: SaleEventRecord = {
+                typeMsg: NFT4ART_SALE_INITIATED_MSG,
+                id: tokenId,
+                isLocked: true,
+                destinationAddr: destinationAddr,
+                isTransferred: false,
+                isFinalized: false,
+                isStored: false,
                 txId: undefined,
                 error,
             };
@@ -1091,7 +1204,7 @@ async function init() {
 
     if (!fs.existsSync(config.cacheFolder)) fs.mkdirSync(config.cacheFolder);
 
-    const QRaddr: string = path.join(__dirname, 'public/', config.addressToken + '.png');
+    const QRaddr: string = path.join(config.cache, config.addressToken + '.png');
     if(!fs.existsSync(QRaddr)) await QRCode.toFile(QRaddr, config.addressToken);
 
     let i: number = 0;
