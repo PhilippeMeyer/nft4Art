@@ -44,7 +44,7 @@ function TokenSale() {
 
     enqueueSnackbar('Transfer token to :' + decodedText);
     clearTimeout(myTimeout);
-    navigate('/sales/transfer/', { state: { token: token, address: decodedText  }});
+    navigate('/sales/transferEth/', { state: { token: token, address: decodedText, finalPrice: finalPrice, price: price  }});
   };
 
   const cancel = () => {

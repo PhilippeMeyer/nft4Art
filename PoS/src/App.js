@@ -16,6 +16,7 @@ import TokenSaleFiat from "./pages/TokenSaleFiat";
 import TokenSaleEth from "./pages/TokenSaleEth";
 import TokenSaleBtc from "./pages/TokenSaleBtc";
 import TokenTransfer from "./pages/TokenTransfer";
+import TokenTransferEth from "./pages/TokenTransferEth";
 import RegisteredPoS from './pages/RegisteredPoS';
 import './App.css';
 
@@ -45,6 +46,7 @@ function App() {
             <Route path="/sales/token/eth/:id" element={<TokenSaleEth />} />
             <Route path="/sales/token/btc/:id" element={<TokenSaleBtc />} />
             <Route path="/sales/transfer" element={<TokenTransfer />} />
+            <Route path="/sales/transferETh" element={<TokenTransferEth />} />
           </Routes>
         </div>
       </ThemeProvider>  
