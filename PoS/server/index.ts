@@ -994,6 +994,27 @@ app.post("/apiV1/sale/transferEth", verifyToken, async function (req: RequestCus
         });
 });
 
+app.post("/apiV1/token/mintFolder", async function (req: Request, res: Response) {
+    if (req.query.folderName === undefined)   return res.status(400).json({error: {name: 'noFolderSpecified', message: 'The Ipfs folder is missing'}});
+
+    const url = 'https://dweb.link/api/v0/ls?arg=' + req.query.folderName;
+    let resp = await axios.get(url);
+
+    var ids = resp.data.Objects[0].Links.map( (item: any) =>  path.parse(item.Name).name );
+    var existingIds = ids.filter((item: any) => metasMap.get(config.addressToken + item) !== undefined )
+    if (existingIds.length !=0 ) return res.status(400).json({error: {name: 'alreadyExistingToken', message: 'The contract already contains tokens Ids requested to mint'}});
+    var bigIntIds = ids.map((item: any) => {
+        try { return BigNumber.from(item);  }
+        catch(e) {return undefined}
+    })
+    if (bigIntIds.findIndex(Object.is.bind(null, undefined)) != -1) return res.status(400).json({error: {name: 'invalidId', message: 'One of the Ids to mint is invalid'}});
+    var amounts = bigIntIds.map((item: any) => constants.One);
+    let tokenWithSigner = token.connect(wallet);
+    var tx = await tokenWithSigner.mintBatch(bigIntIds, amounts, [] );
+    await tx.wait();
+    res.sendStatus(200);
+});
+
 app.get("/apiV1/generateWallets", verifyTokenManager, async function (req: Request, res: Response) {
     let nbWallets = 10;
     if (req.query.nbWallets !== undefined) nbWallets = parseInt(req.query.nbWallets as string);
@@ -1204,27 +1225,39 @@ async function init() {
 
     if (!fs.existsSync(config.cacheFolder)) fs.mkdirSync(config.cacheFolder);
 
-    const QRaddr: string = path.join(config.cache, config.addressToken + '.png');
+    const QRaddr: string = path.join(config.cacheFolder, config.addressToken + '.png');
     if(!fs.existsSync(QRaddr)) await QRCode.toFile(QRaddr, config.addressToken);
-
+    
     let i: number = 0;
-    let str: string;
+    let str: string, strToken: string;
     let data: any;
     let loop: boolean = true;
     let errTimeout: number = 0;
 
     // Retrieve the past events on this contract to find out which id have been minted
     // Mints are coming from address '0x0000000000000000000000000000000000000000' and can be performed by any operator (first topic)
-
     const events = await token.queryFilter(
         token.filters.TransferSingle(null, "0x0000000000000000000000000000000000000000"),
         0,
         "latest",
     );
+    console.log(events);
+    const eventsB = await token.queryFilter(
+        token.filters.TransferBatch(null, "0x0000000000000000000000000000000000000000"),
+        0,
+        "latest",
+    );
+    console.log(eventsB[0]?.args?.ids);
 
-    for (i = 0; i < events.length; i++) {
-        const id = events[i]?.args?.id;
-        str = await token.uri(id);
+    var ids: any[] = [];
+    events.forEach((evt) => ids.push(evt?.args?.id));
+    eventsB.forEach((evt) => ids.push(...evt?.args?.ids));
+    console.log(ids);
+
+    for (i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        strToken = await token.uri(id);
+        str = strToken.replace('ipfs:', 'https:').replace('/{id}', '.ipfs.dweb.link/' + id);
 
         if (errTimeout == 2) break; // If we face a timeout we retry twice
 
