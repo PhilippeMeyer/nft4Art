@@ -295,6 +295,14 @@ contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
     }
 
     //
+    // withdraw
+    // method to withdraw the eth received on the contract
+    //
+    function withdraw() public payable onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
+    }
+
+    //
     // saleRecord
     // Records a sale on a token and emits the corresponding event
     //
