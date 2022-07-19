@@ -29,3 +29,6 @@
 
 #Resize handler integrated in the map
 - https://www.hawatel.com/blog/handle-window-resize-in-react/
+
+#Sockets in the middleware
+- https://wanago.io/2021/12/20/redux-middleware-websockets/
