@@ -30,6 +30,7 @@
         "ethers-typescript-typings": "^0.0.4",
         "express": "^4.17.3",
         "express-winston": "^4.2.0",
+        "ipfs-http-client": "^57.0.3",
         "jsonwebtoken": "^8.5.1",
         "lokijs": "^1.5.12",
         "node-fetch": "^2.6.7",
