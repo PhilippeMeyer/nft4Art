@@ -55,6 +55,7 @@ config.priceFeedETH = process.env.APP_PRICE_FEED_ETH;
 config.priceFeedBTC = process.env.APP_PRICE_FEED_BTC;
 config.priceFeedCHF = process.env.APP_PRICE_FEED_CHF;
 config.gvdNftAbiFile = process.env.APP_GVDNFT_ABI_FILE;
+config.urlIpfs = process.env.APP_IPFS_URL;
 
 
 export interface RequestCustom extends Request {
@@ -994,11 +995,20 @@ app.post("/apiV1/sale/transferEth", verifyToken, async function (req: RequestCus
         });
 });
 
-app.post("/apiV1/token/mintFolder", async function (req: Request, res: Response) {
+//
+// /apiV1/token/mintIpfsFolder
+// parameter:
+//  - folderName: Ipfs CID of the folder where the tokens' metadata are stored
+//
+// This end point retrieves from Ipfs the content of the CID which should be a folder containig metadata files for eaxh token
+// For each metadata file the id is used to mint the corresponding token in the start contract
+// The quantity minted is defined in the metadata. If no amount is specified, default is one piece
+//
+app.post("/apiV1/token/mintIpfsFolder", verifyTokenManager, async function (req: Request, res: Response) {
     if (req.query.folderName === undefined)   return res.status(400).json({error: {name: 'noFolderSpecified', message: 'The Ipfs folder is missing'}});
 
-    const url = 'https://dweb.link/api/v0/ls?arg=' + req.query.folderName;
-    let resp = await axios.get(url);
+    const urlIpfs = config.urlIpfs + req.query.folderName;
+    let resp = await axios.get(urlIpfs);
 
     var ids = resp.data.Objects[0].Links.map( (item: any) =>  path.parse(item.Name).name );
     var existingIds = ids.filter((item: any) => metasMap.get(config.addressToken + item) !== undefined )
@@ -1008,11 +1018,14 @@ app.post("/apiV1/token/mintFolder", async function (req: Request, res: Response)
         catch(e) {return undefined}
     })
     if (bigIntIds.findIndex(Object.is.bind(null, undefined)) != -1) return res.status(400).json({error: {name: 'invalidId', message: 'One of the Ids to mint is invalid'}});
-    var amounts = bigIntIds.map((item: any) => constants.One);
+    
+    var amounts = resp.data.Objects[0].Links.map( (item: any) => item.amount === undefined ? constants.One : BigNumber.from(item.amount));
     let tokenWithSigner = token.connect(wallet);
-    var tx = await tokenWithSigner.mintBatch(bigIntIds, amounts, [] );
-    await tx.wait();
-    res.sendStatus(200);
+    try {
+        var tx = await tokenWithSigner.mintBatch(bigIntIds, amounts, [] );
+        await tx.wait();
+        res.sendStatus(200);
+    } catch(e) { res.status(400).json({error: {name: 'errorMintingTokens', message: 'Error minting the tokens'}}); }
 });
 
 app.get("/apiV1/generateWallets", verifyTokenManager, async function (req: Request, res: Response) {
@@ -1206,6 +1219,38 @@ app.put("/lockUnlock", async (req: Request, res: Response) => {
     res.status(204).send();
 });
 
+function receivedEthCallback(from: any, amount: BigInteger, event: any) {
+/*
+  from: 0x9DF6A10E3AAfd916A2E88E193acD57ff451C445A 
+  amount: BigNumber { _hex: '0x016345785d8a0000', _isBigNumber: true } 
+  event: {
+  blockNumber: 11050043,
+  blockHash: '0x070d1213a4c692e11a1cbf66464112bd8e5063ea98178bae3da48a1e869cda23',
+  transactionIndex: 16,
+  removed: false,
+  address: '0xf0962Ff23517E8C4F20E402c8132d433C946DF11',
+  data: '0x0000000000000000000000009df6a10e3aafd916a2e88e193acd57ff451c445a000000000000000000000000000000000000000000000000016345785d8a0000',
+  topics: [
+    '0x52a6cdf67c40ce333b3d846e4e143db87f71dd7935612a4cafcf6ba76047ca1f'
+  ],
+  transactionHash: '0xf2d56b067d289a29b59687d0baaa7da2cb2290e630ab613870f9d07e1d88e9d5',
+  logIndex: 33,
+  removeListener: [Function (anonymous)],
+  getBlock: [Function (anonymous)],
+  getTransaction: [Function (anonymous)],
+  getTransactionReceipt: [Function (anonymous)],
+  event: 'ReceivedEth',
+  eventSignature: 'ReceivedEth(address,uint256)',
+  decode: [Function (anonymous)],
+  args: [
+    '0x9DF6A10E3AAfd916A2E88E193acD57ff451C445A',
+    BigNumber { _hex: '0x016345785d8a0000', _isBigNumber: true }
+  ]
+}
+*/
+    console.log('from:', from, 'amount:', amount, 'event:', event);
+}
+
 //
 // Server initialization
 //
@@ -1221,6 +1266,8 @@ async function init() {
     // Connect to Infura and connect to the token
     ethProvider = await new providers.InfuraProvider(config.network, config.infuraKey);
     token = await new Contract(config.addressToken, gvdNftDef.abi, ethProvider);
+    var receivedEth = token.filters.ReceivedEth();
+    token.on(receivedEth, receivedEthCallback)
     logger.info("server.init %s", token.address);
 
     if (!fs.existsSync(config.cacheFolder)) fs.mkdirSync(config.cacheFolder);
