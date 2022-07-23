@@ -519,7 +519,7 @@ async function isAddressOwningToken(address: string) {
     });
     transfersBatch.forEach((evt) => {
         const idsToInsert = evt.args?.ids;
-        ids.concat(idsToInsert);
+        ids.push(...idsToInsert);
         idsToInsert.forEach(() => addresses.push(address));
     });
 
