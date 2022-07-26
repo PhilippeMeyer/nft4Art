@@ -453,7 +453,7 @@ function registerPoS(device: DeviceServerSide & DeviceFromClient, pass: string, 
 // Companion app login into the server
 //
 // The companion app stores the customer's private key and sends a signed message for the login
-// This message contains the uuid associated with the app. This end point verifies the signature and checks that 
+// This message contains the uuid associated with the app. This end point verifies the signature and checks that
 // the associated ethereum address is not already associated with a different uuid. If no uuid is associated with that
 // address, the uuid is stored in the server's database
 //
@@ -471,7 +471,7 @@ app.post("/apiV1/auth/appLogin", async function (req: Request, res: Response) {
     const login = req.body as AppLogin;
     logger.info('server.loginApp %s', login.message.address);
 
-    let app = appIds.findOne({address: login.message.address}); 
+    let app = appIds.findOne({address: login.message.address});
     if (app == null) appIds.insert(login.message);
     else {
         if (app.appId != login.message.appId) {
@@ -482,14 +482,14 @@ app.post("/apiV1/auth/appLogin", async function (req: Request, res: Response) {
             logger.info('server.loginApp.messageAlreadyUsed');
             return res.status(403).json({error: 'login message already received'})
         }
-        
+
         app.nonce = login.message.nonce;
         appIds.update(app);
     }
-    
+
     if(!isSignatureValid(login)) {
         logger.info('server.loginApp.invalidSinature');
-        return res.status(403).json({error: 'invalid signature'})       
+        return res.status(403).json({error: 'invalid signature'})
     }
     if(! await isAddressOwningToken(login.message.address)) return res.status(403).json({error: 'address is not an owner of a token'});
 
@@ -502,7 +502,7 @@ app.post("/apiV1/auth/appLogin", async function (req: Request, res: Response) {
 // - address: the owner's address
 //
 // This function checks the Ethereum logs to find out whether the address is owning a token or not.
-// TODO: to ensure a decent response time for the application login, this information will be cached on the server. 
+// TODO: to ensure a decent response time for the application login, this information will be cached on the server.
 // It should be loaded when the server initializes and will be updated with the Ethereum notifications
 //
 async function isAddressOwningToken(address: string) {
@@ -530,7 +530,7 @@ async function isAddressOwningToken(address: string) {
     balances.forEach((bal: BigNumber) => {
         if(bal.gt(constants.Zero)) owner = true;
     });
-    
+
     return owner;
 }
 
@@ -585,17 +585,19 @@ app.get("/QRCode", function (req: Request, res: Response) {
 app.get('/apiV1/information/video', function(req: Request, res: Response) {
     logger.info('server.playVideo %s', req.query.address);
 
-    //TODO select the video to be played from the customer's address
-
-    const filePath = path.join(__dirname, "public/sample-mp4-file.mp4");
-    const stat = fs.statSync(filePath);
-    const fileSize = stat.size
-    const head = {
-      'Content-Length': fileSize,
-      'Content-Type': 'video/mp4',
-    }
-    res.writeHead(200, head)
-    fs.createReadStream(filePath).pipe(res)
+    // //TODO select the video to be played from the customer's address
+    //
+    // const filePath = path.join(__dirname, "public/sample-mp4-file.mp4");
+    // const stat = fs.statSync(filePath);
+    // const fileSize = stat.size
+    // const head = {
+    //   'Content-Length': fileSize,
+    //   'Content-Type': 'video/mp4',
+    // }
+    // res.writeHead(200, head)
+    // fs.createReadStream(filePath).pipe(res)
+    const videoLink = "https://nft4art.blob.core.windows.net/videos/response.mp4?sv=2020-10-02&st=2022-07-26T17%3A59%3A40Z&se=2100-07-27T17%3A59%3A00Z&sr=b&sp=r&sig=S29JzNmXFCu%2BoiVx%2FZIkqaJpSe%2BAvgiVesz0WkIeyKQ%3D"
+    return res.status(200).json({ videoLink });
   })
 
 //
@@ -603,10 +605,10 @@ app.get('/apiV1/information/video', function(req: Request, res: Response) {
 // Get the price of a token in a given currency
 //
 // Parameters:  tokenId: the id of the token (concatenation of the token address and the tokenId)
-//              crypto : crypto currency in which the price is converted (eth or btc)  
+//              crypto : crypto currency in which the price is converted (eth or btc)
 //
 // Returns:     tokenId: the id of the token (concatenation of the token address and the tokenId)
-//              crypto : crypto currency in which the price is converted (eth or btc)  
+//              crypto : crypto currency in which the price is converted (eth or btc)
 //              price : the price converted in fiat currency
 //              priceFiat : the original price
 //              rate : the rate which has been used for the conversion
@@ -627,15 +629,15 @@ app.get('/apiV1/priceInCrypto', function (req :Request, res :Response) {
 		res.status(404).json({error: {name: 'tokenNotFound', message: 'The specified token is not in the database'}});
 		return;
 	}
-  
+
   Promise.all([
     axios.get(config.priceFeedCHF),
     axios.get(req.query.crypto == 'eth' ? config.priceFeedETH : config.priceFeedBTC)
   ])
     .then(response => {
         let rate: number = response[1].data.data.rateUsd * response[0].data.data.rateUsd;
-        res.status(200).json({  tokenid: req.query.tokenId, 
-                                crypto: req.query.crypto, 
+        res.status(200).json({  tokenid: req.query.tokenId,
+                                crypto: req.query.crypto,
                                 price: token.price / rate,
                                 priceFiat: token.price,
                                 rate:  rate})
@@ -798,14 +800,14 @@ app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCust
           res.sendStatus(400).json({error: {name: 'noURISpecified', message: 'The Uri for the contract is missing'}});
           return;
       }
-  
+
     let factory = new ContractFactory(gvdNftDef.abi, gvdNftDef.data.bytecode.object, wallet);
     let contract = await factory.deploy(req.query.uri);
     await contract.deployed();
     res.status(200).json({contractAddress: contract.address});
-    
+
   });
-  
+
 //
 // /apiV1/sale/transfer, parameters: the token's id and the destination address
 //
@@ -896,7 +898,7 @@ app.post("/apiV1/sale/transfer", verifyToken, async function (req: RequestCustom
 
 //
 // /apiV1/sale/transferEth
-// parameters: 
+// parameters:
 //  - the token's id
 //  - the token's address
 //  - destination address (which the address from which the token is going to be paid)
@@ -923,15 +925,15 @@ app.post("/apiV1/sale/transferEth", verifyToken, async function (req: RequestCus
     };
     saleEvents.insert(saleEvent);
 
-    /* 
-    
+    /*
+
     The NFT Smart contract is able to store sales records in the following format:
 
     struct SaleRecord {
         bytes32 buyer;                  // Buyer's address (can also be a bitcoin address)
         uint128 price;                  // Price as an integer
         uint8   decimals;               // Decimals applied to the price
-        bytes3  currency;               // Currency 3 letters Iso country code + ETH and BTC 
+        bytes3  currency;               // Currency 3 letters Iso country code + ETH and BTC
         bytes1  network;                // Network on which the payment is performed
         bytes1  status;                 // Sale's status: initiated, payed, completed, ....
     }
@@ -1018,7 +1020,7 @@ app.post("/apiV1/token/mintIpfsFolder", verifyTokenManager, async function (req:
         catch(e) {return undefined}
     })
     if (bigIntIds.findIndex(Object.is.bind(null, undefined)) != -1) return res.status(400).json({error: {name: 'invalidId', message: 'One of the Ids to mint is invalid'}});
-    
+
     var amounts = resp.data.Objects[0].Links.map( (item: any) => item.amount === undefined ? constants.One : BigNumber.from(item.amount));
     let tokenWithSigner = token.connect(wallet);
     try {
@@ -1221,8 +1223,8 @@ app.put("/lockUnlock", async (req: Request, res: Response) => {
 
 function receivedEthCallback(from: any, amount: BigInteger, event: any) {
 /*
-  from: 0x9DF6A10E3AAfd916A2E88E193acD57ff451C445A 
-  amount: BigNumber { _hex: '0x016345785d8a0000', _isBigNumber: true } 
+  from: 0x9DF6A10E3AAfd916A2E88E193acD57ff451C445A
+  amount: BigNumber { _hex: '0x016345785d8a0000', _isBigNumber: true }
   event: {
   blockNumber: 11050043,
   blockHash: '0x070d1213a4c692e11a1cbf66464112bd8e5063ea98178bae3da48a1e869cda23',
@@ -1274,7 +1276,7 @@ async function init() {
 
     const QRaddr: string = path.join(config.cacheFolder, config.addressToken + '.png');
     if(!fs.existsSync(QRaddr)) await QRCode.toFile(QRaddr, config.addressToken);
-    
+
     let i: number = 0;
     let str: string, strToken: string;
     let data: any;
