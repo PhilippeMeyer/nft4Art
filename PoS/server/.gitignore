@@ -2,4 +2,9 @@ node_modules/**
 cache/**
 build/**
 .env*
-index.js
+*.js
+tests/*.js
+services/*.js
+nft4Art.json
+nft4Art.json
+nft4art.db
