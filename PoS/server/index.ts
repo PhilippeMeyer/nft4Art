@@ -20,6 +20,8 @@ import { fileURLToPath } from "url";
 import os from "os";
 import { waitFor } from "./waitFor.js";
 import { logConf } from "./loggerConfiguration.js";
+//import * as dbPoS from './services/db.js';
+import * as dbPos from './services/db.js';
 
 // TODO: Env var?
 const webSite: string = "http://192.168.1.5:8999";
@@ -61,6 +63,7 @@ config.urlIpfs = process.env.APP_IPFS_URL;
 export interface RequestCustom extends Request {
     deviceId?: string;
     manager?: string;
+    address?: string;
 }
 
 // Read the ABI of the GovernedNft contract
@@ -97,6 +100,8 @@ const { format, transports } = logConf;
 const logger = winston.createLogger({ format, transports });
 
 // Database creation
+
+dbPos.initDb();
 
 let options: Partial<LokiConstructorOptions> & Partial<LokiConfigOptions> & Partial<ThrottledSaveDrainOptions> = {
     autoload: true,
@@ -151,6 +156,7 @@ const cleanup = (callback: () => void) => {
 
 const exitHandler = () => {
     db.saveDatabase();
+    dbPos.closeDb();
     console.log("Server stopping...saved database");
 };
 
@@ -233,6 +239,7 @@ const verifyToken = (req: RequestCustom, res: Response, next: NextFunction) => {
 
         req.deviceId = decoded.id;
         req.manager = decoded.manager;
+        req.address = decoded.address;
         next();
     });
 };
@@ -298,6 +305,14 @@ type DeviceServerSide = {
     authorized?: boolean;
 };
 
+type registeredPosRecord = {
+    deviceId: string;
+    autorized: number; 
+    namePoS: string;
+    browser: string;
+    browserVersion: string;
+    ip: string;
+}
 //
 // /apiV1/auth/sigin
 // Signin into the server
@@ -335,6 +350,7 @@ app.post("/apiV1/auth/signin", function (req: Request, res: Response) {
                     registerPoS({ ...device, ...verification }, pass, res);
                 })
                 .catch(function (data) {
+                    console.log(data);
                     logger.info("server.signin.wrongCredentials");
                     res.status(403).send({
                         error: {
@@ -404,7 +420,9 @@ function registerPoS(device: DeviceServerSide & DeviceFromClient, pass: string, 
     if (!device.authorized) device.authorized = false;
     manager = typeof pass !== "undefined";
 
-    const pos: any = registeredPoS.findOne({ deviceId: device.deviceId });
+//    const pos: any = registeredPoS.findOne({ deviceId: device.deviceId });
+    const pos: any = dbPos.findRegisteredPos(device.deviceId);
+    console.log(pos);
     if (pos == null) {
         if (!device.authorized) {
             // The PoS has not been registered and no password has been provided -> reject
@@ -420,14 +438,15 @@ function registerPoS(device: DeviceServerSide & DeviceFromClient, pass: string, 
             // This is a new PoS connected with the manager's login -> register
             logger.info("server.signin.newPoS %s", device);
             device.authorized = true;
-            registeredPoS.insert(device);
+            //registeredPoS.insert(device);
+            dbPos.insertNewPos(device);
             const token = jwt.sign({ id: device.deviceId, manager: manager }, config.secret, { expiresIn: jwtExpiry });
             res.status(200).send({ id: device.deviceId, accessToken: token });
             return;
         }
     } else {
         // The PoS has been registered
-        if (!pos.authorized) {
+        if (pos.authorized == 0) {
             logger.info("server.signin.posNotAuthorized");
             res.status(403).json({
                 error: {
@@ -440,7 +459,8 @@ function registerPoS(device: DeviceServerSide & DeviceFromClient, pass: string, 
             // The PoS is authorized -> Ok
             logger.info("server.signin.success %s", device);
             pos.ip = device.ip; // Updating the client's ip address
-            registeredPoS.update(pos);
+            //registeredPoS.update(pos);
+            dbPos.updateIpRegisteredPos(device.deviceId, device.ip as string);
             const token = jwt.sign({ id: device.deviceId, manager: manager }, config.secret, { expiresIn: jwtExpiry });
             res.status(200).send({ id: device.deviceId, accessToken: token });
             return;
@@ -471,8 +491,10 @@ app.post("/apiV1/auth/appLogin", async function (req: Request, res: Response) {
     const login = req.body as AppLogin;
     logger.info('server.loginApp %s', login.message.address);
 
-    let app = appIds.findOne({address: login.message.address}); 
-    if (app == null) appIds.insert(login.message);
+    //let app = appIds.findOne({address: login.message.address}); 
+    let app = dbPos.findAppId(login.message.address); 
+    //if (app == null) appIds.insert(login.message);
+    if (app == null) dbPos.insertNewAppId(login.message);
     else {
         if (app.appId != login.message.appId) {
             logger.info('server.loginApp.alreadyRegistered');
@@ -484,17 +506,37 @@ app.post("/apiV1/auth/appLogin", async function (req: Request, res: Response) {
         }
         
         app.nonce = login.message.nonce;
-        appIds.update(app);
+        //appIds.update(app);
+        dbPos.updateNonceAppId(login.message.appId, login.message.nonce);
     }
     
     if(!isSignatureValid(login)) {
-        logger.info('server.loginApp.invalidSinature');
+        logger.info('server.loginApp.invalidSignature');
         return res.status(403).json({error: 'invalid signature'})       
     }
     if(! await isAddressOwningToken(login.message.address)) return res.status(403).json({error: 'address is not an owner of a token'});
 
     const token = jwt.sign({ id: login.message.appId, address: login.message.address }, config.secret, { expiresIn: jwtExpiry });
     return  res.status(200).json({ appId: login.message.appId, accessToken: token });
+});
+
+//
+// /apiV1/auth/appLoginDrop
+// Drop a registration for a companion app
+//
+// The companion app logs into the system via 
+app.post("/apiV1/auth/appLoginDrop", verifyToken, async function (req: RequestCustom, res: Response) {
+    if (req.deviceId === undefined) return res.status(403).json({error: 'no appId provided in the token'});
+    if (req.address === undefined) return res.status(403).json({error: 'no address provided in the token'});
+    logger.info('server.appLoginDrop %s', req.deviceId);
+
+    //let app = appIds.findOne({address: req.address}); 
+    let app = dbPos.findAppId(req.address); 
+    if (app == null) return res.status(200).json({status: 'no app registered for this address'});
+    
+    //appIds.remove(app);
+    dbPos.removeAppId(app.appId);
+    return res.status(200).json({status: 'appId ' + req.deviceId + ' removed for address ' + req.address});
 });
 
 //
@@ -622,16 +664,17 @@ app.get('/apiV1/priceInCrypto', function (req :Request, res :Response) {
 		return;
 	}
 
-	var token: any = tokens.findOne({id: req.query.tokenId});
+	//var token: any = tokens.findOne({id: req.query.tokenId});
+    var token: any = dbPos.findToken(req.query.tokenId as string);
 	if (token == null) {
 		res.status(404).json({error: {name: 'tokenNotFound', message: 'The specified token is not in the database'}});
 		return;
 	}
   
-  Promise.all([
-    axios.get(config.priceFeedCHF),
-    axios.get(req.query.crypto == 'eth' ? config.priceFeedETH : config.priceFeedBTC)
-  ])
+    Promise.all([
+        axios.get(config.priceFeedCHF),
+        axios.get(req.query.crypto == 'eth' ? config.priceFeedETH : config.priceFeedBTC)
+    ])
     .then(response => {
         let rate: number = response[1].data.data.rateUsd * response[0].data.data.rateUsd;
         res.status(200).json({  tokenid: req.query.tokenId, 
@@ -668,7 +711,8 @@ app.put("/apiV1/price/update", verifyTokenManager, (req: Request, res: Response)
         return;
     }
 
-    const token: any = tokens.findOne({ id: req.query.tokenId });
+    //const token: any = tokens.findOne({ id: req.query.tokenId });
+    var token: any = dbPos.findToken(req.query.tokenId as string);
     if (token == null) {
         res.status(404).json({
             error: {
@@ -679,8 +723,9 @@ app.put("/apiV1/price/update", verifyTokenManager, (req: Request, res: Response)
         return;
     }
 
-    token.price = req.query.price;
-    tokens.update(token);
+    //token.price = req.query.price;
+    //tokens.update(token);
+    dbPos.updatePriceToken(req.query.tokenId as string, parseFloat(req.query.price as string));
     res.sendStatus(200);
     sendPrice(token.id, token.price);
 });
@@ -702,7 +747,8 @@ app.put("/apiV1/price/updates", verifyTokenManager, function (req: Request, res:
     }
 
     tokensUpdate.forEach((item: any) => {
-        var token: any = tokens.findOne({ id: item.id });
+        //var token: any = tokens.findOne({ id: item.id });
+        var token: any = dbPos.findToken(item.id as string);
         if (token == null) {
             res.status(404).json({
                 error: {
@@ -713,8 +759,9 @@ app.put("/apiV1/price/updates", verifyTokenManager, function (req: Request, res:
             return;
         }
 
-        token.price = item.price;
-        tokens.update(token);
+        //token.price = item.price;
+        //tokens.update(token);
+        dbPos.updatePriceToken(item.id as string, parseFloat(item.price as string));
         sendPrice(token.id, token.price);
     });
 
@@ -733,7 +780,7 @@ app.get("/apiV1/auth/registeredPoS", verifyTokenManager, function (req: Request,
 //
 // /apiV1/log/allEvents
 //
-// This end point sends back the registered PoS
+// This end point sends back the events of the day
 //
 app.get("/apiV1/log/allEvents", verifyTokenManager, function (req: Request, res: Response) {
     let start: Date = new Date();
@@ -741,7 +788,6 @@ app.get("/apiV1/log/allEvents", verifyTokenManager, function (req: Request, res:
     let end: Date = new Date();
     end.setUTCHours(23, 59, 59, 999);
 
-    //var results: any = saleEvents.find({when: {between: [start, end]}});
     var results: any = saleEvents.find({
         "meta.created": { $between: [start.getTime(), end.getTime()] },
     });
@@ -1201,7 +1247,7 @@ setInterval(() => {
 }, 10000);
 
 app.put("/lockUnlock", async (req: Request, res: Response) => {
-    let id: any = req.query.id;
+    let id: string = req.query.id as string;
     let token: any = metasMap.get(id);
     let lock: any = req.query.lock;
 
@@ -1215,7 +1261,8 @@ app.put("/lockUnlock", async (req: Request, res: Response) => {
     const saleEvent = { typeMsg: "lock", id, lock };
     saleEvents.insert(saleEvent);
     sendLock(req.query.id as string, token.isLocked);
-    tokens.update(token);
+    //tokens.update(token);
+    dbPos.updateLockToken(id, token.isLocked ? 1 : 0)
     res.status(204).send();
 });
 
@@ -1309,8 +1356,9 @@ async function init() {
         if (errTimeout == 2) break; // If we face a timeout we retry twice
 
         try {
-            data = tokens.findOne({ id: config.addressToken + id }); // Store information in the database if not existing
-            if (data == null) {
+            //data = tokens.findOne({ id: config.addressToken + id }); // Store information in the database if not existing
+            var dataFromDb = dbPos.findToken(config.addressToken + id );
+            if (dataFromDb == null) {
                 logger.info("server.init.loadTokens.fromIpfs %s", str);
                 let resp = await axios.get(str); // The data is not in cache, we retrieve the JSON from Ipfs
                 data = resp.data;
@@ -1320,8 +1368,10 @@ async function init() {
                 data.addr = config.addressToken;
                 data.isLocked = false;
                 data.price = 0;
-                tokens.insert(data);
+                //tokens.insert(data);
+                dbPos.insertNewToken(data);
             } else {
+                data = JSON.parse(dataFromDb.jsonData);
                 logger.info("server.init.loadTokens.fromCache %s", str);
             }
         } catch (error) {

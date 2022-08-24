@@ -1,9 +1,16 @@
 import { utils, Wallet } from "ethers";
 import fetch from 'node-fetch';
 
-//const url = 'http://localhost:8999/apiV1/auth/appLogin';
-const url = 'https://nft4artpos.glitch.me/apiV1/auth/appLogin';
-const wallet: Wallet = Wallet.createRandom();
+const server = 'http://localhost:8999';
+const appId = 'test';
+//const server = 'https://nft4artpos.glitch.me';
+//const appId = 'fa70a269-784b-4c81-ad0c-06e63beec5d9';
+
+const url = server + '/apiV1/auth/appLogin';
+const urlDrop = server + '/apiV1/auth/appLoginDrop';
+//const wallet: Wallet = Wallet.createRandom();
+const wallet: Wallet = Wallet.fromMnemonic('ski ring tiny nephew beauty develop diesel gadget defense discover border cactus');
+var jwt: string = "";
 
 type AppLogin = {
     signature: string;
@@ -16,7 +23,7 @@ type AppLoginMessage = {
 };
 
 const addr = await wallet.getAddress();
-const appLoginMessage: AppLoginMessage = { appId: 'test', address: addr, nonce: 1};
+const appLoginMessage: AppLoginMessage = { appId: appId, address: addr, nonce: Date.now()};
 console.log('message: ', JSON.stringify(appLoginMessage));
 const signature = await wallet.signMessage(JSON.stringify(appLoginMessage));
 console.log('signature:', signature);
@@ -36,9 +43,10 @@ try {
         body: JSON.stringify(msg)
     }); 
 
-    // Should not work as nonce as not been incremented
     const ret1 = await res1.json();
     console.log(ret1);
+
+    if(res1.status == 200) jwt = ret1.accessToken;
 
     const res2 = await fetch(url, {
         method: 'POST',
@@ -82,5 +90,12 @@ try {
 
     const ret4 = await res4.json();
     console.log(ret4);
+
+    const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt };
+
+    const res5 = await fetch(urlDrop, { method: 'POST', headers: jwtHeader, body: JSON.stringify(msg) }); 
+
+    const ret5 = await res5.json();
+    console.log(ret5);
 }
 catch(e) {console.log(e);}
