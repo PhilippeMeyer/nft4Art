@@ -58,12 +58,15 @@ config.priceFeedBTC = process.env.APP_PRICE_FEED_BTC;
 config.priceFeedCHF = process.env.APP_PRICE_FEED_CHF;
 config.gvdNftAbiFile = process.env.APP_GVDNFT_ABI_FILE;
 config.urlIpfs = process.env.APP_IPFS_URL;
+config.dbName = process.env.APP_DB_NAME;
+config.creationScript = process.env.APP_DB_CREATION_SCRIPT;
 
 
 export interface RequestCustom extends Request {
     deviceId?: string;
     manager?: string;
     address?: string;
+    appId?: string;
 }
 
 // Read the ABI of the GovernedNft contract
@@ -101,7 +104,7 @@ const logger = winston.createLogger({ format, transports });
 
 // Database creation
 
-dbPos.initDb();
+dbPos.initDb(config);
 
 let options: Partial<LokiConstructorOptions> & Partial<LokiConfigOptions> & Partial<ThrottledSaveDrainOptions> = {
     autoload: true,
@@ -277,6 +280,38 @@ const verifyTokenManager = (req: RequestCustom, res: Response, next: NextFunctio
                 error: { message: "Not authorized !", name: "NotAuthorized" },
             });
 
+        next();
+    });
+};
+
+//
+// verifyTokenApp
+// Helper function to verify a token coming from the mobile app.
+// This is called by the end points to verify if the JWT is valid
+//
+// When the token is expired, the app will reinitiate a login procedure
+//
+const verifyTokenApp = (req: RequestCustom, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+        logger.info("server.verifyToken.missingToken");
+        return res.status(401).json({
+            error: { message: "No token provided!", name: "NoTokenProvided" },
+        });
+    }
+    jwt.verify(token, config.secret, (err: any, decoded: any) => {
+        if (err) {
+            const status = err.name == "TokenExpiredError" ? 401 : 403;
+
+            return res.status(status).json({
+                error: err,
+            });
+        }
+
+        req.appId = decoded.appId;
+        req.address = decoded.address;
         next();
     });
 };
@@ -525,7 +560,7 @@ app.post("/apiV1/auth/appLogin", async function (req: Request, res: Response) {
 // Drop a registration for a companion app
 //
 // The companion app logs into the system via 
-app.post("/apiV1/auth/appLoginDrop", verifyToken, async function (req: RequestCustom, res: Response) {
+app.post("/apiV1/auth/appLoginDrop", verifyTokenApp, async function (req: RequestCustom, res: Response) {
     if (req.deviceId === undefined) return res.status(403).json({error: 'no appId provided in the token'});
     if (req.address === undefined) return res.status(403).json({error: 'no address provided in the token'});
     logger.info('server.appLoginDrop %s', req.deviceId);
@@ -544,10 +579,20 @@ app.post("/apiV1/auth/appLoginDrop", verifyToken, async function (req: RequestCu
 // - address: the owner's address
 //
 // This function checks the Ethereum logs to find out whether the address is owning a token or not.
-// TODO: to ensure a decent response time for the application login, this information will be cached on the server. 
+async function isAddressOwningToken(address: string) {
+    let ret = await tokensOwnedByAddress(address || "");
+    return ret.length != 0;
+}
+
+//
+// tokensOwnedByAddress(address: string)
+//
+// This function builds the balance on each token for a given address
+//
+// TODO: to ensure a decent response time for the application login, this information will be cached on the server.
 // It should be loaded when the server initializes and will be updated with the Ethereum notifications
 //
-async function isAddressOwningToken(address: string) {
+async function tokensOwnedByAddress(address: string): Promise<{ tokenId: BigNumber; balance: BigNumber }[]> {
     //address = '0x9DF6A10E3AAfd916A2E88E193acD57ff451C445A';
     const transfersSingle = await token.queryFilter( token.filters.TransferSingle(null, null, address), 0, "latest");
     const transfersBatch = await token.queryFilter( token.filters.TransferBatch(null, null, address), 0, "latest");
@@ -565,15 +610,16 @@ async function isAddressOwningToken(address: string) {
         idsToInsert.forEach(() => addresses.push(address));
     });
 
-    if(ids.length == 0) return false;
+    let ret: { tokenId: BigNumber; balance: BigNumber }[] = [];
+
+    if(ids.length == 0) return ret;
 
     const balances = await token.balanceOfBatch(addresses, ids);
-    let owner: boolean = false;
-    balances.forEach((bal: BigNumber) => {
-        if(bal.gt(constants.Zero)) owner = true;
+    balances.forEach((bal: BigNumber, index: number) => {
+        if(bal.gt(constants.Zero)) ret.push({tokenId: ids[index], balance: bal});
     });
-    
-    return owner;
+
+    return ret;
 }
 
 //
@@ -624,7 +670,7 @@ app.get("/QRCode", function (req: Request, res: Response) {
 });
 
 
-app.get('/apiV1/information/video', function(req: Request, res: Response) {
+app.get('/apiV1/information/video', verifyTokenApp, function(req: Request, res: Response) {
     logger.info('server.playVideo %s', req.query.address);
 
     //TODO select the video to be played from the customer's address
@@ -639,6 +685,29 @@ app.get('/apiV1/information/video', function(req: Request, res: Response) {
     res.writeHead(200, head)
     fs.createReadStream(filePath).pipe(res)
   })
+
+//
+// /apiV1/information/tokensOwned
+// List the tokens owned by a customer
+//
+// Returns the tokens owned by a customer based on his address contained in the JWT
+//
+app.get('/apiV1/information/tokensOwned', verifyTokenApp, async function(req: RequestCustom, res: Response) {
+    logger.info('server.tokensOwned %s', req.address);
+
+    const tokens = await tokensOwnedByAddress(req.address || "");
+    res.status(200).json({address: token.address, tokens: tokens});
+});
+
+app.get('/apiV1/information/3Dmodel', verifyTokenApp, function(req: RequestCustom, res: Response) {
+    logger.info('server.tokensOwned %s', req.address);
+
+    const filePath = path.join(__dirname, "public/sample-mp4-file.mp4");
+    const buff = fs.readFileSync(filePath);
+    const buffB64 = buff.toString('base64');
+
+    res.status(200).json({type: 'stl', data: buffB64});
+});
 
 //
 // /apiV1/priceInCrypto
