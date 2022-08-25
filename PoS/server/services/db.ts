@@ -1,5 +1,6 @@
 import sqlite, { Database } from 'better-sqlite3';
 import path from "path";
+import fs from "fs";
 
 var db : Database;
 
@@ -9,8 +10,17 @@ function findOne(table: string, fieldName: string, id: string) {
     else return result[0];
 }
 
-const initDb =  function() {
-    db = new sqlite(path.resolve('nft4art.db'), {fileMustExist: true});
+const initDb =  function(config: any) {
+    const dbFile: string = path.resolve(config.dbName);
+    const dbScript: string = path.resolve(config.creationScript);
+
+    if (fs.existsSync(dbFile)) db = new sqlite(dbFile, {fileMustExist: true});
+    else {
+        const script = fs.readFileSync(dbScript);
+        // TODO Manage the case when the script does not exist
+        db = new sqlite(dbFile, {fileMustExist: false});
+        db.exec(script.toString());
+    }
 }
 
 const closeDb = function() {
