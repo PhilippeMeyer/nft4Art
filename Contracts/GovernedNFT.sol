@@ -89,9 +89,65 @@ contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
     uint256 private _endTimestamp;                      // end of the current vote
     mapping(uint128 => Ballot[]) private _ballots;      // ballots organised by votes
     mapping(uint256 => SaleRecord) private _sales;      // sale status per tokenId
+    mapping(uint256 => string) private _uris;           // specific uris for some tokens overriding the default one
+    string private _defaultUri;                         // default URI to be used by all the tokens
 
-    constructor(string memory uri_) Ownable() ERC1155(uri_) EIP712("GovernedNFT", "1.0.0") {
+    constructor() Ownable() ERC1155("") EIP712("GovernedNFT", "1.0.0") {
         _currentVoteId = 0;
+    }
+
+    // setDefaultURI
+    // Sets the default URI for the tokens
+    //
+    // Parameters:
+    //  - The generic URI for all the tokens (ipfs://<cid>/{id}.json)
+    //
+    // The default URI is generally an Ipfs directory and has the following structure
+    // ipfs://<cid>/{tokenId}.json. The expected parameter is the full chain not only the cid
+    //
+    function setDefaultURI(string memory uri_) public {
+        _defaultUri = uri_;
+    }
+
+    // getDefaultURi
+    // Returns the default URI for the whole smart contract
+    //
+    // No parameter
+    //
+    // Returns the uri which has been set by setDefaultURI
+    //
+    function getDefaultURi() public view returns (string memory) {
+        return _defaultUri;
+    }
+
+    //
+    // setURI
+    // Sets a specific Uri for a specific token
+    //
+    // Parameters:
+    //  - the tokenId for which a specific Uri is defined
+    //  - the uri to associate with the token
+    //
+    // This function stores in the mapping _uris the uri passed as argument
+    //
+    function setURI(uint256 tokenId_, string memory uri_) public {
+        _uris[tokenId_] = uri_;
+    }
+
+    //
+    // uri
+    // Returns the URI associated with a token
+    //
+    // Parameters:
+    //  - tokenId : uint256 containing the tokenId for which the uri is requested
+    //
+    // A specific uri can be set by setURI to override the default uri set by setDefaultURI
+    // This function looks into the mapping of the specific uris and returns either the specific uri 
+    // if specified or the default one
+    //
+    function uri(uint256 tokenId_) public view virtual override returns (string memory) {
+        if (bytes(_uris[tokenId_]).length != 0) return _uris[tokenId_];
+        return _defaultUri;
     }
 
     //
