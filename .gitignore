@@ -1,8 +1,8 @@
-PoS/server/node_modules/**
-PoS/server/cache/**
-PoS/server/build/**
+PoS/server-old/node_modules/**
+PoS/server-old/cache/**
+PoS/server-old/build/**
 PoS/node_modules/**
 PoS/build/**
-PoS/server/nft4Art.json*
-PoS/server/nft4Art.json
-PoS/server/public/sample-mp4-file.mp4
+PoS/server-old/nft4Art.json*
+PoS/server-old/nft4Art.json
+PoS/server-old/public/sample-mp4-file.mp4
