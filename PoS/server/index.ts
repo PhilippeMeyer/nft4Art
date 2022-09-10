@@ -129,9 +129,10 @@ const cleanup = (callback: () => void) => {
     });
 
     //catch uncaught exceptions, trace, then exit normally
-    process.on("uncaughtException", (e) => {
-        logger.error("server %s", "Uncaught Exception...");
+    process.on("uncaughtException", (e:any, origin) => {
+        logger.error("server uncaught Exception...");
         logger.error("server %s", e.stack);
+        logger.error('Exception origin: %s', origin);
         process.exit(99);
     });
 };
