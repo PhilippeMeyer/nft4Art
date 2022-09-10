@@ -17,7 +17,7 @@ function Wallets() {
   const dispatch = useDispatch();
 
   const generate = () => {
-    fetch(httpServer + 'apiV1/generateWallets', { headers: {"authorization": 'Bearer ' + jwt }})
+    fetch(httpServer + 'apiV1/information/generateWallets', { headers: {"authorization": 'Bearer ' + jwt }})
     .then((resp) => {
       console.log(resp)
       if (resp.ok) return resp.blob();
