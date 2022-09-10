@@ -5,9 +5,9 @@ PoS/server/uploads/**
 PoS/server/bin/**
 PoS/server/.env*
 PoS/server/*.js
-PoS/server/tests/**.js
+PoS/server/test/**.js
 PoS/server/services/**.js
-PoS/server/endPoints/**.js
+PoS/server/endPoints/**/**.js
 PoS/server/nft4Art.json*
 PoS/server/nft4art.db
 PoS/server/package-lock.json
