@@ -6,7 +6,7 @@ const server = 'http://localhost:8999';
 const urlMint = server + '/apiV1/token/batchMintTokenFromFiles';
 const urlMintStart = server + '/apiV1/token/batchMintStart';
 const urlMintFinalize = server + '/apiV1/token/batchMintFinalize';
-const dirFolder = '../../../Nft4Art - Sphere Fragments Pictures';
+const dirFolder = '/home/philippe/Desktop/nft4ArtImages/toBeLoaded';
 
 
 async function mintSpheres() {

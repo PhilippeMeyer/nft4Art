@@ -121,25 +121,69 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
     res.sendStatus(200);
 }
 
+//
+// batchMintFinalize
+//
+// Finalize the uploas of a token collection
+//
+// Parameters passed into a formdata:
+//  - collection property containing a stringified json object describing the collections
+//  - an optional picture of the collection map and a mapping file of the collection
+//
+// This end point completes the token mint which has been started iterating through the batchMintTokenFromFiles endpoint
+// It is storing and merging the collection description with the previous collection description (stored in the collections.json file)
+// It also loads the optional files on ipfs adding the corresponding properties in the collection object
+// To finalize the mint, when all the resources have been settled, the temp folder which contains all the json ressources is pushed to ipfs
+// Those two optional ressources have to referenced by the "image" and "map" properties in the collection object to be taken into account
+//
+
 async function batchMintFinalize(req: Request, res: Response) {
-    let key;
+    let key: any;
     let newCol:any = {};
 
+    const client = new NFTStorage({ token: config.nftSorageToken });
+
     if(req.body.collections !== undefined) {
+
+        newCol = JSON.parse(req.body.collections);
+
+        // Looking for the collections images and maps
+        const files: any[] = req.files as any[];
+
+        for (key in newCol) {
+            if ((newCol[key].image == undefined) || (newCol[key].map == undefined)) continue;
+
+            const image: any = files.find((file) =>  file.fieldname == newCol[key].image);    
+            const map: any = files.find((file) =>  file.fieldname == newCol[key].map);
+
+            if(image == null || map == null) continue;        
+            
+            var imageCid = await client.storeBlob(new Blob([image.buffer]));
+            var mapCid = await client.storeBlob(new Blob([map.buffer]));
+            logger.info('server.batchMintFinalize.storeMapImage %s %s', mapCid, imageCid);
+            newCol[key].image = 'ipfs://' + imageCid;
+            newCol[key].map = 'ipfs://' + mapCid;
+        }
+        
+        // Finding the old collections.json if it exists
         let colFilename = app.locals.batchMintFolder + '/' + 'collections.json';
         if(fs.existsSync(colFilename)) {
+            // Merging the old collections.json with the new collections (to be noted that the new collection superseeds the old definition)
             const data = fs.readFileSync(colFilename);
             const collection = JSON.parse(data.toString());
-            newCol = JSON.parse(req.body.collections);
             for (key in newCol)  collection[key] = newCol[key];
             fs.writeFileSync(colFilename, JSON.stringify(collection));
-        }
+        }   
     }
 
-    const client = new NFTStorage({ token: config.nftSorageToken });
     const files = filesFromPath(app.locals.batchMintFolder, { pathPrefix: path.resolve(app.locals.batchMintFolder), hidden: false });
     const cid = await client.storeDirectory(files);
+    const oldFolder:string =  app.locals.ipfsFolder;
     app.locals.ipfsFolder = cid;
+    if(oldFolder !== undefined) {
+        logger.info('server.batchMintFinalize.deleteOldIpfsFolder %s', oldFolder);
+        const ret = await client.delete(oldFolder);
+    }
 
     const token:Contract = app.locals.token;
     const txResp = await token.setDefaultURI('ipfs://' + cid + '/{id}.json');
