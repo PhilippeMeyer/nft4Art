@@ -26,10 +26,9 @@ const verifyTokenManager = (req: RequestCustom, res: Response, next: NextFunctio
     jwt.verify(token, config.secret, (err: any, decoded: any) => {
         if (err) {
             const status = err.name == "TokenExpiredError" ? 401 : 403;
+            logger.info('server.verifyTokenManager.errorToken %s', err.name);
 
-            return res.status(status).json({
-                error: err,
-            });
+            return res.status(status).json({ error: err  });
         }
 
         req.deviceId = decoded.id;

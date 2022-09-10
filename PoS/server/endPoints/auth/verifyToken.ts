@@ -16,7 +16,6 @@ import { config } from "../../config.js"
 const verifyToken = (req: RequestCustom, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
-
     if (!token) {
         logger.info("server.verifyToken.missingToken");
         return res.status(401).json({
@@ -26,10 +25,9 @@ const verifyToken = (req: RequestCustom, res: Response, next: NextFunction) => {
     jwt.verify(token, config.secret, (err: any, decoded: any) => {
         if (err) {
             const status = err.name == "TokenExpiredError" ? 401 : 403;
+            logger.info('server.verifyToken.errorToken %s', err.name);
 
-            return res.status(status).json({
-                error: err,
-            });
+            return res.status(status).json({ error: err });
         }
 
         req.deviceId = decoded.id;

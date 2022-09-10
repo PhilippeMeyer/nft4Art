@@ -25,10 +25,9 @@ const verifyTokenApp = (req: RequestCustom, res: Response, next: NextFunction) =
     jwt.verify(token, config.secret, (err: any, decoded: any) => {
         if (err) {
             const status = err.name == "TokenExpiredError" ? 401 : 403;
+            logger.info('server.verifyTokenApp.errorToken %s', err.name);
 
-            return res.status(status).json({
-                error: err,
-            });
+            return res.status(status).json({ error: err });
         }
 
         req.appId = decoded.id;
