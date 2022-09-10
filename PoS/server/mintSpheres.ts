@@ -22,7 +22,7 @@ async function mintSpheres() {
 
         if(collection[colstr] === undefined) {
             collection[colstr] = {};
-            collection[colstr].tokenIds = [];
+            collection[colstr].tokenSet = new Set<string>();
         }
 
         if(element.substring(2,6) == '_img') collection[colstr].image = element;
@@ -39,20 +39,33 @@ async function mintSpheres() {
             }
             json[tokenId][name] = element;
 
-            collection[colstr].tokenIds.push(tokenId);
+            collection[colstr].tokenSet.add(tokenId);
         }
     });
 
-    console.log(collection);
+    let k:any;
+    for(k in collection) {
+        collection[k].tokenIds = Array.from(collection[k].tokenSet);
+        delete collection[k].tokenSet;
+    }
+
     let key: string;
+
+    // Fixing some inconsistencies in the dataset
     for (key in json) {
         if(json[key].image_front == undefined) json[key].image = 'image_back';
-        console.log(json[key]);
     }
+
+    console.log('Minting the Following collections of tokens');   
+    console.log(collection);
+    console.log('Individual tokens:')
+    for (key in json) console.log(json[key]);
+    console.log('\n\nStarting the minting process...');
+
 
     let res: any;
     res = await fetch(urlMintStart, {method: 'POST'})
-    console.log('init:', res.status);
+    console.log('initialisation:', res.status);
 
     for (key in json) {
         let frontStream:any, backStream:any;
@@ -73,12 +86,13 @@ async function mintSpheres() {
         formData.append('name', 'Sphere #' + key.substring(0,2) + ' explosion simulation - shard #' + key.substring(2,4));
     
         res = await fetch(urlMint, {method: 'POST', body: formData});
-        console.log('creation ', key, ' status:', res.status);
+        console.log('creation of:', key, ' status:', res.status);
     }
 
+    console.log('\nFinalizing the minting process...');
+    
     var stream:any;
     var formData = new FormData();
-    console.log(JSON.stringify(collection));
     
     for (key in collection) {
         if(collection[key].image !== undefined) {
@@ -93,7 +107,7 @@ async function mintSpheres() {
 
     formData.append('collections', JSON.stringify(collection));
     res = await fetch(urlMintFinalize, {method: 'POST', body: formData});
-    console.log(res.status);
+    console.log('Minting finalized, status: ', res.status);
 }
 
 mintSpheres();
