@@ -107,8 +107,9 @@ async function loadToken(token: Contract, exApp:any ) {
     var ids: any[] = [];
     events.forEach((evt) => rawIds.push(evt?.args?.id));
     eventsB.forEach((evt) => rawIds.push(...evt?.args?.ids));
-    ids = [...new Set(rawIds)];
-    
+    ids = rawIds.filter((value, index, self) =>
+        index === self.findIndex((t) => (t.eq(value))));
+
     for (i = 0; i < ids.length; i++) {
         const id = ids[i];
         strToken = await token.uri(id);
