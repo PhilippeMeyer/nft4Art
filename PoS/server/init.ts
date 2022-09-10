@@ -103,10 +103,12 @@ async function loadToken(token: Contract, exApp:any ) {
         "latest",
     );
 
+    var rawIds: any[] = [];
     var ids: any[] = [];
-    events.forEach((evt) => ids.push(evt?.args?.id));
-    eventsB.forEach((evt) => ids.push(...evt?.args?.ids));
-
+    events.forEach((evt) => rawIds.push(evt?.args?.id));
+    eventsB.forEach((evt) => rawIds.push(...evt?.args?.ids));
+    ids = [...new Set(rawIds)];
+    
     for (i = 0; i < ids.length; i++) {
         const id = ids[i];
         strToken = await token.uri(id);
