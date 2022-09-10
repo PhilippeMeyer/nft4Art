@@ -19,19 +19,28 @@ async function mintSpheres() {
 
     fs.readdirSync(dirFolder).forEach(element => {
         colstr = element.substring(0,2);
-        tokenId = element.substring(0,4);
-        shardId = element.substring(1,3);
-        name = element.substring(4,6) == "AA" ? 'image_front' : 'image_back';
 
-        if(json[tokenId] == undefined) {
-            json[tokenId] = {};
-            json[tokenId]['image_raw'] = 'image_front';
-            json[tokenId]['tokenId'] = tokenId;
+        if(collection[colstr] === undefined) {
+            collection[colstr] = {};
+            collection[colstr].tokenIds = [];
         }
-        json[tokenId][name] = element;
 
-        if(collection[colstr] === undefined) collection[colstr] = [];
-        collection[colstr].push(tokenId);
+        if(element.substring(2,6) == '_img') collection[colstr].image = element;
+        else if(element.substring(2,6) == '_map') collection[colstr].map = element;
+        else {
+            tokenId = element.substring(0,4);
+            shardId = element.substring(1,3);
+            name = element.substring(4,6) == "AA" ? 'image_front' : 'image_back';
+
+            if(json[tokenId] == undefined) {
+                json[tokenId] = {};
+                json[tokenId]['image_raw'] = 'image_front';
+                json[tokenId]['tokenId'] = tokenId;
+            }
+            json[tokenId][name] = element;
+
+            collection[colstr].tokenIds.push(tokenId);
+        }
     });
 
     console.log(collection);
@@ -67,8 +76,21 @@ async function mintSpheres() {
         console.log('creation ', key, ' status:', res.status);
     }
 
+    var stream:any;
     var formData = new FormData();
     console.log(JSON.stringify(collection));
+    
+    for (key in collection) {
+        if(collection[key].image !== undefined) {
+            stream = fs.createReadStream(dirFolder + "/" + collection[key].image);
+            formData.append(collection[key].image, stream);
+        }
+        if(collection[key].map !== undefined) {
+            stream = fs.createReadStream(dirFolder + "/" + collection[key].map);
+            formData.append(collection[key].map, stream);
+        }
+    }
+
     formData.append('collections', JSON.stringify(collection));
     res = await fetch(urlMintFinalize, {method: 'POST', body: formData});
     console.log(res.status);

@@ -28,7 +28,7 @@ const appPrefix = 'nft4art';
 // app.locals.batchMintFolder the folder where the files are stored
 //
 
-function batchMintStart(req: Request, res: Response) {
+async function batchMintStart(req: Request, res: Response) {
     try {
         app.locals.batchMintFolder = fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
         // TODO find the first free token 
@@ -36,12 +36,18 @@ function batchMintStart(req: Request, res: Response) {
 
         if (app.locals.ipfsFolder !== undefined) {
             let ipfsFolder = app.locals.ipfsFolder;
-            ipfsFolder.replace('/{id}', ''); 
-            readIpfsFolder(ipfsFolder, app.locals.batchMintFolder);
+            const folder:string = ipfsFolder.replace('/{id}.json', '').replace('ipfs://','');
+            logger.info('server.batchMintStart.loadingFolder %s', folder)
+            await readIpfsFolder(folder, app.locals.batchMintFolder);
         }
-    } catch { res.sendStatus(500); }
+
+        res.sendStatus(200);
+        
+    } catch(err) {
+        logger.error('server.batchMintStart.error %s', err);
+        res.sendStatus(500);
+    }
     
-    res.sendStatus(200);
 }
 
 //
@@ -67,58 +73,64 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
     let tokenId:string;
     let numTokens:string;
 
-    logger.info('server.mintFromFiles.createFolder: %s', app.locals.batchMintFolder);
+    try {
+        logger.info('server.mintFromFiles.createFolder: %s', app.locals.batchMintFolder);
 
-    // Find among the fileds a field named image_raw which should point to the file containing the image
-    if (req.body.image_raw === undefined) {
-        logger.info('server.batchMintTokenFromFiles.noLabelToImage');
-        res.status(400).json({error: {name: 'noLabelToImage', message: 'No label to image has been provided'}});
-		return;
+        // Find among the fileds a field named image_raw which should point to the file containing the image
+        if (req.body.image_raw === undefined) {
+            logger.info('server.batchMintTokenFromFiles.noLabelToImage');
+            res.status(400).json({error: {name: 'noLabelToImage', message: 'No label to image has been provided'}});
+            return;
+        }
+
+        const files: any[] = req.files as any[];
+        const image_raw: any = files.find((file) =>  file.fieldname == req.body.image_raw);
+
+        if( image_raw === undefined) {
+            logger.info('server.batchMintTokenFromFiles.noImageProvided');
+            res.status(400).json({error: {name: 'noImageProvided', message: 'No image has been provided'}});
+            return;
+        }
+
+        numTokens = (req.body.numTokens === undefined) ? '1' : req.body.numTokens;
+
+        const client = new NFTStorage({ token: config.nftSorageToken });
+        var metadata: any = {};
+
+        for (const file of files) {
+            var cid = await client.storeBlob(new Blob([file.buffer]));
+            logger.info('server.mintFromFiles.createIpfsFile %s', cid);
+            metadata[file.fieldname] = "ipfs://" + cid;
+        }
+
+        const vignette = await sharp(image_raw.buffer).resize({width:350}).jpeg().toBuffer();
+        var cid = await client.storeBlob(new Blob([vignette]));
+        logger.info('server.mintFromFiles.createIpfsVignette %s', cid);
+        metadata.image = "ipfs://" + cid;  
+
+        let key;
+        for (key in req.body)  metadata[key] = req.body[key];
+        
+        if(req.body.tokenId === undefined) {
+            tokenId = app.locals.batchMintTokenId.toString();
+            app.locals.batchMintTokenId++;
+        }
+        else 
+            tokenId = req.body.tokenId;
+        
+        const tid = parseInt(tokenId); 
+        fs.writeFileSync(path.join(app.locals.batchMintFolder, tid.toString() + ".json"), JSON.stringify(metadata));
+
+        const token:Contract = app.locals.token;
+        const txResp = await token.mint(tokenId, numTokens, []);
+        const txReceipt = await txResp.wait();
+
+        res.sendStatus(200);
+
+    } catch(err) {
+        logger.error('server.batchMintTokenFromFiles.error %s', err);
+        res.sendStatus(500);
     }
-
-    const files: any[] = req.files as any[];
-    const image_raw: any = files.find((file) =>  file.fieldname == req.body.image_raw);
-
-    if( image_raw === undefined) {
-        logger.info('server.batchMintTokenFromFiles.noImageProvided');
-        res.status(400).json({error: {name: 'noImageProvided', message: 'No image has been provided'}});
-		return;
-    }
-
-    numTokens = (req.body.numTokens === undefined) ? '1' : req.body.numTokens;
-
-    const client = new NFTStorage({ token: config.nftSorageToken });
-    var metadata: any = {};
-
-    for (const file of files) {
-        var cid = await client.storeBlob(new Blob([file.buffer]));
-        logger.info('server.mintFromFiles.createIpfsFile %s', cid);
-        metadata[file.fieldname] = "ipfs://" + cid;
-    };
-
-    const vignette = await sharp(image_raw.buffer).resize({width:350}).jpeg().toBuffer();
-    var cid = await client.storeBlob(new Blob([vignette]));
-    logger.info('server.mintFromFiles.createIpfsVignette %s', cid);
-    metadata.image = "ipfs://" + cid;  
-
-    let key;
-    for (key in req.body)  metadata[key] = req.body[key];
-    
-    if(req.body.tokenId === undefined) {
-        tokenId = app.locals.batchMintTokenId.toString();
-        app.locals.batchMintTokenId++;
-    }
-    else 
-        tokenId = req.body.tokenId;
-    
-    const tid = parseInt(tokenId); 
-    fs.writeFileSync(path.join(app.locals.batchMintFolder, tid.toString() + ".json"), JSON.stringify(metadata));
-
-    const token:Contract = app.locals.token;
-    const txResp = await token.mint(tokenId, numTokens, []);
-    const txReceipt = await txResp.wait();
-    
-    res.sendStatus(200);
 }
 
 //
@@ -141,56 +153,63 @@ async function batchMintFinalize(req: Request, res: Response) {
     let key: any;
     let newCol:any = {};
 
-    const client = new NFTStorage({ token: config.nftSorageToken });
+    try {
+        const client = new NFTStorage({ token: config.nftSorageToken });
 
-    if(req.body.collections !== undefined) {
+        if(req.body.collections !== undefined) {
 
-        newCol = JSON.parse(req.body.collections);
+            newCol = JSON.parse(req.body.collections);
 
-        // Looking for the collections images and maps
-        const files: any[] = req.files as any[];
+            // Looking for the collections images and maps
+            const files: any[] = req.files as any[];
 
-        for (key in newCol) {
-            if ((newCol[key].image == undefined) || (newCol[key].map == undefined)) continue;
+            for (key in newCol) {
+                if ((newCol[key].image == undefined) || (newCol[key].map == undefined)) continue;
 
-            const image: any = files.find((file) =>  file.fieldname == newCol[key].image);    
-            const map: any = files.find((file) =>  file.fieldname == newCol[key].map);
+                const image: any = files.find((file) =>  file.fieldname == newCol[key].image);    
+                const map: any = files.find((file) =>  file.fieldname == newCol[key].map);
 
-            if(image == null || map == null) continue;        
+                if(image == null || map == null) continue;        
+                
+                var imageCid = await client.storeBlob(new Blob([image.buffer]));
+                var mapCid = await client.storeBlob(new Blob([map.buffer]));
+                logger.info('server.batchMintFinalize.storeMapImage %s %s', mapCid, imageCid);
+                newCol[key].image = 'ipfs://' + imageCid;
+                newCol[key].map = 'ipfs://' + mapCid;
+            }
             
-            var imageCid = await client.storeBlob(new Blob([image.buffer]));
-            var mapCid = await client.storeBlob(new Blob([map.buffer]));
-            logger.info('server.batchMintFinalize.storeMapImage %s %s', mapCid, imageCid);
-            newCol[key].image = 'ipfs://' + imageCid;
-            newCol[key].map = 'ipfs://' + mapCid;
+            // Finding the old collections.json if it exists
+            let colFilename = app.locals.batchMintFolder + '/' + 'collections.json';
+            if(fs.existsSync(colFilename)) {
+                // Merging the old collections.json with the new collections (to be noted that the new collection superseeds the old definition)
+                const data = fs.readFileSync(colFilename);
+                const collection = JSON.parse(data.toString());
+                for (key in newCol)  collection[key] = newCol[key];
+                newCol = collection;
+            }
+            fs.writeFileSync(colFilename, JSON.stringify(newCol));
         }
-        
-        // Finding the old collections.json if it exists
-        let colFilename = app.locals.batchMintFolder + '/' + 'collections.json';
-        if(fs.existsSync(colFilename)) {
-            // Merging the old collections.json with the new collections (to be noted that the new collection superseeds the old definition)
-            const data = fs.readFileSync(colFilename);
-            const collection = JSON.parse(data.toString());
-            for (key in newCol)  collection[key] = newCol[key];
-            fs.writeFileSync(colFilename, JSON.stringify(collection));
-        }   
+
+        const files = filesFromPath(app.locals.batchMintFolder, { pathPrefix: path.resolve(app.locals.batchMintFolder), hidden: false });
+        const cid = await client.storeDirectory(files);
+        const oldFolder:string =  app.locals.ipfsFolder;
+        app.locals.ipfsFolder = cid;
+        if(oldFolder !== undefined) {
+            logger.info('server.batchMintFinalize.deleteOldIpfsFolder %s', oldFolder);
+            const ret = await client.delete(oldFolder.replace('/{id}.json', '').replace('ipfs://',''));
+        }
+
+        const token:Contract = app.locals.token;
+        const txResp = await token.setDefaultURI('ipfs://' + cid + '/{id}.json');
+        const txReceipt = await txResp.wait();
+        logger.info('server.mintFromFiles.uriInserted %s', cid);
+
+        res.sendStatus(200);
+
+    } catch(err) {
+        logger.error('server.batchMintFinalize.error %s', err);
+        res.sendStatus(500);
     }
-
-    const files = filesFromPath(app.locals.batchMintFolder, { pathPrefix: path.resolve(app.locals.batchMintFolder), hidden: false });
-    const cid = await client.storeDirectory(files);
-    const oldFolder:string =  app.locals.ipfsFolder;
-    app.locals.ipfsFolder = cid;
-    if(oldFolder !== undefined) {
-        logger.info('server.batchMintFinalize.deleteOldIpfsFolder %s', oldFolder);
-        const ret = await client.delete(oldFolder);
-    }
-
-    const token:Contract = app.locals.token;
-    const txResp = await token.setDefaultURI('ipfs://' + cid + '/{id}.json');
-    const txReceipt = await txResp.wait();
-    logger.info('server.mintFromFiles.uriInserted %s', cid);
-
-    res.sendStatus(200);
 }
 
 //
