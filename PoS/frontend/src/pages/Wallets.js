@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import NavbarManager from "./NavbarManager";
 
 const httpServer = process.env.REACT_APP_SERVER;
-const url = httpServer + 'apiV1/generateWallets';
+const url = httpServer + 'apiV1/information/generateWallets';
 
 
 function Wallets() {
@@ -17,7 +17,7 @@ function Wallets() {
   const dispatch = useDispatch();
 
   const generate = () => {
-    fetch(httpServer + 'apiV1/information/generateWallets', { headers: {"authorization": 'Bearer ' + jwt }})
+    fetch(url, { headers: {"authorization": 'Bearer ' + jwt }})
     .then((resp) => {
       console.log(resp)
       if (resp.ok) return resp.blob();

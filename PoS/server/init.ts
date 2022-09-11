@@ -227,7 +227,43 @@ async function loadToken(token: Contract, exApp:any ) {
     );
 
     await Promise.all([getIcons, getImages]);
+
+    //
+    // Loading the collection definition
+    //
+    logger.info('server.init.loadingCollections');
+    str = app.locals.ipfsFolder.replace('ipfs:', 'https:').replace('/{id}.json', '.ipfs.dweb.link/' + 'collections.json'); //TODO parametrize the ipfs gateway
+    let resp = await axios.get(str); //We retrieve the collections from ipfs
+    if (resp.status == 200) {
+        const cols = resp.data;
+        app.locals.collections = cols;
+
+        let key:any;
+        let cid:string;
+
+        for (key in cols) {
+            if(cols[key].image !== undefined) await loadFromIpfs(cols[key].image);
+            if(cols[key].map !== undefined) await loadFromIpfs(cols[key].map);
+        }
+    }
+    
     logger.info('server.init.loadTerminated');
+}
+
+async function loadFromIpfs(cidUrl:string) {
+    const cid = cidUrl.replace('ipfs://','');
+    if (fs.existsSync(config.cacheFolder + cid)) {
+        logger.info('server.loadFromIpfs.inCache %s', cid);
+        return;
+    }
+
+    logger.info('server.loadFromIpfs.fromIpfs %s', cid);
+    const resp = await axios.get('https://' + cid + '.ipfs.dweb.link', { responseType: "arraybuffer" });
+    if (resp.status == 200) {
+        let buf:Buffer = Buffer.from(resp.data, "binary");
+        fs.writeFileSync(config.cacheFolder + cid, buf, { flag: "w", encoding: "binary" });
+    }
+    else logger.warn('server.loadFromIpfs.error %s', cid);
 }
 
 export { init, loadToken };

@@ -37,6 +37,7 @@ import { priceInCrypto } from "./endPoints/price/priceInCrypto.js";
 import { priceUpdate, priceUpdates } from "./endPoints/price/priceUpdate.js";
 import { authorizePoS } from "./endPoints/auth/authorizePoS.js";
 import { batchMintTokenFromFiles, batchMintStart, batchMintFinalize } from "./endPoints/token/mintTokenFromFiles.js";
+import { collectionImage, collectionMap } from "./endPoints/token/collectionImage.js";
 
 
 // TODO: Env var?
@@ -236,7 +237,8 @@ app.put("/apiV1/price/updates", verifyTokenManager, priceUpdates);
 app.post('/apiV1/token/batchMintStart', batchMintStart); 
 app.post('/apiV1/token/batchMintTokenFromFiles', upload.any(), batchMintTokenFromFiles); 
 app.post('/apiV1/token/batchMintFinalize', upload.any(), batchMintFinalize); 
-
+app.get('/apiV1/token/collectionImage', collectionImage);
+app.get('/apiV1/token/collectionMap', collectionMap);
 app.get(["/tokens", "/apiV1/tokens/list"], verifyToken, (req: Request, res: Response) => {
     res.status(200).json(app.locals.metas);
 });

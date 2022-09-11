@@ -20,7 +20,9 @@ import { storeJwt, loadTokens } from '../store/tokenSlice'
 
 const httpServer = process.env.REACT_APP_SERVER;
 const mapUrl = httpServer + 'map';
-const mapImg = httpServer + 'map.jpg';
+const mapUrlImg = httpServer + 'apiV1/token/collectionImage?collectionId=01';
+const mapUrlMap = httpServer + 'apiV1/token/collectionMap?collectionId=01';
+
 const lockUrl = httpServer + 'lockUnlock?';
 
 
@@ -65,7 +67,7 @@ function TokenMap() {
   const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt };
 
   const loadMap = async (jwt) => {
-    const response = await fetch(mapUrl, { method: 'GET', headers: jwtHeader });
+    const response = await fetch(mapUrlMap, { method: 'GET', headers: jwtHeader });
     const responseJson = await response.json();
     return (responseJson);
   }
@@ -129,7 +131,7 @@ function TokenMap() {
     <>
       <main>
         <div className="image" style={pictStyle}>
-          <img src={mapImg} id="physicalimage" style={pictStyle}/>
+          <img src={mapUrlImg} id="physicalimage" style={pictStyle}/>
           {map.areas.map((row) => {
             let s = {top: (row.y *100 / h) + "%", left: (row.x *100 / w) + "%", width: (row.width *100 / w) + "%", height: (row.height *100 /h) + "%"};
             let cl;
