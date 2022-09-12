@@ -242,19 +242,23 @@ async function loadToken(token: Contract, exApp:any ) {
         let cid:string;
 
         for (key in cols) {
-            if(cols[key].image !== undefined) await loadFromIpfs(cols[key].image);
-            if(cols[key].map !== undefined) await loadFromIpfs(cols[key].map);
+            if(cols[key].image !== undefined) {
+                if (await loadFromIpfs(cols[key].image) != '') cols[key].imageUrl = config.imgCollectionUrl + key;
+            }
+            if(cols[key].map !== undefined) {
+                if (await loadFromIpfs(cols[key].map) != '') cols[key].mapUrl = config.mapCollectionUrl + key;
+            }
         }
     }
     
     logger.info('server.init.loadTerminated');
 }
 
-async function loadFromIpfs(cidUrl:string) {
+async function loadFromIpfs(cidUrl:string) :Promise<string> {
     const cid = cidUrl.replace('ipfs://','');
     if (fs.existsSync(config.cacheFolder + cid)) {
         logger.info('server.loadFromIpfs.inCache %s', cid);
-        return;
+        return cid;
     }
 
     logger.info('server.loadFromIpfs.fromIpfs %s', cid);
@@ -262,8 +266,12 @@ async function loadFromIpfs(cidUrl:string) {
     if (resp.status == 200) {
         let buf:Buffer = Buffer.from(resp.data, "binary");
         fs.writeFileSync(config.cacheFolder + cid, buf, { flag: "w", encoding: "binary" });
+        return cid;
     }
-    else logger.warn('server.loadFromIpfs.error %s', cid);
+    else {
+        logger.warn('server.loadFromIpfs.error %s', cid);
+        return '';
+    }
 }
 
 export { init, loadToken };

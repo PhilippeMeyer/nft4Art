@@ -223,11 +223,9 @@ app.post("/apiV1/auth/appLogin", appLogin);
 app.post("/apiV1/auth/appLoginDrop", verifyTokenApp, appLoginDrop);
 app.put("/apiV1/auth/authorizePoS", verifyTokenManager, authorizePoS);
 
-
 app.get('/apiV1/information/video', verifyTokenApp, video);
 app.get('/apiV1/information/tokensOwned', verifyTokenApp, tokensOwned);
-//app.get('/apiV1/information/3Dmodel', verifyTokenApp, threeDmodel);
-app.get('/apiV1/information/3Dmodel', threeDmodel);
+app.get('/apiV1/information/3Dmodel', verifyTokenApp, threeDmodel);
 app.get("/apiV1/information/generateWallets", verifyTokenManager, generateWallets);
 
 app.get('/apiV1/price/priceInCrypto', priceInCrypto);
@@ -237,32 +235,31 @@ app.put("/apiV1/price/updates", verifyTokenManager, priceUpdates);
 app.post('/apiV1/token/batchMintStart', batchMintStart); 
 app.post('/apiV1/token/batchMintTokenFromFiles', upload.any(), batchMintTokenFromFiles); 
 app.post('/apiV1/token/batchMintFinalize', upload.any(), batchMintFinalize); 
-app.get('/apiV1/token/collectionImage', collectionImage);
+app.get('/apiV1/token/collectionImg', collectionImage);
 app.get('/apiV1/token/collectionMap', collectionMap);
-app.get(["/tokens", "/apiV1/tokens/list"], verifyToken, (req: Request, res: Response) => {
+app.get(['/apiV1/token/list', '/tokens'], verifyToken, (req: Request, res: Response) => {
     res.status(200).json(app.locals.metas);
 });
-
-app.get("/token", verifyToken, (req: Request, res: Response) => {
-    console.log(req.query.id);
+app.get(['/apiV1/token/token', '/token'], verifyToken, (req: Request, res: Response) => {
     const id = parseInt(req.query.id as string);
     res.status(200).json(app.locals.metas[id]);
 });
+app.get(['/apiV1/token/icon', '/icon'], function (req: Request, res: Response) {
+    res.type("png");
+    res.status(200).send(app.locals.icons.get(req.query.id));
+});
+app.get(['/apiV1/token/image', '/image'], function (req: Request, res: Response) {
+    res.type("jpeg");
+    res.status(200).send(app.locals.images.get(req.query.id));
+});
+app.get('/apiV1/token/collections', function (req: Request, res: Response) {
+    res.status(200).json(app.locals.collections);
+});
+
 
 app.get("/map", function (req: Request, res: Response) {
     res.sendFile(path.join(__dirname, "public/mapping_rects.json"));
 });
-
-app.get("/icon", function (req: Request, res: Response) {
-    res.type("png");
-    res.status(200).send(app.locals.icons.get(req.query.id));
-});
-
-app.get("/image", function (req: Request, res: Response) {
-    res.type("jpeg");
-    res.status(200).send(app.locals.images.get(req.query.id));
-});
-
 app.get("/QRCode", function (req: Request, res: Response) {
     res.type("png");
     res.status(200).sendFile(path.join(config.cache, config.addressToken + '.png'));
