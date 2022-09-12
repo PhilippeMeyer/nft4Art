@@ -88,7 +88,7 @@ function Login() {
                 dispatch(storeJwt(responseJson.accessToken));
                 dispatch(startConnecting());
                 if (pwd !== undefined) navigate('/manager/tokens')
-                else navigate('/sales/map');
+                else navigate('/sales/selectCollection');
             }
             else {
               enqueueSnackbar("Error after connecting to server - " + responseJson.error.message);

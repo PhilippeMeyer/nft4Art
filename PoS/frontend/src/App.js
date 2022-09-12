@@ -12,6 +12,8 @@ import Tokens from './pages/Tokens';
 import Wallets from './pages/Wallets';
 import Contracts from './pages/Contracts';
 import TokensMap from "./pages/TokensMap";
+import TokensGrid from "./pages/TokensGrid";
+import SelectCollection from "./pages/SelectCollection";
 import TokenSaleFiat from "./pages/TokenSaleFiat";
 import TokenSaleEth from "./pages/TokenSaleEth";
 import TokenSaleBtc from "./pages/TokenSaleBtc";
@@ -41,7 +43,9 @@ function App() {
             <Route path="/manager/wallets" element={<PrivateRoute><Wallets /></PrivateRoute>} />
             <Route path="/manager/contracts" element={<PrivateRoute><Contracts /></PrivateRoute>} />
             <Route path="/manager/pointOfSale" element={<PrivateRoute><RegisteredPoS /></PrivateRoute>} />
+            <Route path="/sales/selectCollection" element={<PrivateRoute><SelectCollection /></PrivateRoute>} />
             <Route path="/sales/map" element={<PrivateRoute><TokensMap /></PrivateRoute>} />
+            <Route path="/sales/grid" element={<PrivateRoute><TokensGrid /></PrivateRoute>} />
             <Route path="/sales/token/fiat/:id" element={<TokenSaleFiat />} />
             <Route path="/sales/token/eth/:id" element={<TokenSaleEth />} />
             <Route path="/sales/token/btc/:id" element={<TokenSaleBtc />} />
