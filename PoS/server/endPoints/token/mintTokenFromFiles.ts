@@ -194,15 +194,18 @@ async function batchMintFinalize(req: Request, res: Response) {
         const cid = await client.storeDirectory(files);
         const oldFolder:string =  app.locals.ipfsFolder;
         app.locals.ipfsFolder = cid;
-        if(oldFolder !== undefined) {
-            logger.info('server.batchMintFinalize.deleteOldIpfsFolder %s', oldFolder);
-            const ret = await client.delete(oldFolder.replace('/{id}.json', '').replace('ipfs://',''));
-        }
 
         const token:Contract = app.locals.token;
         const txResp = await token.setDefaultURI('ipfs://' + cid + '/{id}.json');
         const txReceipt = await txResp.wait();
         logger.info('server.mintFromFiles.uriInserted %s', cid);
+
+        if(oldFolder !== undefined) {
+            logger.info('server.batchMintFinalize.deleteOldIpfsFolder %s', oldFolder);
+            try {
+                const ret = await client.delete(oldFolder.replace('/{id}.json', '').replace('ipfs://',''));
+            } catch(err) { logger.error('server.batchMintFinalize.deleteFailed %s', err); }
+        }
 
         res.sendStatus(200);
 
