@@ -107,7 +107,7 @@ function Tokens() {
 
   const [priceUpdate, setPriceUpdate] = useState([]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -203,7 +203,7 @@ function Tokens() {
           <TableFooter>
             <TableRow>
               <TablePagination
-                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                rowsPerPageOptions={[5, 10, 20, { label: 'All', value: -1 }]}
                 colSpan={3}
                 count={tokens.length}
                 rowsPerPage={rowsPerPage}
