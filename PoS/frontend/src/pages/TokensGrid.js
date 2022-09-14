@@ -26,8 +26,6 @@ import NavbarManager from "./NavbarManager";
 import { storeJwt, loadTokens } from '../store/tokenSlice'
 
 const httpServer = process.env.REACT_APP_SERVER;
-const mapUrlImg = httpServer + 'apiV1/token/collectionImage?collectionId=01';
-const mapUrlMap = httpServer + 'apiV1/token/collectionMap?collectionId=01';
 
 const lockUrl = httpServer + 'lockUnlock?';
 

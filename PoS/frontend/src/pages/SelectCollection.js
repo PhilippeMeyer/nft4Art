@@ -1,39 +1,25 @@
-import * as React from "react";
+import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSnackbar } from 'notistack';
 import { useSelector, useDispatch } from 'react-redux'
-import Button from '@mui/material/Button';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import ImageList from '@mui/material/ImageList';
-import ImageListItem from '@mui/material/ImageListItem';
-import ImageListItemBar from '@mui/material/ImageListItemBar';
-import ListSubheader from '@mui/material/ListSubheader';
-import IconButton from '@mui/material/IconButton';
-import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '@mui/material/Tooltip';
 
-
-import { styled } from '@mui/material/styles';
+import PropTypes from 'prop-types';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
+
+import AppBar from '@mui/material/AppBar';
+import TokenMap from './TokensMap';
+import TokenGrid from './TokensGrid';
 
 import './Map.css';
-
-import NavbarManager from "./NavbarManager";
-import { storeJwt, loadTokens } from '../store/tokenSlice'
 
 const httpServer = process.env.REACT_APP_SERVER;
 const colUrl = httpServer + 'apiV1/token/collections';
@@ -42,12 +28,45 @@ const mapUrlMap = httpServer + 'apiV1/token/collectionMap?collectionId=01';
 const lockUrl = httpServer + 'lockUnlock?';
 
 
-function SelectCollection() {  
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
 
-  // Local state for the screen and pict dimensions and the clickable regions 
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
+export default function SelectCollection() {
+  const theme = useTheme();
+  const [value, setValue] = React.useState(0);
+
   const [collections, setCollections] = React.useState();
+  const [tabs, setTabs] = React.useState();
 
   // Redux state for the jwt and the tokens
   const jwt = useSelector((state) => state.token.jwt);
@@ -66,6 +85,13 @@ function SelectCollection() {
   const onclick = (event) => {
   };
 
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+  const handleChangeIndex = (index) => {
+    setValue(index);
+  };
+
 
   useEffect( () => {
       loadData();
@@ -75,35 +101,48 @@ function SelectCollection() {
     return(<></>)
   }
 
+
   return (
-    <>
-      <main>
-        <div>
+    <Box sx={{ borderTop: 0, borderColor: 'divider', width: '100%', height: '100%'}}>
+        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" sx={{'.MuiTabs-indicator': {top: 0 }}}>
+          <Tab label="Item One" {...a11yProps(0)} />
+          <Tab label="Item Two" {...a11yProps(1)} />
+          <Tab label="+" {...a11yProps(2)} />
+        </Tabs>
+
+        <TabPanel value={value} index={0}>
+          <TokenGrid></TokenGrid>
+        </TabPanel>
+        <TabPanel value={value} index={1}>
+          <TokenMap></TokenMap>
+        </TabPanel>
+        <TabPanel value={value} index={2}>
           <Grid container spacing={5}>
-            {Object.keys(collections).map((col, index) => (
-              <Grid item key={index}>
-                <Card>
-                  <CardMedia
-                    component="img"
-                    height="140"
-                    image={collections[col].imageUrl}
-                    alt={col}
-                  />
-                  <CardContent>
-                  <Typography variant="h5">
-                      Collection : {col}
-                    </Typography>
-                    <Typography>
-                      #items:  {collections[col].tokenIds.length}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+              {Object.keys(collections).map((col, index) => (
+                <Grid item key={index}>
+                  <Card>
+                    <CardMedia
+                      component="img"
+                      height="140"
+                      image={collections[col].imageUrl}
+                      alt={col}
+                    />
+                    <CardContent>
+                      <React.Fragment>
+                        <Typography variant="h5" component="div">
+                          Collection : {col}
+                        </Typography>
+                        <Typography component={'span'} variant={'body2'}>
+                          #items:  {collections[col].tokenIds.length}
+                        </Typography>
+                      </React.Fragment>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
           </Grid>        
-        </div>
-      </main>
-    </>
+        </TabPanel>
+    </Box>
   );
 }
 
@@ -121,4 +160,3 @@ function fetchData(jwt) {
   });
 }
 
-export default SelectCollection;

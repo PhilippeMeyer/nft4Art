@@ -20,8 +20,8 @@ import { storeJwt, loadTokens } from '../store/tokenSlice'
 
 const httpServer = process.env.REACT_APP_SERVER;
 const mapUrl = httpServer + 'map';
-const mapUrlImg = httpServer + 'apiV1/token/collectionImage?collectionId=01';
-const mapUrlMap = httpServer + 'apiV1/token/collectionMap?collectionId=01';
+const mapUrlImg = httpServer + 'apiV1/token/collectionImg?id=01';
+const mapUrlMap = httpServer + 'apiV1/token/collectionMap?id=01';
 
 const lockUrl = httpServer + 'lockUnlock?';
 
@@ -119,7 +119,6 @@ function TokenMap() {
   const changeCurrency = (event) => {
     setCurrency(event.target.value);
   };
-
 
   if ((map.areas === undefined) || (pictSize.pictWidth === undefined)) return;
 
