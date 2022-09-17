@@ -15,8 +15,9 @@ import { logger } from "../../loggerConfiguration.js";
 
 async function createVote(req: Request, res: Response) {
     logger.info('server.vote.createVote');
-    app.locals.vote = res.json(req.body);
-    console.log('vote: ', app.locals.vote);
+
+    app.locals.vote = req.body;
+    res.sendStatus(200);
 }
 
 export {createVote};

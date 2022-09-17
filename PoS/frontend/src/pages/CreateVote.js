@@ -36,6 +36,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useSnackbar } from 'notistack';
+
+
+const httpServer = process.env.REACT_APP_SERVER;
+const urlCreateVote = httpServer + 'apiV1/vote/createVote';
 
 function CreateVote() {
 
@@ -51,6 +56,7 @@ function CreateVote() {
     const [items, setItems] = useState([]);
     const [header, setHeader] = useState({ title: '', start: undefined, end: undefined });
     const [screenSize, setScreenSize] = useState({});
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const renderMargin = 3;
     const designMargin = 3;
@@ -141,11 +147,20 @@ function CreateVote() {
     }
 
     function save() {
+        const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
         var ret = {};
         var key;
         for (key in header) ret[key] = header[key];
         ret.items = items;
-        console.log(ret);
+        console.log(JSON.stringify(ret));
+        fetch(urlCreateVote, { method: 'POST', headers: jwtHeader, body: JSON.stringify(ret) })
+        .then(() =>  { 
+            enqueueSnackbar('Vote transfered to the server');
+        })
+        .catch((error) => { 
+            enqueueSnackbar('Error in transfer vote to server :' + error); 
+            console.error(error); 
+        });
     }
 
     function design(item, id) {
