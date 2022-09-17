@@ -14,6 +14,10 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import CardActionArea from '@mui/material/CardActionArea';
+import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
+import IconButton from '@mui/material/IconButton';
+
 import { useTheme } from '@mui/material/styles';
 
 import AppBar from '@mui/material/AppBar';
@@ -110,6 +114,9 @@ export default function SelectCollection() {
     setValue(index);
   };
 
+  const handleCloseTab = (event, tab) => {
+    setTabs(tabs.filter((t) => t !== tab ));
+  };
 
   useEffect( () => {
       loadData();
@@ -125,15 +132,15 @@ export default function SelectCollection() {
       <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
         <Tabs value={value} onChange={handleChange} aria-label="collections tabs">
           {tabs.map((tab, index) => (
-              <Tab label={tab.id} {...a11yProps(index)} /> ))}
+              <Tab label={<span>{tab.id}<IconButton component="div" onClick={event => handleCloseTab(event, tab)}><CloseIcon fontSize="small"/></IconButton></span>} {...a11yProps(index)} /> ))}
 
-          <Tab label="+" {...a11yProps(tabs.length)} />
+          <Tab label={<IconButton component="div"><AddIcon /></IconButton>} {...a11yProps(tabs.length)} />
         </Tabs>
       </Box>
 
 
       {tabs.map((tab, index) => (
-        <TabPanel value={value} index={index}>
+        <TabPanel value={value} index={index} >
           {tab.grid ? <TokenGrid collectionId={tab.id}></TokenGrid> : <TokenMap collectionId={tab.id}></TokenMap>}
         </TabPanel> ))}
 
