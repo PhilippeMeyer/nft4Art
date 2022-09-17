@@ -24,15 +24,12 @@ async function collectionImage(req: Request, res: Response) {
 }
 
 async function collectionMap(req: Request, res: Response) {
-    console.log('collectionMap');
     if(req.query.id === undefined) {
         logger.info('server.collectionImage.noCollection');
         res.sendStatus(400);
         return;
     }
     const colId:any = req.query.id;
-    console.log(colId);
-    console.log(app.locals.collections);
     if (app.locals.collections[colId].map === undefined) {
         logger.info('server.collectionImage.undefiinedImageCollection');
         res.sendStatus(404);
