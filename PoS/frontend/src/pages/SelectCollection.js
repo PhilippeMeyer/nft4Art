@@ -13,11 +13,14 @@ import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import CardActionArea from '@mui/material/CardActionArea';
 import { useTheme } from '@mui/material/styles';
 
 import AppBar from '@mui/material/AppBar';
 import TokenMap from './TokensMap';
 import TokenGrid from './TokensGrid';
+
+import { loadCollections } from '../store/tokenSlice'
 
 import './Map.css';
 
@@ -63,13 +66,15 @@ function a11yProps(index) {
 
 export default function SelectCollection() {
   const theme = useTheme();
+ 
   const [value, setValue] = React.useState(0);
+  const [tabs, setTabs] = React.useState([]);
 
-  const [collections, setCollections] = React.useState();
-  const [tabs, setTabs] = React.useState();
+  const dispatch = useDispatch();
 
   // Redux state for the jwt and the tokens
   const jwt = useSelector((state) => state.token.jwt);
+  const collections = useSelector((state) => state.token.collections);
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -78,11 +83,24 @@ export default function SelectCollection() {
   const loadData = () => {
     if (jwt !== undefined)
       fetchData(jwt) 
-      .then((collections) => { setCollections(collections); })
+      .then((collections) => { dispatch(loadCollections(collections)); })
       .catch((error) => { enqueueSnackbar('Error loading the collections'); console.error(error); });
   };
 
   const onclick = (event) => {
+  };
+
+  const cardClick = (event) => {
+    const allreadyExist = tabs.findIndex((elt) => elt.id == event.target.id);
+    if(allreadyExist != -1) setValue(allreadyExist);
+    else {
+      var tab = {};
+      tab.id = event.target.id;
+      tab.grid = (collections[event.target.id].imageUrl === undefined);
+      const index = tabs.length;
+      setTabs([...tabs, tab]);
+      setValue(index);
+    }
   };
 
   const handleChange = (event, newValue) => {
@@ -103,40 +121,46 @@ export default function SelectCollection() {
 
 
   return (
-    <Box sx={{ borderTop: 0, borderColor: 'divider', width: '100%', height: '100%'}}>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" sx={{'.MuiTabs-indicator': {top: 0 }}}>
-          <Tab label="Item One" {...a11yProps(0)} />
-          <Tab label="Item Two" {...a11yProps(1)} />
-          <Tab label="+" {...a11yProps(2)} />
-        </Tabs>
+    <Box sx={{ width: '100%', height: '100%'}}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
+        <Tabs value={value} onChange={handleChange} aria-label="collections tabs">
+          {tabs.map((tab, index) => (
+              <Tab label={tab.id} {...a11yProps(index)} /> ))}
 
-        <TabPanel value={value} index={0}>
-          <TokenGrid></TokenGrid>
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <TokenMap></TokenMap>
-        </TabPanel>
-        <TabPanel value={value} index={2}>
+          <Tab label="+" {...a11yProps(tabs.length)} />
+        </Tabs>
+      </Box>
+
+
+      {tabs.map((tab, index) => (
+        <TabPanel value={value} index={index}>
+          {tab.grid ? <TokenGrid collectionId={tab.id}></TokenGrid> : <TokenMap collectionId={tab.id}></TokenMap>}
+        </TabPanel> ))}
+
+        <TabPanel value={value} index={tabs.length}>
           <Grid container spacing={5}>
               {Object.keys(collections).map((col, index) => (
                 <Grid item key={index}>
-                  <Card>
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image={collections[col].imageUrl}
-                      alt={col}
-                    />
-                    <CardContent>
-                      <React.Fragment>
-                        <Typography variant="h5" component="div">
-                          Collection : {col}
-                        </Typography>
-                        <Typography component={'span'} variant={'body2'}>
-                          #items:  {collections[col].tokenIds.length}
-                        </Typography>
-                      </React.Fragment>
-                    </CardContent>
+                  <Card id={col}>
+                    <CardActionArea onClick={cardClick}>
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image={collections[col].imageUrl}
+                        id={col}
+                        alt={col}
+                      />
+                      <CardContent>
+                        <React.Fragment>
+                          <Typography variant="h5" component="div">
+                            Collection : {col}
+                          </Typography>
+                          <Typography component='span' variant='body'>
+                            #items:  {collections[col].tokenIds.length}
+                          </Typography>
+                        </React.Fragment>
+                      </CardContent>
+                    </CardActionArea>
                   </Card>
                 </Grid>
               ))}

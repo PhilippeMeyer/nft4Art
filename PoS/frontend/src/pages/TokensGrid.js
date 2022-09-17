@@ -15,10 +15,11 @@ import DialogTitle from '@mui/material/DialogTitle';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
-import ListSubheader from '@mui/material/ListSubheader';
 import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@mui/material/Tooltip';
+
+import { loadCollections } from '../store/tokenSlice'
 
 import './Map.css';
 
@@ -26,17 +27,20 @@ import NavbarManager from "./NavbarManager";
 import { storeJwt, loadTokens } from '../store/tokenSlice'
 
 const httpServer = process.env.REACT_APP_SERVER;
+const imageSize = 200;
 
 const lockUrl = httpServer + 'lockUnlock?';
+const tokenUrl = httpServer + 'apiV1/token/list';
 
-
-function TokenGrid() {  
+function TokenGrid({ collectionId }) {  
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   // Local state for the screen and pict dimensions and the clickable regions 
   const [selected, setSelected] = React.useState();
   const [currency, setCurrency] = React.useState();
+  const [filteredTokens, setFilteredTokens] = React.useState([]);
+  const [screenSize, setScreenSize] = useState({});
 
   // Redux state for the jwt and the tokens
   const jwt = useSelector((state) => state.token.jwt);
@@ -47,10 +51,17 @@ function TokenGrid() {
 
   const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt };
 
+  const updateDimensions = () => {
+    setScreenSize({screenWidth: window.innerWidth, screenHeight: window.innerHeight});
+  }
+
   const loadData = () => {
     if (jwt !== undefined)
       fetchData(jwt) 
-      .then((tokens) => { dispatch(loadTokens(tokens)); })
+      .then((tokens) => { 
+          dispatch(loadTokens(tokens)); 
+          setFilteredTokens(tokens.filter(elt => elt.collectionId == collectionId))
+      })
       .catch((error) => { enqueueSnackbar('Error loading the tokens'); console.error(error); });
   };
 
@@ -60,16 +71,27 @@ function TokenGrid() {
   };
 
   const handleSale = () => {  
-    let t = tokens[selected];
+    let t = filteredTokens[selected];
     const params = new URLSearchParams({id: t.id, lock: true})
     fetch(lockUrl + params.toString(), { method: 'PUT', headers: jwtHeader });
-    navigate('/sales/token/' + currency + '/' + selected, { state: { token: tokens[selected]  }});
+    navigate('/sales/token/' + currency + '/' + selected, { state: { token: filteredTokens[selected]  }});
   };
 
   useEffect( () => {
+      updateDimensions();
+      window.addEventListener("resize", updateDimensions);
+
       loadData();
+
+      return () => {
+        window.removeEventListener('resize', updateDimensions);
+      } 
   }, []);
   
+  const defineColumns = () => {
+    return Math.floor(screenSize.screenWidth / imageSize);
+  };
+
   const handleOpenDialog = () => {
     setOpen(true);
   };
@@ -86,8 +108,8 @@ function TokenGrid() {
     <>
       <main>
         <div>
-          <ImageList sx={{ width: 500, height: 450 }} cols={3} rowHeight={164}>
-            {tokens.map((token) => (
+          <ImageList cols={defineColumns()}>
+            {filteredTokens.map((token) => (
               <ImageListItem key={token.id}>
                 <img
                   src={token.iconUrl}
@@ -138,7 +160,7 @@ function TokenGrid() {
 }
 
 function fetchData(jwt) {
-  return fetch(httpServer + 'tokens', {
+  return fetch(tokenUrl, {
       method: 'get',
       headers: {
           'Accept': 'application/json',
