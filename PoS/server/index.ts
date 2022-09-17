@@ -38,6 +38,7 @@ import { priceUpdate, priceUpdates } from "./endPoints/price/priceUpdate.js";
 import { authorizePoS } from "./endPoints/auth/authorizePoS.js";
 import { batchMintTokenFromFiles, batchMintStart, batchMintFinalize } from "./endPoints/token/mintTokenFromFiles.js";
 import { collectionImage, collectionMap } from "./endPoints/token/collectionImage.js";
+import { createVote } from "./endPoints/vote/createVote.js";
 
 
 // TODO: Env var?
@@ -256,6 +257,7 @@ app.get('/apiV1/token/collections', function (req: Request, res: Response) {
     res.status(200).json(app.locals.collections);
 });
 
+app.post('/apiV1/vote/createVote', createVote);
 
 app.get("/map", function (req: Request, res: Response) {
     res.sendFile(path.join(__dirname, "public/mapping_rects.json"));
