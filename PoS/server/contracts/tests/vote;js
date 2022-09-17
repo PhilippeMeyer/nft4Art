@@ -1,0 +1,52 @@
+(async function() {
+    try {
+        const addr = '0xc063FB73E37a28274ebd0F8412168C788277092c';          // Deployed on Ropsten
+        let overrides = { gasLimit: 750000 }
+
+        const metadata = JSON.parse(await remix.call('fileManager', 'getFile', 'browser/contracts/artifacts/GovernedNFT.json'))
+        const signer = (new ethers.providers.Web3Provider(web3Provider)).getSigner();
+        console.log('metadata and signer are in place')
+
+        let contract = new ethers.Contract(addr, metadata.abi, signer);
+        console.log('contract setup')
+
+
+        //await contract.setVote(2, 165478400, 1655740650)
+        //console.log('vote setup')
+
+        let pos = await contract.balanceOf('0xaF40A7c1f7f6740A92a1209C1Fd87d9fE41090a3', 0);
+        console.log('Pos: ', pos);
+
+        const domain = {
+            name: 'GovernedNFT',
+            version: '1.0.0',
+            chainId: await signer.getChainId(),
+            verifyingContract: addr
+        };
+
+        const types = { 
+            BallotMessage: [
+                { name: 'from',     type: 'address' },
+                { name: 'voteId',   type: 'uint128' },
+                { name: 'data',     type: 'bytes' }
+            ]
+        };
+
+        const values = {
+            from: '0xaF40A7c1f7f6740A92a1209C1Fd87d9fE41090a3',
+            voteId: 1,
+            data: '0x01'
+        };
+
+        let signature = await signer._signTypedData(domain, types, values)
+        console.log('Signature: ', signature)
+        let ok = await contract.verify(values, signature, overrides)
+        console.log('Verification: ', ok)
+        //values.data = "0x02"
+        let tx = await contract.vote(values, signature, [0], overrides)
+        const receipt = await tx.wait()
+    
+        console.log('signature: ' + signature + ' Tx receipt: ' + receipt )
+
+    } catch(e) { console.log(e.message) }
+})();
