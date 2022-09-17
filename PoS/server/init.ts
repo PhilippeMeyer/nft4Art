@@ -88,6 +88,36 @@ async function loadToken(token: Contract, exApp:any ) {
     let data: any;
     let loop: boolean = true;
     let errTimeout: number = 0;
+    let collections:any;
+    let key:string;
+
+
+    //
+    // Loading the collection definition
+    //
+
+    async function loadCollections() {
+        let cols:any;
+        logger.info('server.init.loadingCollections');
+
+        str = app.locals.ipfsFolder.replace('ipfs:', 'https:').replace('/{id}.json', '.ipfs.dweb.link/' + 'collections.json'); //TODO parametrize the ipfs gateway
+        let resp = await axios.get(str); //We retrieve the collections from ipfs
+        if (resp.status == 200) {
+            cols = resp.data;
+
+            for (key in cols) {
+                if(cols[key].image !== undefined) {
+                    if (await loadFromIpfs(cols[key].image) != '') cols[key].imageUrl = config.imgCollectionUrl + key;
+                }
+                if(cols[key].map !== undefined) {
+                    if (await loadFromIpfs(cols[key].map) != '') cols[key].mapUrl = config.mapCollectionUrl + key;
+                }
+            }
+        }
+        else logger.error('server.init.loadingCollections.errorLoadingCollections %s', resp.status);
+
+        return cols;
+    }
 
     // Retrieve the past events on this contract to find out which id have been minted
     // Mints are coming from address '0x0000000000000000000000000000000000000000' and can be performed by any operator (first topic)
@@ -114,6 +144,12 @@ async function loadToken(token: Contract, exApp:any ) {
         const id = ids[i];
         strToken = await token.uri(id);
         app.locals.ipfsFolder = strToken;
+
+        if (i == 0) {
+            collections = await loadCollections();
+            app.locals.collections = collections;
+        }
+
         str = strToken.replace('ipfs:', 'https:').replace('/{id}', '.ipfs.dweb.link/' + id); //TODO parametrize the ipfs gateway
 
         if (errTimeout == 2) break; // If we face a timeout we retry twice
@@ -153,6 +189,10 @@ async function loadToken(token: Contract, exApp:any ) {
             } else logger.error("server.init.loadTokens %s", err); // We log here network errors
         }
 
+        for (key in collections) {
+            if(collections[key].tokenIds.find((eltId: string) => parseInt(eltId) == data.tokenIdStr) !== undefined) data.collectionId = key;
+        }
+        
         metas.push(data);
         metasMap.set(data.id, data);
 
@@ -227,29 +267,6 @@ async function loadToken(token: Contract, exApp:any ) {
     );
 
     await Promise.all([getIcons, getImages]);
-
-    //
-    // Loading the collection definition
-    //
-    logger.info('server.init.loadingCollections');
-    str = app.locals.ipfsFolder.replace('ipfs:', 'https:').replace('/{id}.json', '.ipfs.dweb.link/' + 'collections.json'); //TODO parametrize the ipfs gateway
-    let resp = await axios.get(str); //We retrieve the collections from ipfs
-    if (resp.status == 200) {
-        const cols = resp.data;
-        app.locals.collections = cols;
-
-        let key:any;
-        let cid:string;
-
-        for (key in cols) {
-            if(cols[key].image !== undefined) {
-                if (await loadFromIpfs(cols[key].image) != '') cols[key].imageUrl = config.imgCollectionUrl + key;
-            }
-            if(cols[key].map !== undefined) {
-                if (await loadFromIpfs(cols[key].map) != '') cols[key].mapUrl = config.mapCollectionUrl + key;
-            }
-        }
-    }
     
     logger.info('server.init.loadTerminated');
 }
