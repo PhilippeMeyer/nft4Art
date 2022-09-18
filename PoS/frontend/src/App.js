@@ -20,7 +20,9 @@ import TokenSaleBtc from "./pages/TokenSaleBtc";
 import TokenTransfer from "./pages/TokenTransfer";
 import TokenTransferEth from "./pages/TokenTransferEth";
 import RegisteredPoS from './pages/RegisteredPoS';
-import CreateVote from './pages/CreateVote';
+import DisplayVote from "./pages/Vote";
+import CreateVote  from './pages/CreateVote';
+
 import './App.css';
 
 
@@ -44,6 +46,7 @@ function App() {
             <Route path="/manager/wallets" element={<PrivateRoute><Wallets /></PrivateRoute>} />
             <Route path="/manager/contracts" element={<PrivateRoute><Contracts /></PrivateRoute>} />
             <Route path="/manager/createVote" element={<PrivateRoute><CreateVote /></PrivateRoute>} />
+            <Route path="/manager/vote" element={<PrivateRoute><DisplayVote /></PrivateRoute>} />
             <Route path="/manager/pointOfSale" element={<PrivateRoute><RegisteredPoS /></PrivateRoute>} />
             <Route path="/sales/selectCollection" element={<PrivateRoute><SelectCollection /></PrivateRoute>} />
             <Route path="/sales/map" element={<PrivateRoute><TokensMap /></PrivateRoute>} />

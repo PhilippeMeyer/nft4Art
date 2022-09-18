@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+
 import Box from '@mui/material/Box';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -38,11 +39,22 @@ import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useSnackbar } from 'notistack';
 
+import NavbarManager from "./NavbarManager";
+
+import RenderVote from './RenderVote';
+
 
 const httpServer = process.env.REACT_APP_SERVER;
 const urlCreateVote = httpServer + 'apiV1/vote/createVote';
 
-function CreateVote() {
+const renderMargin = 3;
+const designMargin = 3;
+const txtFieldMx = 2;
+const iconMargin = 2;
+
+
+
+export default function CreateVote() {
 
     const actions = [
       { icon: <CheckBoxOutlineBlankIcon onClick={() => handleClick('checkbox')}/>, name: 'Checkbox' },
@@ -57,11 +69,6 @@ function CreateVote() {
     const [header, setHeader] = useState({ title: '', start: undefined, end: undefined });
     const [screenSize, setScreenSize] = useState({});
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
-    const renderMargin = 3;
-    const designMargin = 3;
-    const txtFieldMx = 2;
-    const iconMargin = 2;
 
     const handleClick = (item) => {
         let add = {};
@@ -162,7 +169,7 @@ function CreateVote() {
             console.error(error); 
         });
     }
-
+   
     function design(item, id) {
       switch(item.type) {
         case 'date':
@@ -222,140 +229,63 @@ function CreateVote() {
       }
     }
 
-    function render(item, id) {
-     switch(item.type) {
-        case 'date':
-          return (      <Card sx={{ mx: renderMargin, my: renderMargin}}>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DatePicker
-                                label={item.label}
-                                value={header.start}
-                                onChange={(newValue) => { setHeader({...header, start : new Date(newValue.$y, newValue.$M, newValue.$D).getTime() });}}
-                                renderInput={(params) => <TextField {...params}
-                                sx={{mx: designMargin, my: designMargin}} />}
-                              />
-                            </LocalizationProvider>
-                        </Card> );
-        case 'ranking':
-          return (      <Card sx={{ mx: renderMargin, my: renderMargin}}>
-                            <Box sx={{mx: 2}}><p>{item.label}</p></Box>
-                            <Rating sx={{mx:5, mb:3}} name={id + "-rating"}/>
-                        </Card> );
-        case 'choose':
-            if (item.labels === undefined) return;
-            return (    <Card sx={{ mx: renderMargin, my: renderMargin}}>
-                            <Box sx={{mx: 2}}><p>{item.label}</p></Box>
-                            <FormControl sx={{mx:5, mb:1}}>
-                                <RadioGroup
-                                    defaultValue={item.labels[0]}
-                                    aria-labelledby={id + "-radio-buttons-group-label"}
-                                    name={id + "-radio-buttons-group"}
-                                >
-                                    {item.labels.map((label, i) => (<FormControlLabel value={label} control={<Radio />} label={label} />))}
-                                </RadioGroup>
-                            </FormControl>
-                        </Card> );
-       case 'option':
-            if (item.labels === undefined) return;
-            return (    <Card sx={{ mx: renderMargin, my: renderMargin}}>
-                              <FormControl sx={{mx:2, my:2, width:'90%'}}>
-                                <InputLabel id="demo-simple-select-label">{item.label}</InputLabel>
-                                <Select
-                                  labelId="demo-simple-select-label"
-                                  id="demo-simple-select"
-                                  label={item.label}
-                                >
-                                  {item.labels.map((label, i) => (<MenuItem value={i}>{label}</MenuItem>))}
-                                </Select>
-                              </FormControl>
-                        </Card> );
-
-        case 'slider':
-          return (      <Card sx={{ mx: renderMargin, my: renderMargin}}>
-                            <Box sx={{mx: 1, my: 1}}>
-                                <Box sx={{mx: 1}}><p>{item.label}</p></Box>
-                                <Slider
-                                    aria-label={item.label}
-                                    defaultValue={0}
-                                    valueLabelDisplay="auto"
-                                    step={1}
-                                    marks
-                                    min={0}
-                                    max={item.nb}
-                                    sx={{ml:5, mr:5, width:'90%'}}
-                                />
-                            </Box>
-                        </Card>);
-
-        case 'checkbox':
-            if (item.labels === undefined) return;
-            return (    <Card sx={{ mx: renderMargin, my: renderMargin}}>
-                            <Box sx={{mx: 2}}><p>{item.label}</p></Box>
-                            <FormGroup sx={{mx:5, mb:2}}>
-                                {item.labels.map((label, i) => (<FormControlLabel control={<Checkbox defaultChecked />} label={label} />))}
-                            </FormGroup>
-                        </Card> );
-        }
-    }
-
     return (
-            <Box sx={{ height: screenSize.screenHeight, transform: 'translateZ(0px)', flexGrow: 1 }}>
-                <SpeedDial
-                    ariaLabel="SpeedDial"
-                    sx={{ position: 'absolute', top: (screenSize.screenHeight - 500), right: 30 }}
-                    icon={<SpeedDialIcon />}
-                >
-                    {actions.map((action) => (
-                      <SpeedDialAction
-                        key={action.name}
-                        icon={action.icon}
-                        tooltipTitle={action.name}
-                      />
-                    ))}
-                </SpeedDial>
+        <Box sx={{ height: screenSize.screenHeight, transform: 'translateZ(0px)', flexGrow: 1 }}>
+            <SpeedDial
+                ariaLabel="SpeedDial"
+                sx={{ position: 'absolute', top: (screenSize.screenHeight - 500), right: 30 }}
+                icon={<SpeedDialIcon />}
+            >
+                {actions.map((action) => (
+                    <SpeedDialAction
+                    key={action.name}
+                    icon={action.icon}
+                    tooltipTitle={action.name}
+                    />
+                ))}
+            </SpeedDial>
 
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', mx: designMargin, my: designMargin}}>
-                    <Box sx={{ display: 'grid', width: '50%'}}>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start'}}>
-                            <h1 class="title">Vote Design Tool</h1>
-                            <Button variant="contained" size="medium" sx={{width: '20%', mx:5, my: 3}}onClick={save}>Save</Button>
-                        </Box>
-                        <Divider />
-
-                        <TextField id='title' sx={{mx: designMargin, mb: designMargin}} label="Enter the title for this vote" variant="standard" onChange={changedTitle} />
-                        <TextField id='comment' multiline sx={{mx: designMargin, mb: designMargin}} label="Enter the goal of this vote" variant="standard" onChange={changedTitle} />
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            label="Start Date"
-                            value={header.start}
-                           onChange={(newValue) => { setHeader({...header, start : new Date(newValue.$y, newValue.$M, newValue.$D).getTime() });}}
-                            renderInput={(params) => <TextField {...params}
-                            sx={{mx: designMargin, mb: designMargin}} />}
-                          />
-                        </LocalizationProvider>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            label="End Date"
-                            value={header.end}
-                            onChange={(newValue) => { setHeader({...header, end : new Date(newValue.$y, newValue.$M, newValue.$D).getTime() });}}
-                            renderInput={(params) => <TextField {...params}
-                            sx={{mx: designMargin, mb: designMargin}} />}
-                          />
-                        </LocalizationProvider>
-
-                        {items.map((item, id) => (design(item, id)))}
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', mx: designMargin, my: designMargin}}>
+                <Box sx={{ display: 'grid', width: '50%'}}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start'}}>
+                        <h1 class="title">Vote Design Tool</h1>
+                        <Button variant="contained" size="medium" sx={{width: '20%', mx:5, my: 3}}onClick={save}>Save</Button>
                     </Box>
-                    <Box sx={{ display: 'grid', mx:5, width: '50%', mx: designMargin, my: designMargin}}>
-                        <h1 class="title">How your vote will be rendered</h1>
-                        <Divider />
-                        {header.title === undefined ? <p></p> : <h2>{header.title}</h2>}
-                        {header.comment === undefined ? <p></p> : <p class="comment">{header.comment}</p>}
-                        {((header.start === undefined) || (header.end === undefined)) ? <p></p> : <p>The vote will start on: {formatTime(header.start)} and will terminate on: {formatTime(header.end)}</p>}
-                        {items.map((item, id) => (render(item, id)))}
-                    </Box>
+                    <Divider />
+
+                    <TextField id='title' sx={{mx: designMargin, mb: designMargin}} label="Enter the title for this vote" variant="standard" onChange={changedTitle} />
+                    <TextField id='comment' multiline sx={{mx: designMargin, mb: designMargin}} label="Enter the goal of this vote" variant="standard" onChange={changedTitle} />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                        label="Start Date"
+                        value={header.start}
+                        onChange={(newValue) => { setHeader({...header, start : new Date(newValue.$y, newValue.$M, newValue.$D).getTime() });}}
+                        renderInput={(params) => <TextField {...params}
+                        sx={{mx: designMargin, mb: designMargin}} />}
+                        />
+                    </LocalizationProvider>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                        label="End Date"
+                        value={header.end}
+                        onChange={(newValue) => { setHeader({...header, end : new Date(newValue.$y, newValue.$M, newValue.$D).getTime() });}}
+                        renderInput={(params) => <TextField {...params}
+                        sx={{mx: designMargin, mb: designMargin}} />}
+                        />
+                    </LocalizationProvider>
+
+                    {items.map((item, id) => (design(item, id)))}
+                </Box>
+                <Box sx={{ display: 'grid', mx:5, width: '50%', mx: designMargin, my: designMargin}}>
+                    <h1 className="title">How your vote will be rendered</h1>
+                    <Divider />
+                    {header.title === undefined ? <p></p> : <h2>{header.title}</h2>}
+                    {header.comment === undefined ? <p></p> : <p class="comment">{header.comment}</p>}
+                    {((header.start === undefined) || (header.end === undefined)) ? <p></p> : <p>The vote will start on: {formatTime(header.start)} and will terminate on: {formatTime(header.end)}</p>}
+                    {items.map((item, id) => (RenderVote(item, id)))}
                 </Box>
             </Box>
+            <NavbarManager />
+        </Box>
     );
 }
-
-export default CreateVote;
