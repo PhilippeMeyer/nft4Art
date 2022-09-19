@@ -87,7 +87,7 @@ const checkboxLbl = 'checkbox';
                     }
                     else if (event.target.name.indexOf('-' + rankingLbl) != -1) {
                         ids = event.target.name.split('-');
-                        callback({item: ids[0], value: event.value});                }
+                        callback({item: ids[0], value: value});                }
                     }
                 else {
                     if (event.target.name.indexOf('-' + optionLbl) != -1) {
