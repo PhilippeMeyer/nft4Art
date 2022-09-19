@@ -70,6 +70,64 @@ export default function DisplayVote() {
           .then((response) =>  response.json())
           .then((responseJson) => {console.log(responseJson); Wallet.fromEncryptedJson(JSON.stringify(responseJson), "12345678").then((w) => setWallet(w))});    
     }
+    
+        function encodeVote() {
+        let ret = 0
+        let pos = 0;
+        items.forEach((item, i) => {
+            let value;
+
+            console.log('iteration:', i, 'ret:', ret.toString(2) );
+            if (item.type == dateLbl) {
+                let date = new Date(item.value).getTime();
+                value = (Math.floor(date /(3600*24)))<<pos
+            } else value = item.value <<pos;
+            ret = ret || value;
+
+            switch(item.type) {
+                case chooseLbl:
+                case checkboxLbl:
+                case optionLbl:
+                    pos += item.nb;
+                    break;
+
+                case sliderLbl:
+                   pos += 32 - Math.clz(item.nb);
+                   break;
+                case dateLbl:
+                    pos += 16 //we store the number of days since 01/01/1970 and with 16 bits we can cover 179 years (2149)
+            }
+        });
+
+        return ret;
+    }
+
+    function decodeVote(receivedValue) {
+        let pos = 0;
+        let mask = 0;
+        items.forEach((item) => {
+            let value = receivedValue>>pos;
+                switch(item.type) {
+                    case chooseLbl:
+                    case checkboxLbl:
+                    case optionLbl:
+                        pos += item.nb;
+                        mask = (1<<item.nb)-1;
+                        item.value = value & mask;
+                        break;
+                   case sliderLbl:
+                        pos += 32 - Math.clz(item.nb);
+                        mask = (1<<(32 - Math.clz(item.nb))) -1;
+                        item.value = value & mask;
+                        break;
+                    case dateLbl:
+                        pos += 16 //we store the number of days since 01/01/1970 and with 16 bits we can cover 179 years (2149)
+                        mask = (1<<16)-1;
+                        item.value = value & mask;
+                }
+        })
+    }
+
 
     async function performVote() {
         try {
