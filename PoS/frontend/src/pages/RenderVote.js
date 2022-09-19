@@ -31,46 +31,71 @@ const designMargin = 3;
 const txtFieldMx = 2;
 const iconMargin = 2;
 
+const rankingLbl  = 'ranking';
+const dateLbl     = 'date';
+const chooseLbl   = 'choose';
+const optionLbl   = 'option';
+const sliderLbl   = 'slider';
+const checkboxLbl = 'checkbox';
 
-export default function RenderVote(item, id) {
-    switch(item.type) {
-       case 'date':
+
+export default function RenderVote(item, id, callback) {
+
+  function internalCallback(event, value) {
+    const ids = event.target.id.split('-');
+    const id = ids[0];
+
+    if (event.target.id.indexOf(checkboxLbl) != -1) {
+        callback({item: id, change: ids[1], value: event.target.checked})
+    }
+    else callback({item: id, value: value});
+  }
+
+  switch(item.type) {
+       case dateLbl:
          return (      <Card sx={{ mx: renderMargin, my: renderMargin}}>
                            <LocalizationProvider dateAdapter={AdapterDayjs}>
                              <DatePicker
-                               label={item.label}
-                               value={new Date().getTime()}
+                               id={id + '-' + dateLbl}
+                               value={new Date(item.value).getTime()}
                                renderInput={(params) => <TextField {...params} sx={{mx: designMargin, my: designMargin}} />}
+                               onChange={internalCallback}
                              />
                            </LocalizationProvider>
                        </Card> );
-       case 'ranking':
+       case rankingLbl:
          return (      <Card sx={{ mx: renderMargin, my: renderMargin}}>
                            <Box sx={{mx: 2}}><p>{item.label}</p></Box>
-                           <Rating sx={{mx:5, mb:3}} name={id + "-rating"}/>
+                           <Rating  sx={{mx:5, mb:3}} 
+                                    name={id + "-" + rankingLbl} 
+                                    value={item.value}
+                                    id={id + '-' + rankingLbl} 
+                                    onChange={internalCallback}/>
                        </Card> );
-       case 'choose':
+       case chooseLbl:
            if (item.labels === undefined) return;
            return (    <Card sx={{ mx: renderMargin, my: renderMargin}}>
                            <Box sx={{mx: 2}}><p>{item.label}</p></Box>
                            <FormControl sx={{mx:5, mb:1}}>
                                <RadioGroup
-                                   defaultValue={item.labels[0]}
-                                   aria-labelledby={id + "-radio-buttons-group-label"}
-                                   name={id + "-radio-buttons-group"}
+                                  id={id + '-' + chooseLbl}
+                                  aria-labelledby={id + "-radio-buttons-group-label"}
+                                  value={item.value}
+                                  name={id + "-radio-buttons-group"}
+                                  onChange={internalCallback}
                                >
-                                   {item.labels.map((label, i) => (<FormControlLabel value={label} control={<Radio />} label={label} />))}
+                                   {item.labels.map((label, i) => (<FormControlLabel value={i} control={<Radio id={id + '-' + i + '-' + chooseLbl}/>} label={label} />))}
                                </RadioGroup>
                            </FormControl>
                        </Card> );
-      case 'option':
+      case optionLbl:
            if (item.labels === undefined) return;
            return (    <Card sx={{ mx: renderMargin, my: renderMargin}}>
                              <FormControl sx={{mx:2, my:2, width:'90%'}}>
                                <InputLabel id="demo-simple-select-label">{item.label}</InputLabel>
                                <Select
-                                 labelId="demo-simple-select-label"
-                                 id="demo-simple-select"
+                                 labelId={id + "-" + optionLbl}
+                                 id={id}
                                  label={item.label}
                                >
                                  {item.labels.map((label, i) => (<MenuItem value={i}>{label}</MenuItem>))}
@@ -78,29 +103,33 @@ export default function RenderVote(item, id) {
                              </FormControl>
                        </Card> );
 
-       case 'slider':
+       case sliderLbl:
          return (      <Card sx={{ mx: renderMargin, my: renderMargin}}>
                            <Box sx={{mx: 1, my: 1}}>
                                <Box sx={{mx: 1}}><p>{item.label}</p></Box>
                                <Slider
-                                   aria-label={item.label}
-                                   defaultValue={0}
-                                   valueLabelDisplay="auto"
-                                   step={1}
-                                   marks
-                                   min={0}
-                                   max={item.nb}
-                                   sx={{ml:5, mr:5, width:'90%'}}
+                                  id={id + '-' + sliderLbl}
+                                  aria-label={item.label}
+                                  value={item.value}
+                                  valueLabelDisplay="auto"
+                                  step={1}
+                                  marks
+                                  min={0}
+                                  max={item.nb}
+                                  sx={{ml:5, mr:5, width:'90%'}}
+                                  onChange={internalCallback}
                                />
                            </Box>
                        </Card>);
 
-       case 'checkbox':
+       case checkboxLbl:
            if (item.labels === undefined) return;
            return (    <Card sx={{ mx: renderMargin, my: renderMargin}}>
                            <Box sx={{mx: 2}}><p>{item.label}</p></Box>
-                           <FormGroup sx={{mx:5, mb:2}}>
-                               {item.labels.map((label, i) => (<FormControlLabel control={<Checkbox defaultChecked />} label={label} />))}
+                           <FormGroup sx={{mx:5, mb:2}} id={id} onChange={internalCallback}>
+                               {item.labels.map((label, i) => (
+                                  <FormControlLabel control={<Checkbox id={id + '-' + i + '-' + checkboxLbl} checked={item.value & 1<<i}/>} label={label} />)
+                                )}
                            </FormGroup>
                        </Card> );
     }

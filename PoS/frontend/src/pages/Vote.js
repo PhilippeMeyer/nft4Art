@@ -9,8 +9,8 @@ import Button from '@mui/material/Button';
 
 import { useSnackbar } from 'notistack';
 
-import RenderVote  from './RenderVote';
-
+import RenderVote from './RenderVote';
+import EncodeVote from './EncodeVote';
 
 const httpServer = process.env.REACT_APP_SERVER;
 const urlGetVote = httpServer + 'apiV1/vote/getVote';
@@ -35,6 +35,7 @@ export default function DisplayVote() {
         fetchData() 
             .then((vote) => {
                 console.log('vote:', vote);
+                vote.items.forEach((item) => item.value = 0)
                 setItems(vote.items);
                 let key;
                 let headerTemp = {};
@@ -78,7 +79,8 @@ export default function DisplayVote() {
             const address = wallet.address;
             console.log('signer:', signer, 'addr:', address);
     
-    
+            EncodeVote(items);
+
             const domain = {
                 name: 'GovernedNFT',
                 version: '1.0.0',
@@ -102,18 +104,33 @@ export default function DisplayVote() {
     
             let signature = await signer._signTypedData(domain, types, values)
             console.log('Signature: ', signature)
-
+/*
             await fetch(urlSendVote, { 
                 method: 'POST', 
                 headers:{ 'Accept': 'application/json', 'Content-Type': 'application/json' },
                 body: JSON.stringify({domain: domain, types: types, values: values, signature: signature})
             });
+*/            
         } catch(e) { console.error(e.message) }
     }
 
     function formatTime(time) {
         var d = new Date(time)
         return (("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + d.getFullYear());
+    }
+
+    function manageChanges(update) {
+        let value; 
+
+        if(update.change === undefined) value = update.value;
+        else {
+            const mask = 1 << update.change;
+            value = items[update.item].value ^= mask;
+        }
+        setItems(items.map((item) => {
+            if(item.id == update.item) item.value = value
+            return item;
+        }))
     }
 
     return (
@@ -124,7 +141,7 @@ export default function DisplayVote() {
             {header.title === undefined ? <p></p> : <h2>{header.title}</h2>}
             {header.comment === undefined ? <p></p> : <p className="comment">{header.comment}</p>}
             {((header.start === undefined) || (header.end === undefined)) ? <p></p> : <p>This vote starts on: {formatTime(header.start)} and will terminate on: {formatTime(header.end)}</p>}
-            {items.map((item, id) => (RenderVote(item, id)))}
+            {items.map((item, id) => (RenderVote(item, id, manageChanges)))}
         </Box>
     );
 }
