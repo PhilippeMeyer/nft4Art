@@ -25,7 +25,8 @@ async function createVote(req: Request, res: Response) {
 
         const token:Contract = app.locals.token;
         const curVote = await token.getVote();
-        newVote.id = curVote[0] + 1;
+        newVote.id = parseInt(curVote[0]) + 1;
+        newVote.chainId = await app.locals.wallet.getChainId();
         const txResp = await token.setVote(newVote.id, newVote.start / 1000, newVote.end / 1000);
         const txReceipt = await txResp.wait();
         logger.info('server.vote.voteInserted #%s txHash: %s', newVote.id, txReceipt.transactionHash);
