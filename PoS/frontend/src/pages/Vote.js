@@ -1,3 +1,5 @@
+/* global BigInt */
+
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 
@@ -71,31 +73,43 @@ export default function DisplayVote() {
           .then((responseJson) => {console.log(responseJson); Wallet.fromEncryptedJson(JSON.stringify(responseJson), "12345678").then((w) => setWallet(w))});    
     }
     
-        function encodeVote() {
-        let ret = 0
+    function encodeVote() {
+        let ret = BigInt(0);
         let pos = 0;
         items.forEach((item, i) => {
             let value;
+            console.log('item:', item)
 
-            console.log('iteration:', i, 'ret:', ret.toString(2) );
+
             if (item.type == dateLbl) {
                 let date = new Date(item.value).getTime();
-                value = (Math.floor(date /(3600*24)))<<pos
-            } else value = item.value <<pos;
-            ret = ret || value;
+                console.log('value:', BigInt(Math.floor(date /(3600*24))) )
+                value = BigInt(Math.floor(date /(3600*24))) << BigInt(pos);
+                console.log('date value shifted:', value.toString(2));
+            } else {
+                console.log('value:', item.value);
+                console.log('value:', item.value.toString(2));
+                value = BigInt(item.value) << BigInt(pos);
+                console.log('value shifted:', value.toString(2));
+            }
+            ret = ret | value;
+            console.log('iteration:', i, 'ret:', ret.toString(2), 'pos:', pos);
 
             switch(item.type) {
                 case chooseLbl:
                 case checkboxLbl:
                 case optionLbl:
-                    pos += item.nb;
+                    pos += parseInt(item.nb);
                     break;
 
                 case sliderLbl:
                    pos += 32 - Math.clz(item.nb);
                    break;
                 case dateLbl:
-                    pos += 16 //we store the number of days since 01/01/1970 and with 16 bits we can cover 179 years (2149)
+                    pos += 25; //we store the number of days since 01/01/1970 and with 16 bits we can cover 179 years (2149)
+                    break;
+                case rankingLbl:
+                    pos += 3;
             }
         });
 
