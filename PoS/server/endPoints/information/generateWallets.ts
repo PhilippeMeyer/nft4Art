@@ -7,6 +7,9 @@ import { Wallet } from "ethers";
 import QRCode from "qrcode";
 import archiver from "archiver";
 
+import { config } from "../../config.js"
+
+const logo = config.galleryLogo;
 
 async function generateWallets(req: Request, res: Response) {
     let nbWallets = 10;
@@ -39,7 +42,7 @@ async function generateWallets(req: Request, res: Response) {
         let res = await QRCode.toFile(path.join(tmpDir, "addr" + i + ".png"), w.address);
         env.font("Helvetica").fontSize(10);
         env.addPage();
-        env.image("./public/nft4Art.png", 20, 20, { width: 120 });
+        env.image(logo, 20, 20, { width: 120 });
         env.image(path.join(tmpDir, "addr" + i + ".png"), 400, 30, {
             width: 200,
         });
@@ -47,7 +50,7 @@ async function generateWallets(req: Request, res: Response) {
         env.font("Courier").fontSize(10).text(w.address, { align: "right" });
 
         doc.addPage();
-        doc.image("./public/nft4Art.png", 20, 20, { width: 150 });
+        doc.image(logo, 20, 20, { width: 150 });
         doc.moveDown(8);
         doc.font("Helvetica-Bold").fontSize(25).text("Your personnal Ethereum Wallet", { align: "center" });
         doc.moveDown(3);
