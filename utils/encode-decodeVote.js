@@ -21,7 +21,6 @@ import * as cst from './constants.js'
         let pos = 0;
         items.forEach((item, i) => {
             let value;
-            console.log('item:', item)
 
             if (item.type == cst.dateLbl) {
                 let date = new Date(item.value.$y, item.value.$M, item.value.$D) / 1000;
