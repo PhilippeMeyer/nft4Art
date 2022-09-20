@@ -6,9 +6,15 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { Wallet } from 'ethers';
 
-export default function WalletCreation() {
+export default function WalletCreation({userWallet}) {
+
+    const modeInsertMnemonic = 1;
+    const modeWalletExists = 2;
+    const modeCompleted = 3;
+
     const [mnemonic, setMnemonic] = useState([]);
     const [password, setPassword] = useState('');
+    const [mode, setMode] = useState();
 
     function getMnemonic(event) {
         setMnemonic(event.target.value.split(' '));
@@ -18,16 +24,29 @@ export default function WalletCreation() {
     }
 
     function validate() {
-        console.log(mnemonic);
-        let w = Wallet.fromMnemonic(mnemonic.join(' '));
-        console.log(w.address);
-        w.encrypt(password).then((jsomWallet) => {
-            localStorage.setItem('wallet', jsomWallet);
-        })
+        if (walletJson == null) {
+            console.log(mnemonic);
+            let w = Wallet.fromMnemonic(mnemonic.join(' '));
+            console.log(w.address);
+            w.encrypt(password).then((jsomWallet) => {
+                localStorage.setItem('wallet', jsomWallet);
+            })
+            userWallet = w;
+            setMode(modeCompleted);
+        }
+        else {
+            userWallet = Wallet.fromEncryptedJsonSync(walletJson, password);
+            setMode(modeCompleted);
+        }
     }
 
+    const walletJson = localStorage.getItem('wallet');
+    if (walletJson == null) setMode = modeInsertMnemonic;
+    else setMode(modeWalletExists);
+
     return (
-        <Box>
+        { mode == modeInsertMnemonic &&
+            <Box>
             { (mnemonic.length == 0) ?
                 <Box><TextField id="mnemonic" label="Mnemonic" variant="standard" onChange={getMnemonic} /></Box>
                 :
@@ -39,6 +58,17 @@ export default function WalletCreation() {
                 </Box>
             }
             { (mnemonic.length != 0) && (password != '')? <Button onClick={validate}>Validate</Button> : <></>}
-        </Box>
-    )
+            </Box>
+        }
+        { mode == modeWalletExists &&
+            <Box>
+                <TextField id="password" label="password" variant="standard" type="password" onChange={getPassword} />
+                <Button onClick={validate}>Validate</Button>
+            </Box>
+        }
+        { mode == modeCompleted &&
+             <Box>
+                 <p>Wallet Loaded!</p>
+             </Box>
+        });
 }
