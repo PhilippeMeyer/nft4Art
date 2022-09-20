@@ -1,1 +1,3 @@
-# Web react client for the customers
+# Client app for an NFT
+
+This is a web based client to display NFT
