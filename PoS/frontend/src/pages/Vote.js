@@ -12,12 +12,18 @@ import Button from '@mui/material/Button';
 import { useSnackbar } from 'notistack';
 
 import RenderVote from './RenderVote';
-import EncodeVote from './EncodeVote';
 
 const httpServer = process.env.REACT_APP_SERVER;
 const urlGetVote = httpServer + 'apiV1/vote/getVote';
 const urlGetWallet = httpServer + 'apiV1/vote/getWallet';
 const urlSendVote = httpServer + 'apiV1/vote/sendVote';
+
+const rankingLbl  = 'ranking';
+const dateLbl     = 'date';
+const chooseLbl   = 'choose';
+const optionLbl   = 'option';
+const sliderLbl   = 'slider';
+const checkboxLbl = 'checkbox';
 
 export default function DisplayVote() {
 
@@ -151,7 +157,7 @@ export default function DisplayVote() {
             const address = wallet.address;
             console.log('signer:', signer, 'addr:', address);
     
-            EncodeVote(items);
+            encodeVote(items);
 
             const domain = {
                 name: 'GovernedNFT',
