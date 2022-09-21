@@ -173,6 +173,7 @@ function Tokens() {
             <TableRow>
               <TableCell></TableCell>
               <TableCell>Id</TableCell>
+              <TableCell>Collection</TableCell>
               <TableCell>Qty</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Price</TableCell>
@@ -187,6 +188,7 @@ function Tokens() {
                   <Avatar src={token.iconUrl} sx={{ width: 70, height: 70 }}/>
                 </TableCell>
                 <TableCell align="left" component="th" scope="row">{token.tokenIdStr}</TableCell>
+                <TableCell align="left" component="th" scope="row">{token.collectionId}</TableCell>
                 <TableCell align="left" component="th" scope="row">{token.availableTokens}</TableCell>
                 <TableCell align="left" component="th" scope="row">{token.description}</TableCell>
                 <TableCell align="left" component="th" scope="row">
