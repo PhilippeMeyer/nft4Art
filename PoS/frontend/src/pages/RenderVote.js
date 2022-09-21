@@ -157,6 +157,7 @@ export default function RenderVote(item, id, callback) {
                         </Card> );
 
         case sliderLbl:
+            if (item.nb === undefined) return;
             return (    <Card sx={{ mx: renderMargin, my: renderMargin}}>
                             <Box sx={{mx: 1, my: 1}}>
                                 <Box sx={{mx: 1}}><p>{item.label}</p></Box>

@@ -14,3 +14,17 @@ PoS/server/package-lock.json
 PoS/server/*.keys
 PoS/server/cids-created.txt
 PoS/server/public/sample-mp4-file.mp4
+/client/.pnp
+/client/.pnp.js
+/client/coverage
+/client/build
+/client/.DS_Store
+/client/.env.local
+/client/.env.development.local
+/client/.env.test.local
+/client/.env.production.local
+/client/npm-debug.log*
+/client/yarn-debug.log*
+/client/yarn-error.log*
+/client/package-lock.json
+/client/node_modules/
