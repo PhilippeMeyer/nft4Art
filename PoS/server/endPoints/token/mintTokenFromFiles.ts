@@ -8,10 +8,10 @@ import { filesFromPath } from 'files-from-path'
 import axios from "axios";
 import { BigNumber, constants, Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
 
-
 import { app } from "../../app.js";
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
+import generateAnimatedGif from '../../services/generateAnimatedGif.js'
 
 let tmpDir;
 const appPrefix = 'nft4art';
@@ -33,6 +33,7 @@ async function batchMintStart(req: Request, res: Response) {
         app.locals.batchMintFolder = fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
         // TODO find the first free token 
         app.locals.batchMintTokenId = 0;
+        app.locals.batchMintTokens = [];
 
         if (app.locals.ipfsFolder !== undefined) {
             let ipfsFolder = app.locals.ipfsFolder;
@@ -120,6 +121,8 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
         
         const tid = parseInt(tokenId); 
         fs.writeFileSync(path.join(app.locals.batchMintFolder, tid.toString() + ".json"), JSON.stringify(metadata));
+        metadata.tokenId = tokenId;
+        app.locals.batchMintTokens.push(metadata);
 
         const token:Contract = app.locals.token;
         const txResp = await token.mint(tokenId, numTokens, []);
@@ -164,17 +167,29 @@ async function batchMintFinalize(req: Request, res: Response) {
             const files: any[] = req.files as any[];
 
             for (key in newCol) {
-                if ((newCol[key].image == undefined) || (newCol[key].map == undefined)) continue;
+                if (newCol[key].image == undefined) {           // No image of the collection is has been provided. Creating one as an animated GIF
+                    const fileName = key + '.gif';
+                    generateAnimatedGif(newCol[key], fileName, app.locals.batchMintTokens, app.locals.batchMintFolder);
+                    let data = fs.readFileSync(fileName);
+                    var imageCid = await client.storeBlob(new Blob([data]));
+                    newCol[key].image = 'ipfs://' + imageCid;
+                    logger.info('server.batchMintFinalize.createAnimatedGif %s %s', fileName, imageCid);
+                }
+                else {                
+                    const image: any = files.find((file) =>  file.fieldname == newCol[key].image);
+                    if(image == null) continue; 
+                    var imageCid = await client.storeBlob(new Blob([image.buffer]));
+                    newCol[key].image = 'ipfs://' + imageCid;
+                    logger.info('server.batchMintFinalize.storeImage %s', imageCid);
+                }
 
-                const image: any = files.find((file) =>  file.fieldname == newCol[key].image);    
+                if(newCol[key].map == undefined) continue;
+
                 const map: any = files.find((file) =>  file.fieldname == newCol[key].map);
-
-                if(image == null || map == null) continue;        
+                if(map == null) continue;        
                 
-                var imageCid = await client.storeBlob(new Blob([image.buffer]));
                 var mapCid = await client.storeBlob(new Blob([map.buffer]));
-                logger.info('server.batchMintFinalize.storeMapImage %s %s', mapCid, imageCid);
-                newCol[key].image = 'ipfs://' + imageCid;
+                logger.info('server.batchMintFinalize.storeMap %s', mapCid);
                 newCol[key].map = 'ipfs://' + mapCid;
             }
             
@@ -250,5 +265,6 @@ async function readIpfsFolder(cid: string, folder:string) {
         results.data.pipe(writeStream);
     });
 }
+
 
 export { batchMintStart, batchMintTokenFromFiles, batchMintFinalize };

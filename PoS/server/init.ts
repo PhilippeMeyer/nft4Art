@@ -10,6 +10,7 @@ import * as dbPos from './services/db.js';
 import { app } from "./app.js";
 import { createSmartContract } from "./services/createSmartContract.js";
 import { config } from "./config.js"
+import generateAnimatedGif from './services/generateAnimatedGif.js'
 
 //
 // Server initialization
@@ -197,6 +198,14 @@ async function loadToken(token: Contract, exApp:any ) {
         metasMap.set(data.id, data);
 
         errTimeout = 0;
+    }
+
+    for (key in collections) {
+        if (collections[key].image == undefined) {
+            generateAnimatedGif(collections[key], key + 'image.gif', metas, config.cacheFolder);
+            collections[key].image = key + 'image.gif';
+            collections[key].imageUrl = config.imgCollectionUrl + key;
+        }
     }
 
     // TODO: store incrementally the transfers in the database so that the loading time does not increase over time

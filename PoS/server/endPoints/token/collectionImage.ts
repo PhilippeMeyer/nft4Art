@@ -19,7 +19,7 @@ async function collectionImage(req: Request, res: Response) {
         res.sendStatus(404);
         return;
     }
-
+    console.log(app.locals.collections[colId].image);
     res.sendFile(path.join(config.__dirname, config.cacheFolder, app.locals.collections[colId].image.replace('ipfs://', '')));
 }
 
