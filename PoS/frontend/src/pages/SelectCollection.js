@@ -100,7 +100,7 @@ export default function SelectCollection() {
     else {
       var tab = {};
       tab.id = event.target.id;
-      tab.grid = (collections[event.target.id].imageUrl === undefined);
+      tab.grid = (collections[event.target.id].mapUrl === undefined);
       const index = tabs.length;
       setTabs([...tabs, tab]);
       setValue(index);
