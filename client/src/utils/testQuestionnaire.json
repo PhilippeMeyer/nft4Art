@@ -1,0 +1,35 @@
+{
+  "header": {
+    "comment": "Testing the governance feature for NFTs",
+    "end": 1664488800000,
+    "start": 1663452000000,
+    "title": "Test vote"
+  },
+    "items": [
+    {
+      "id": 0,
+      "label": "Test Checkbox",
+      "labels": ["test1", "test2"],
+      "nb": "2",
+      "type": "checkbox"
+    },
+    {
+      "id": 1,
+      "label": "Test Radio buttons",
+      "labels": ["test1", "test2"],
+      "nb": "2",
+      "type": "choose"
+    },
+    {
+      "id": 2,
+      "label": "Test Ranking",
+      "type": "ranking"
+    },
+    {
+      "id": 3,
+      "label": "Test Slider",
+      "nb": "10",
+      "type": "slider"
+    }
+  ]
+}

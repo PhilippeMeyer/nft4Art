@@ -1,7 +1,7 @@
 /* global BigInt */
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -35,22 +35,46 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 
-import * as cst from './constants.js'
-import {encodeVote, decodeVote} from './encode-decodeVote.js'
-
+import * as cst from '../utils/constants.js'
+import {encodeVote, decodeVote} from '../utils/encode-decodeVote.js'
+import { WalletContext } from '../WalletContext.js'
+import NavbarManager from "./NavbarManager";
 import '../App.css';
-
 
 export default function RenderVote({questionList}) {
 
-    var items = questionList.items;
-    var header = questionList.header;
-    var callback = questionList.callback;
+    const [items, setItems] = useState([]);
+    const [header, setHeader] = useState({});
+    var callback;
 
+    useEffect(() => {
+        if(questionList === undefined) questionList = require('../utils/testQuestionnaire.json');
+
+        setItems(questionList.items);
+        setHeader(questionList.header);
+    }, []);
+
+
+    if (header === undefined)  { console.log("no q"); return (<></>); }
+
+
+    function callback(update) {
+         let value;
+
+         if(update.change === undefined) value = update.value;
+         else {
+             const mask = 1 << update.change;
+            value = items[update.item].value ^= mask;
+        }
+        setItems(items.map((item) => {
+            if(item.id == update.item) item.value = value
+            return item;
+        }))
+    }
 
     function internalCallback(event, value) {
         let ids;
-        console.log('event:', event, 'value:', value);
+
         // Events received from material design for the different components
         //
         //  - Checkbox
@@ -203,9 +227,21 @@ export default function RenderVote({questionList}) {
     }
 
 
+    function save() {
+        var ret = {};
+        var key;
+        //for (key in header) ret[key] = header[key];
+        ret.items = items;
+        ret.header = header;
+        console.log(ret);
+        let test = encodeVote(items);
+        console.log(test);
+        decodeVote(test, items);
+    }
+
     return (
             <>
-                <h1 className="title">How your vote will be rendered</h1>
+                <Box><h1 className="title">Please Vote Now!</h1> <Button variant="contained" size="medium" sx={{width: '20%', mx:5, my: 3}}onClick={save}>Save your vote</Button> </Box>
                 <Divider />
                 {header.title === undefined ? <p></p> : <h2>{header.title}</h2>}
                 {header.comment === undefined ? <p></p> : <p className="comment">{header.comment}</p>}

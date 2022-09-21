@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from "react-router-dom";
+
 import { Wallet } from 'ethers';
 
 import TextField from '@mui/material/TextField';
@@ -7,22 +9,23 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import PropTypes from 'prop-types';
 import Typography from '@mui/material/Typography';
 
 import { useSnackbar } from 'notistack';
-import RenderVote from '../utils/RenderVote.js'
+import { WalletContext } from '../WalletContext.js'
 
 //const httpServer = process.env.REACT_APP_SERVER;
 const httpServer = 'http://192.168.1.5:8999/';
 const urlGetVote = httpServer + 'apiV1/vote/getVote';
 
-export default function WalletCreation({userWallet}) {
+export default function WalletCreation() {
 
     const modeInsertMnemonic = 1;
     const modeWalletExists = 2;
     const modeCompleted = 3;
     const modeProgress = 4;
+
+    const [wallet, setWallet] = useContext(WalletContext);
 
     const [mnemonic, setMnemonic] = useState([]);
     const [password, setPassword] = useState('');
@@ -32,6 +35,7 @@ export default function WalletCreation({userWallet}) {
     const [vote, setVote] = useState({});
 
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const navigate = useNavigate();
 
     function getMnemonic(event) {
         setMnemonic(event.target.value.split(' '));
@@ -46,19 +50,19 @@ export default function WalletCreation({userWallet}) {
     }
 
     function validate() {
-        if (mode == modeInsertMnemonic) {
+        if (mode === modeInsertMnemonic) {
             let w = Wallet.fromMnemonic(mnemonic.join(' '));
             setMode(modeProgress);
 
             w.encrypt(password, progressCallback).then((jsonWallet) => {
                 localStorage.setItem('wallet', jsonWallet);
-                userWallet = w;
+                setWallet(w);
                 setMode(modeCompleted);
             })
         }
-        else if (mode == modeWalletExists) {
+        else if (mode === modeWalletExists) {
             setMode(modeProgress);
-            Wallet.fromEncryptedJson(walletJson, password, progressCallback).then((w) => {userWallet = w; loadVote(); })
+            Wallet.fromEncryptedJson(walletJson, password, progressCallback).then((w) => { setWallet(w); })
         }
     }
 
@@ -70,7 +74,7 @@ export default function WalletCreation({userWallet}) {
             let key;
             let headerTemp = {};
             for(key in voteTemp) {
-                if(key != 'items') headerTemp[key] = vote[key]
+                if(key !== 'items') headerTemp[key] = vote[key]
             }
             //voteTemp.header = headerTemp;
             setVote({ header: headerTemp, items: voteTemp.items });
@@ -96,7 +100,11 @@ export default function WalletCreation({userWallet}) {
             setMode(modeWalletExists);
         }
     }, []);
-   
+
+    useEffect(() => {
+        if (wallet !== undefined) navigate('/');
+    }, [wallet]);
+
     function CircularProgressWithLabel(props) {
         return (
           <Box sx={{ position: 'relative', display: 'inline-flex'}}>
@@ -122,9 +130,9 @@ export default function WalletCreation({userWallet}) {
       }
       
 
-    if(mode == modeInsertMnemonic) { return(
+    if(mode === modeInsertMnemonic) { return(
         <Box>
-        { (mnemonic.length == 0) ?
+        { (mnemonic.length === 0) ?
             <Box><TextField id="mnemonic" label="Mnemonic" variant="standard" onChange={getMnemonic} /></Box>
             :
             <Box>
@@ -134,18 +142,18 @@ export default function WalletCreation({userWallet}) {
                 <TextField id="password" label="password" variant="standard" type="password" onChange={getPassword} />
             </Box>
         }
-        { (mnemonic.length != 0) && (password != '')? <Button onClick={validate}>Validate</Button> : <></>}
+        { (mnemonic.length !== 0) && (password !== '')? <Button onClick={validate}>Validate</Button> : <></>}
         </Box>
-    )} else if(mode == modeWalletExists) { return (
+    )} else if(mode === modeWalletExists) { return (
         <Box>
             <TextField id="password" label="password" variant="standard" type="password" onChange={getPassword} />
             <Button onClick={validate}>Validate</Button>
         </Box>
-    )} else if( mode == modeCompleted) { console.log(vote); return (
+    )} else if( mode === modeCompleted) { console.log(vote); return (
         <Box>
-                <RenderVote questionList = {vote} />
+                <p>Wallet Loaded</p>
         </Box>
-    )} else if (mode == modeProgress) { return (
+    )} else if (mode === modeProgress) { return (
         <Box>
             <CircularProgressWithLabel value={progress} />
         </Box>

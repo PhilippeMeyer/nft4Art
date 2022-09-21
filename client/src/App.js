@@ -1,18 +1,40 @@
-import {useState} from 'react';
-import logo from './logo.svg';
+import { useState, useContext, createContext } from 'react';
+import { Routes, Route } from "react-router-dom";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
 import './App.css';
 
-import Wallet from './Components/WalletCreation.js'
+import { WalletContext } from './WalletContext.js';
+import PrivateRoute from './PrivateRoute.js';
+
+import WalletCreation from './Components/WalletCreation.js';
+import Login from './Components/Login.js';
+import RenderVote from './Components/RenderVote.js';
 
 function App() {
 
-  const [wallet, setWallet] = useState({});
+  const [wallet, setWallet] = useState(undefined);
+
+  const darkTheme = createTheme({
+    palette: {
+      mode: 'dark',
+    },
+  });
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <Wallet userWallet={wallet} />
-      </header>
-    </div>
+        <ThemeProvider theme={darkTheme}>
+            <WalletContext.Provider value={[wallet, setWallet]}>
+                <CssBaseline />
+                <div className="App">
+                    <Routes>
+                        <Route path="/" element={<Login />} />
+                        <Route path="/wallet" element={ <WalletCreation />} />
+                        <Route path="/vote" element={ <PrivateRoute> <RenderVote /> </PrivateRoute> } />
+                    </Routes>
+                </div>
+            </WalletContext.Provider>
+        </ThemeProvider>
   );
 }
 
