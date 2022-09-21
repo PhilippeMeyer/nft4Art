@@ -97,8 +97,21 @@ const findAllSmartContracts = function() {
     return db.prepare('SELECT addressEth FROM smartContracts').all([]);
 }
 
+const insertNewVote = function(voteId:number, voterAddr: string, jsonData:string) {
+    const stmt = db.prepare('INSERT INTO votes(voteId,voterAddr,jsonData) VALUES (?, ?, ?)');
+    const params = [voteId, voterAddr, jsonData];
+    const result = stmt.run(params);
+}
+
+const findOneVote = function(voteId:number, voterAddr:string) {
+    const result = db.prepare('SELECT * FROM votes WHERE voteId=? AND voterAddr=?').all([voteId, voterAddr]);
+    if (result.length == 0) return null;
+    else return result[0];
+}
+
 export {    initDb, closeDb, 
             findRegisteredPos, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos,
             findToken, insertNewToken, updatePriceToken, updateLockToken,
             findAppId, insertNewAppId, updateNonceAppId, removeAppId,
-            insertNewSmartContract, findAllSmartContracts };
+            insertNewSmartContract, findAllSmartContracts,
+            insertNewVote, findOneVote };

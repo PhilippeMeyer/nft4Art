@@ -36,3 +36,9 @@ create table smartContracts (
     id integer primary key,
     addressEth text);
 
+create table votes (
+    id integer primary key,
+    voteId integer,
+    voterAddr text,
+    jsonData text,
+    createdOn datetime default current_timestamp);
