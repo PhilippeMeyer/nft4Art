@@ -35,17 +35,22 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 
+import { useSnackbar } from 'notistack';
+
 import * as cst from '../utils/constants.js'
 import {encodeVote, decodeVote} from '../utils/encode-decodeVote.js'
 import { WalletContext } from '../WalletContext.js'
 import NavbarManager from "./NavbarManager";
 import '../App.css';
 
+const urlGetVote = "";
+
+
 export default function RenderVote({questionList}) {
+    const { enqueueSnackbar } = useSnackbar();
 
     const [items, setItems] = useState([]);
     const [header, setHeader] = useState({});
-    var callback;
 
     useEffect(() => {
         if(questionList === undefined) questionList = require('../utils/testQuestionnaire.json');
@@ -55,7 +60,25 @@ export default function RenderVote({questionList}) {
     }, []);
 
 
-    if (header === undefined)  { console.log("no q"); return (<></>); }
+    if (header === undefined)  return (<></>);
+
+
+    const loadVote = async () => {
+        try {
+            let voteTemp = await fetchData();
+            console.log('vote:', voteTemp);
+            voteTemp.items.forEach((item) => item.value = 0)
+            setHeader(voteTemp.header);
+            setItems(voteTemp.items);
+        } catch(error) { enqueueSnackbar('Error loading the tokens'); console.error(error); }
+    };
+
+    async function fetchData(jwt) {
+        const response = await fetch(urlGetVote, { method: 'GET', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }});
+        const responseJson = await response.json();
+        console.log(responseJson);
+        return (responseJson);
+    }
 
 
     function callback(update) {

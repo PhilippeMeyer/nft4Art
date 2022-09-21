@@ -34,7 +34,7 @@ export default function WalletCreation() {
     const [walletJson, setWalletJson] = useState({});
     const [vote, setVote] = useState({});
 
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
 
     function getMnemonic(event) {
@@ -65,32 +65,6 @@ export default function WalletCreation() {
             Wallet.fromEncryptedJson(walletJson, password, progressCallback).then((w) => { setWallet(w); })
         }
     }
-
-    const loadVote = async () => {
-        try {
-            let voteTemp = await fetchData();
-            console.log('vote:', vote);
-            voteTemp.items.forEach((item) => item.value = 0)
-            let key;
-            let headerTemp = {};
-            for(key in voteTemp) {
-                if(key !== 'items') headerTemp[key] = vote[key]
-            }
-            //voteTemp.header = headerTemp;
-            setVote({ header: headerTemp, items: voteTemp.items });
-            setMode(modeCompleted);
-
-            //fetchWallet().then(() => setLoaded(true));
-        } catch(error) { enqueueSnackbar('Error loading the tokens'); console.error(error); }
-    };
-    
-    async function fetchData(jwt) {
-        const response = await fetch(urlGetVote, { method: 'GET', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }});
-        const responseJson = await response.json();
-        console.log(responseJson);
-        return (responseJson);
-    }
-
 
     useEffect(() => { 
         let wj = localStorage.getItem('wallet');
