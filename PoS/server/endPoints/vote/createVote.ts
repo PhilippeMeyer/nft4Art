@@ -12,6 +12,8 @@ import { BigNumber, constants, Contract, ContractFactory, errors, providers, uti
 import { app } from "../../app.js";
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
+import { insertNewVote, findOneVote } from '../../services/db.js';
+
 
 const overrides = { gasLimit: 750000 };
 
@@ -19,22 +21,23 @@ async function createVote(req: Request, res: Response) {
     logger.info('server.vote.createVote');
 
     try {
-        app.locals.vote = req.body;
-        app.locals.vote.contract = app.locals.token.address;
         const newVote = req.body;
-
         const token:Contract = app.locals.token;
+
+        newVote.header.contract = app.locals.token.address;
         const curVote = await token.getVote();
-        newVote.id = parseInt(curVote[0]) + 1;
-        newVote.chainId = await app.locals.wallet.getChainId();
-        const txResp = await token.setVote(newVote.id, newVote.start / 1000, newVote.end / 1000);
+        newVote.header.id = parseInt(curVote[0]) + 1;
+        newVote.header.chainId = await app.locals.wallet.getChainId();
+        console.log(newVote);
+        const txResp = await token.setVote(newVote.header.id, newVote.header.start / 1000, newVote.header.end / 1000);
         const txReceipt = await txResp.wait();
         logger.info('server.vote.voteInserted #%s txHash: %s', newVote.id, txReceipt.transactionHash);
 
+        app.locals.vote = newVote;
         res.sendStatus(200);
 
     } catch(err: any) {
-        logger.error('server.vote.createVoteError %s txHash: %s', err.reason, err.transactionHash);
+        logger.error('server.vote.createVoteError %s txHash: %s', err, err.transactionHash);
         res.sendStatus(500);
     }
 }
@@ -54,18 +57,24 @@ async function sendVote(req: Request, res: Response) {
     logger.info('server.vote.sendVote');
     const token:Contract = app.locals.token;
 
-    let {domain, types, values, signature} =  req.body;
+    let {domain, types, values, signature, } =  req.body;
     console.log(domain, types, values, signature);
 
-    let ok = await token.verify(values, signature, overrides)
-    console.log('Verification: ', ok)
-    //values.data = "0x02"
-    let tx = await token.vote(values, signature, [101], overrides)
-    const receipt = await tx.wait()
+    try {
+        let ok = await token.verify(values, signature, overrides)
+        logger.info('server.vote.sendVote.Verification: %s', ok);
 
-    console.log('signature: ' + signature + ' Tx receipt: ' + receipt )
+        let tx = await token.vote(values, signature, [101], overrides)
+        const receipt = await tx.wait();
+        logger.info('server.vote.sendVote.success Tx hash: ', receipt.transactionHash );
 
+        insertNewVote(values.voteId, values.from, JSON.stringify(values));
+        res.sendStatus(200);
 
+    } catch(err:any) { 
+        logger.error('server.vote.sendVote.error %s', err.reason);
+        res.sendStatus(500);
+    }
 }
 
 export { createVote, getVote, sendVote };

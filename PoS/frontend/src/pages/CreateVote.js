@@ -156,8 +156,7 @@ export default function CreateVote() {
     function save() {
         const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
         var ret = {};
-        var key;
-        for (key in header) ret[key] = header[key];
+        ret.header = header;
         ret.items = items;
         console.log(JSON.stringify(ret));
         fetch(urlCreateVote, { method: 'POST', headers: jwtHeader, body: JSON.stringify(ret) })

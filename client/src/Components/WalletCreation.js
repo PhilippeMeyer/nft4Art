@@ -14,8 +14,7 @@ import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
 import { WalletContext } from '../WalletContext.js'
 
-//const httpServer = process.env.REACT_APP_SERVER;
-const httpServer = 'http://192.168.1.5:8999/';
+const httpServer = process.env.REACT_APP_SERVER;
 const urlGetVote = httpServer + 'apiV1/vote/getVote';
 
 export default function WalletCreation() {

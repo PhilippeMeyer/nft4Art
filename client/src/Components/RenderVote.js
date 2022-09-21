@@ -1,19 +1,9 @@
 /* global BigInt */
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Box from '@mui/material/Box';
-import SpeedDial from '@mui/material/SpeedDial';
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
-import SpeedDialAction from '@mui/material/SpeedDialAction';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import ListIcon from '@mui/icons-material/List';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import StarHalfIcon from '@mui/icons-material/StarHalf';
-import LinearScaleIcon from '@mui/icons-material/LinearScale';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import Rating from '@mui/material/Rating';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -36,14 +26,18 @@ import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 
 import { useSnackbar } from 'notistack';
+import { Wallet, BigNumber } from 'ethers';
 
 import * as cst from '../utils/constants.js'
-import {encodeVote, decodeVote} from '../utils/encode-decodeVote.js'
+import { encodeVote } from '../utils/encodeVote.js'
 import { WalletContext } from '../WalletContext.js'
 import NavbarManager from "./NavbarManager";
 import '../App.css';
 
-const urlGetVote = "";
+const env = process.env.REACT_APP_ENV;
+const httpServer = process.env.REACT_APP_SERVER;
+const urlGetVote = httpServer + "apiV1/vote/getVote";
+const urlSendVote = httpServer + "apiV1/vote/sendVote";
 
 
 export default function RenderVote({questionList}) {
@@ -51,12 +45,20 @@ export default function RenderVote({questionList}) {
 
     const [items, setItems] = useState([]);
     const [header, setHeader] = useState({});
+    const [wallet, setWallet] = useContext(WalletContext);
 
     useEffect(() => {
-        if(questionList === undefined) questionList = require('../utils/testQuestionnaire.json');
-
-        setItems(questionList.items);
-        setHeader(questionList.header);
+        if(questionList === undefined) {
+            if (env == 'local') {
+                questionList = require('../utils/testQuestionnaire.json');
+                setItems(questionList.items);
+                setHeader(questionList.header);
+            }
+            else loadVote();
+        } else {
+            setItems(questionList.items);
+            setHeader(questionList.header);
+        }
     }, []);
 
 
@@ -86,8 +88,8 @@ export default function RenderVote({questionList}) {
 
          if(update.change === undefined) value = update.value;
          else {
-             const mask = 1 << update.change;
-            value = items[update.item].value ^= mask;
+            const mask = 1 << update.change;
+            value = items[update.item].value ^ mask;
         }
         setItems(items.map((item) => {
             if(item.id == update.item) item.value = value
@@ -191,7 +193,7 @@ export default function RenderVote({questionList}) {
                                       name={id + "-radio-buttons-group"}
                                       onChange={internalCallback}
                                    >
-                                       {item.labels.map((label, i) => (<FormControlLabel value={i} control={<Radio id={id + '-' + i + '-' + cst.chooseLbl}/>} label={label} />))}
+                                       {item.labels.map((label, i) => (<FormControlLabel value={i} key={label+i} control={<Radio id={id + '-' + i + '-' + cst.chooseLbl}/>} label={label} />))}
                                    </RadioGroup>
                                </FormControl>
                             </Card> );
@@ -206,7 +208,7 @@ export default function RenderVote({questionList}) {
                                      label={item.label}
                                      onChange={internalCallback}>
 
-                                        {item.labels.map((label, i) => (<MenuItem value={i}>{label}</MenuItem>))}
+                                        {item.labels.map((label, i) => (<MenuItem key={label+i} value={i}>{label}</MenuItem>))}
                                    </Select>
                                  </FormControl>
                             </Card> );
@@ -237,7 +239,7 @@ export default function RenderVote({questionList}) {
                                <Box sx={{mx: 2}}><p>{item.label}</p></Box>
                                <FormGroup sx={{mx:5, mb:2}} id={id} onChange={internalCallback}>
                                    {item.labels.map((label, i) => (
-                                      <FormControlLabel control={<Checkbox id={id + '-' + i + '-' + cst.checkboxLbl} checked={item.value & 1<<i}/>} label={label} />)
+                                      <FormControlLabel key={label+i} control={<Checkbox id={id + '-' + i + '-' + cst.checkboxLbl} checked={checked(item.value, i)}/>} label={label} />)
                                     )}
                                </FormGroup>
                             </Card> );
@@ -248,23 +250,64 @@ export default function RenderVote({questionList}) {
         var d = new Date(time)
         return (("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + d.getFullYear());
     }
-
-
-    function save() {
-        var ret = {};
-        var key;
-        //for (key in header) ret[key] = header[key];
-        ret.items = items;
-        ret.header = header;
-        console.log(ret);
-        let test = encodeVote(items);
-        console.log(test);
-        decodeVote(test, items);
+    function checked(value, pos) {
+        return (value & (1 << pos)) == 0 ? false : true;
     }
+
+    async function performVote() {
+        try {
+            let overrides = { gasLimit: 750000 }
+    
+            const signer = wallet;
+            const address = wallet.address;
+            console.log('signer:', signer, 'addr:', address);
+    
+            const voteBitField = encodeVote(items);
+            console.log(voteBitField);
+            var strVote = voteBitField.toString(16);
+            strVote = strVote.length %2 == 0 ? '0x' + strVote : '0x0' + strVote;
+            console.log(strVote);
+
+            const domain = {
+                name: 'GovernedNFT',
+                version: '1.0.0',
+                chainId: header.chainId,
+                verifyingContract: header.contract
+            };
+    
+            const types = { 
+                BallotMessage: [
+                    { name: 'from',     type: 'address' },
+                    { name: 'voteId',   type: 'uint128' },
+                    { name: 'data',     type: 'bytes' }
+                ]
+            };
+    
+            const values = {
+                from: wallet.address,
+                voteId: header.id,
+                data: strVote
+            };
+    
+            let signature = await signer._signTypedData(domain, types, values)
+            console.log('Signature: ', signature)
+
+            await fetch(urlSendVote, { 
+                method: 'POST', 
+                headers:{ 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({domain: domain, types: types, values: values, signature: signature})
+            });
+           
+        } catch(e) {             
+            enqueueSnackbar('Error in transfer vote to server :' + e.message); 
+            console.error(e.message) 
+        }
+    }
+
 
     return (
             <>
-                <Box><h1 className="title">Please Vote Now!</h1> <Button variant="contained" size="medium" sx={{width: '20%', mx:5, my: 3}}onClick={save}>Save your vote</Button> </Box>
+                <Box><h1 className="title">Please Vote Now!</h1> <Button variant="contained" size="medium" sx={{width: '20%', mx:5, my: 3}}onClick={performVote}>Save your vote</Button> </Box>
                 <Divider />
                 {header.title === undefined ? <p></p> : <h2>{header.title}</h2>}
                 {header.comment === undefined ? <p></p> : <p className="comment">{header.comment}</p>}
