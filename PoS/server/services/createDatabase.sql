@@ -42,3 +42,11 @@ create table votes (
     voterAddr text,
     jsonData text,
     createdOn datetime default current_timestamp);
+
+create table voteQuestionnaire (
+    id integer primary key,
+    voteId integer,
+    cid text,
+    checksum text,
+    jsonData text,
+    createdOn datetime default current_timestamp);

@@ -104,9 +104,29 @@ const insertNewVote = function(voteId:number, voterAddr: string, jsonData:string
 }
 
 const findOneVote = function(voteId:number, voterAddr:string) {
-    const result = db.prepare('SELECT * FROM votes WHERE voteId=? AND voterAddr=?').all([voteId, voterAddr]);
+    const result = db.prepare('SELECT voteId,voterAddr,jsonData FROM votes WHERE voteId=? AND voterAddr=?').all([voteId, voterAddr]);
     if (result.length == 0) return null;
     else return result[0];
+}
+
+const findAllVote = function(voteId:number) {
+    return db.prepare('SELECT voteId,voterAddr,jsonData FROM votes WHERE voteId=?').all([voteId]);
+}
+
+const insertNewQuestionnaire = function(voteId:number, cid: string, checksum:string, jsonData:string) {
+    const stmt = db.prepare('INSERT INTO voteQuestionnaire(voteId,cid,checksum,jsonData) VALUES (?, ?, ?, ?)');
+    const params = [voteId, cid, checksum, jsonData];
+    const result = stmt.run(params);
+}
+
+const findOneQuestionnaire = function(voteId:number, voterAddr:string) {
+    const result = db.prepare('SELECT voteId,cid,checksum,jsonData FROM voteQuestionnaire WHERE voteId=?').all([voteId]);
+    if (result.length == 0) return null;
+    else return result[0];
+}
+
+const findAllQuestionnaire = function() {
+    return db.prepare('SELECT voteId,cid,checksum,jsonData FROM voteQuestionnaire').all([]);
 }
 
 export {    initDb, closeDb, 
@@ -114,4 +134,5 @@ export {    initDb, closeDb,
             findToken, insertNewToken, updatePriceToken, updateLockToken,
             findAppId, insertNewAppId, updateNonceAppId, removeAppId,
             insertNewSmartContract, findAllSmartContracts,
-            insertNewVote, findOneVote };
+            insertNewVote, findOneVote, findAllVote,
+            insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire };

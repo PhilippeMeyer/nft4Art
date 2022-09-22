@@ -6,21 +6,21 @@ import sharp from 'sharp';
 import { NFTStorage, File, Blob } from 'nft.storage';
 import { filesFromPath } from 'files-from-path'
 import axios from "axios";
-import { BigNumber, constants, Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
+import { Contract, errors, providers, utils, Wallet } from "ethers";
 
 
 import { app } from "../../app.js";
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
-import { insertNewVote, findOneVote } from '../../services/db.js';
+import { insertNewVote, findOneVote, insertNewQuestionnaire, findAllQuestionnaire } from '../../services/db.js';
 
 
-const overrides = { gasLimit: 750000 };
 
-async function createVote(req: Request, res: Response) {
+async function createQuestionnaire(req: Request, res: Response) {
     logger.info('server.vote.createVote');
 
     try {
+        const client = new NFTStorage({ token: config.nftSorageToken });
         const newVote = req.body;
         const token:Contract = app.locals.token;
 
@@ -32,17 +32,24 @@ async function createVote(req: Request, res: Response) {
         const txResp = await token.setVote(newVote.header.id, newVote.header.start / 1000, newVote.header.end / 1000);
         const txReceipt = await txResp.wait();
         logger.info('server.vote.voteInserted #%s txHash: %s', newVote.id, txReceipt.transactionHash);
-
+        const str = JSON.stringify(newVote);
+        const bytes = new TextEncoder().encode(str);
+        var cid = await client.storeBlob(new Blob([bytes]));
+        logger.info('server.vote.voteInsertedIpfs #%s', cid);
+        const checksum = utils.keccak256(bytes);
+        insertNewQuestionnaire(newVote.header.id, cid, checksum, str);
         app.locals.vote = newVote;
+        logger.info('server.vote.voteInserted.completed');
+
         res.sendStatus(200);
 
     } catch(err: any) {
         logger.error('server.vote.createVoteError %s txHash: %s', err, err.transactionHash);
-        res.sendStatus(500);
+        res.status(500).json({error: { name: "errorCreateVote", message: err.reason }});;
     }
 }
 
-async function getVote(req: Request, res: Response) {
+async function getQuestionnaire(req: Request, res: Response) {
     logger.info('server.vote.getVote');
 
     if(app.locals.vote === undefined) {
@@ -53,28 +60,9 @@ async function getVote(req: Request, res: Response) {
     res.status(200).json(app.locals.vote);
 }
 
-async function sendVote(req: Request, res: Response) {
-    logger.info('server.vote.sendVote');
-    const token:Contract = app.locals.token;
-
-    let {domain, types, values, signature, } =  req.body;
-    console.log(domain, types, values, signature);
-
-    try {
-        let ok = await token.verify(values, signature, overrides)
-        logger.info('server.vote.sendVote.Verification: %s', ok);
-
-        let tx = await token.vote(values, signature, [101], overrides)
-        const receipt = await tx.wait();
-        logger.info('server.vote.sendVote.success Tx hash: ', receipt.transactionHash );
-
-        insertNewVote(values.voteId, values.from, JSON.stringify(values));
-        res.sendStatus(200);
-
-    } catch(err:any) { 
-        logger.error('server.vote.sendVote.error %s', err.reason);
-        res.sendStatus(500);
-    }
+async function listQuestionnaire(req: Request, res: Response) {
+    const questionnaires = findAllQuestionnaire();
+    res.status(200).json(questionnaires);
 }
 
-export { createVote, getVote, sendVote };
+export { createQuestionnaire, getQuestionnaire, listQuestionnaire };

@@ -38,7 +38,8 @@ import { priceUpdate, priceUpdates } from "./endPoints/price/priceUpdate.js";
 import { authorizePoS } from "./endPoints/auth/authorizePoS.js";
 import { batchMintTokenFromFiles, batchMintStart, batchMintFinalize } from "./endPoints/token/mintTokenFromFiles.js";
 import { collectionImage, collectionMap } from "./endPoints/token/collectionImage.js";
-import { createVote, getVote, sendVote } from "./endPoints/vote/createVote.js";
+import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/questionnaire.js";
+import { sendVote } from "./endPoints/vote/vote.js";
 
 
 // TODO: Env var?
@@ -257,8 +258,9 @@ app.get('/apiV1/token/collections', function (req: Request, res: Response) {
     res.status(200).json(app.locals.collections);
 });
 
-app.post('/apiV1/vote/createVote', createVote);
-app.get('/apiV1/vote/getVote', getVote);
+app.post('/apiV1/vote/createVote', createQuestionnaire);
+app.get('/apiV1/vote/getVote', getQuestionnaire);
+app.get('/apiV1/vote/listQuestionnaire', listQuestionnaire);
 //TODO: remove this end point
 app.get('/apiV1/vote/getWallet', function (req: Request, res: Response) {
     res.status(200).sendFile(path.join(__dirname, './wallet.json'));
