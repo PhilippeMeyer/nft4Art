@@ -11,6 +11,7 @@ import PrivateRoute from './PrivateRoute.js';
 import WalletCreation from './Components/WalletCreation.js';
 import Login from './Components/Login.js';
 import RenderVote from './Components/RenderVote.js';
+import ListQuestionnaire from './Components/ListQuestionnaire.js';
 
 function App() {
 
@@ -31,6 +32,7 @@ function App() {
                         <Route path="/" element={<Login />} />
                         <Route path="/wallet" element={ <WalletCreation />} />
                         <Route path="/vote" element={ <PrivateRoute> <RenderVote /> </PrivateRoute> } />
+                        <Route path="/listQuestionnaire" element={ <PrivateRoute> <ListQuestionnaire /> </PrivateRoute> } />
                     </Routes>
                 </div>
             </WalletContext.Provider>
