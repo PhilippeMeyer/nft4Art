@@ -6,7 +6,7 @@ import sharp from 'sharp';
 import { NFTStorage, File, Blob } from 'nft.storage';
 import { filesFromPath } from 'files-from-path'
 import axios from "axios";
-import { Contract, errors, providers, utils, Wallet } from "ethers";
+import { Contract, errors, providers, utils, ethers } from "ethers";
 
 
 import { app } from "../../app.js";
@@ -17,7 +17,7 @@ import { insertNewVote, findOneVote, insertNewQuestionnaire, findAllQuestionnair
 
 
 async function createQuestionnaire(req: Request, res: Response) {
-    logger.info('server.vote.createVote');
+    logger.info('server.vote.createQuestionnaire');
 
     try {
         const client = new NFTStorage({ token: config.nftSorageToken });
@@ -26,10 +26,9 @@ async function createQuestionnaire(req: Request, res: Response) {
 
         newVote.header.contract = app.locals.token.address;
         const curVote = await token.getVote();
-        newVote.header.id = parseInt(curVote[0]) + 1;
+        newVote.header.id = curVote[0].add(ethers.constants.One);
         newVote.header.chainId = await app.locals.wallet.getChainId();
-        console.log(newVote);
-        const txResp = await token.setVote(newVote.header.id, newVote.header.start / 1000, newVote.header.end / 1000);
+        const txResp = await token.setVote(newVote.header.id, Math.floor(newVote.header.start / 1000), Math.floor(newVote.header.end / 1000));
         const txReceipt = await txResp.wait();
         logger.info('server.vote.voteInserted #%s txHash: %s', newVote.id, txReceipt.transactionHash);
         const str = JSON.stringify(newVote);
@@ -37,7 +36,7 @@ async function createQuestionnaire(req: Request, res: Response) {
         var cid = await client.storeBlob(new Blob([bytes]));
         logger.info('server.vote.voteInsertedIpfs #%s', cid);
         const checksum = utils.keccak256(bytes);
-        insertNewQuestionnaire(newVote.header.id, cid, checksum, str);
+        insertNewQuestionnaire(newVote.header.id.toNumber(), cid, checksum, str);
         app.locals.vote = newVote;
         logger.info('server.vote.voteInserted.completed');
 

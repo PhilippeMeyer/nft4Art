@@ -1,7 +1,10 @@
+/* global BigInt */
+
 import * as React from 'react';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
@@ -12,9 +15,8 @@ import TablePagination from '@mui/material/TablePagination';
 
 import { useSnackbar } from 'notistack';
 
-import { WalletContext } from '../WalletContext.js'
-import NavbarManager from "./NavbarManager";
-import '../App.css';
+import NavbarManager from "../NavbarManager";
+import '../../App.css';
 
 const env = process.env.REACT_APP_ENV;
 const httpServer = process.env.REACT_APP_SERVER;
@@ -25,7 +27,6 @@ export default function ListQuestionnaire() {
     const { enqueueSnackbar } = useSnackbar();
 
     const [questionnaires, setQuestionnaires] = useState([]);
-    const [wallet, setWallet] = useContext(WalletContext);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -64,9 +65,9 @@ export default function ListQuestionnaire() {
 
     function clickRow(event, item) { 
         console.log('event:', event, 'value:', item);
-        const today = new Date();
-        if((today <= item.header.end) && (today >= item.header.start)) navigate('/vote', {questionList: item})
+        navigate('/manager/displayVote', {state: {vote: item}})
     }
+
     return (
     <>
         <main>
@@ -92,6 +93,7 @@ export default function ListQuestionnaire() {
                     )}
                 </TableBody>
             </Table>
+            <NavbarManager />
         </main>
     </>
     );

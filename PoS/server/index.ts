@@ -38,7 +38,7 @@ import { priceUpdate, priceUpdates } from "./endPoints/price/priceUpdate.js";
 import { authorizePoS } from "./endPoints/auth/authorizePoS.js";
 import { batchMintTokenFromFiles, batchMintStart, batchMintFinalize } from "./endPoints/token/mintTokenFromFiles.js";
 import { collectionImage, collectionMap } from "./endPoints/token/collectionImage.js";
-import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/questionnaire.js";
+import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/Questionnaire.js";
 import { sendVote } from "./endPoints/vote/vote.js";
 
 
