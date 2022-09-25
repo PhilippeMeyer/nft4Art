@@ -7,9 +7,9 @@ import CssBaseline from '@mui/material/CssBaseline';
 import PrivateRoute from './PrivateRoute';
 //import { AuthContext } from "./auth";
 
-import Login from './pages/Login';
+import Login from './pages/PoS/Login';
 import Tokens from './pages/Tokens';
-import Wallets from './pages/Wallets';
+import Wallets from './pages/PoS/Wallets';
 import Contracts from './pages/Contracts';
 import TokensMap from "./pages/TokensMap";
 import TokensGrid from "./pages/TokensGrid";
@@ -19,9 +19,10 @@ import TokenSaleEth from "./pages/TokenSaleEth";
 import TokenSaleBtc from "./pages/TokenSaleBtc";
 import TokenTransfer from "./pages/TokenTransfer";
 import TokenTransferEth from "./pages/TokenTransferEth";
-import RegisteredPoS from './pages/RegisteredPoS';
-import DisplayVote from "./pages/Vote";
-import CreateVote  from './pages/CreateVote';
+import RegisteredPoS from './pages/PoS/RegisteredPoS';
+import DisplayVote from "./pages/vote/DisplayVote";
+import ListQuesionnaire from "./pages/vote/ListQuestionnaire";
+import CreateVote  from './pages/vote/CreateVote';
 
 import './App.css';
 
@@ -46,7 +47,8 @@ function App() {
             <Route path="/manager/wallets" element={<PrivateRoute><Wallets /></PrivateRoute>} />
             <Route path="/manager/contracts" element={<PrivateRoute><Contracts /></PrivateRoute>} />
             <Route path="/manager/createVote" element={<PrivateRoute><CreateVote /></PrivateRoute>} />
-            <Route path="/manager/vote" element={<PrivateRoute><DisplayVote /></PrivateRoute>} />
+            <Route path="/manager/listQuestionnaire" element={<PrivateRoute><ListQuesionnaire /></PrivateRoute>} />
+            <Route path="/manager/displayVote" element={<PrivateRoute><DisplayVote /></PrivateRoute>} />
             <Route path="/manager/pointOfSale" element={<PrivateRoute><RegisteredPoS /></PrivateRoute>} />
             <Route path="/sales/selectCollection" element={<PrivateRoute><SelectCollection /></PrivateRoute>} />
             <Route path="/sales/map" element={<PrivateRoute><TokensMap /></PrivateRoute>} />
