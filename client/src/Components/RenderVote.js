@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState, useEffect, useContext } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Rating from '@mui/material/Rating';
@@ -41,9 +41,8 @@ const urlGetVote = httpServer + "apiV1/vote/getVote";
 const urlSendVote = httpServer + "apiV1/vote/sendVote";
 
 
-export default function RenderVote({ route, navigation }) {
-    const { questionList } = route.params;
-
+export default function RenderVote() {
+    const location = useLocation();
     const { enqueueSnackbar } = useSnackbar();
 
     const [items, setItems] = useState([]);
@@ -51,17 +50,18 @@ export default function RenderVote({ route, navigation }) {
     const [wallet, setWallet] = useContext(WalletContext);
 
     useEffect(() => {
-        console.log(questionList);
-        if(questionList === undefined) {
+        console.log('Object received:', location.state);
+
+        if(location.state.vote === undefined) {
             if (env == 'local') {
-                questionList = require('../utils/testQuestionnaire.json');
+                const questionList = require('../utils/testQuestionnaire.json');
                 setItems(questionList.items);
                 setHeader(questionList.header);
             }
             else loadVote();
         } else {
-            setItems(questionList.items);
-            setHeader(questionList.header);
+            setItems(location.state.vote.items);
+            setHeader(location.state.vote.header);
         }
     }, []);
 

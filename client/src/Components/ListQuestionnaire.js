@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
+import { ethers } from 'ethers';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
@@ -43,6 +44,8 @@ export default function ListQuestionnaire() {
                 const data = JSON.parse(elt.jsonData);
                 elt.header = data.header;
                 elt.items = data.items;
+                elt.header.idStr = ethers.BigNumber.from(elt.header.id).toString();
+
             });
             setQuestionnaires(list);
             console.log(list);
@@ -65,7 +68,7 @@ export default function ListQuestionnaire() {
     function clickRow(event, item) { 
         console.log('event:', event, 'value:', item);
         const today = new Date();
-        if((today <= item.header.end) && (today >= item.header.start)) navigate('/vote', {questionList: item})
+        if((today <= item.header.end) && (today >= item.header.start)) navigate('/vote', {state: {vote: item}})
     }
     return (
     <>
@@ -82,8 +85,8 @@ export default function ListQuestionnaire() {
                 </TableHead>
                 <TableBody>
                     {questionnaires.map((elt, index) => 
-                        <TableRow style={{fontSize: '4rem'}} key={elt.voteId} id={elt.voteId} onClick={(evt) => clickRow(evt, elt)}>
-                            <TableCell align="left" component="th" scope="row">{elt.header.id}</TableCell>
+                        <TableRow style={{fontSize: '4rem'}} key={elt.header.idStr} id={elt.header.idStr} onClick={(evt) => clickRow(evt, elt)}>
+                            <TableCell align="left" component="th" scope="row">{elt.header.idStr}</TableCell>
                             <TableCell align="left" component="th" scope="row">{elt.header.title}</TableCell>
                             <TableCell align="left" component="th" scope="row">{elt.header.comment}</TableCell>
                             <TableCell align="left" component="th" scope="row">{formatTime(elt.header.start)}</TableCell>

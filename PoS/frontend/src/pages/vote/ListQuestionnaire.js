@@ -1,10 +1,8 @@
-/* global BigInt */
-
 import * as React from 'react';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { ethers } from 'ethers';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
@@ -44,6 +42,8 @@ export default function ListQuestionnaire() {
                 const data = JSON.parse(elt.jsonData);
                 elt.header = data.header;
                 elt.items = data.items;
+                elt.header.idStr = ethers.BigNumber.from(elt.header.id).toString();
+
             });
             setQuestionnaires(list);
             console.log(list);
@@ -65,9 +65,9 @@ export default function ListQuestionnaire() {
 
     function clickRow(event, item) { 
         console.log('event:', event, 'value:', item);
-        navigate('/manager/displayVote', {state: {vote: item}})
+        const today = new Date();
+        navigate('/manager/DisplayVote', {state: {vote: item}})
     }
-
     return (
     <>
         <main>
@@ -83,8 +83,8 @@ export default function ListQuestionnaire() {
                 </TableHead>
                 <TableBody>
                     {questionnaires.map((elt, index) => 
-                        <TableRow style={{fontSize: '4rem'}} key={elt.voteId} id={elt.voteId} onClick={(evt) => clickRow(evt, elt)}>
-                            <TableCell align="left" component="th" scope="row">{elt.header.id}</TableCell>
+                        <TableRow style={{fontSize: '4rem'}} key={elt.header.idStr} id={elt.header.idStr} onClick={(evt) => clickRow(evt, elt)}>
+                            <TableCell align="left" component="th" scope="row">{elt.header.idStr}</TableCell>
                             <TableCell align="left" component="th" scope="row">{elt.header.title}</TableCell>
                             <TableCell align="left" component="th" scope="row">{elt.header.comment}</TableCell>
                             <TableCell align="left" component="th" scope="row">{formatTime(elt.header.start)}</TableCell>
@@ -93,7 +93,6 @@ export default function ListQuestionnaire() {
                     )}
                 </TableBody>
             </Table>
-            <NavbarManager />
         </main>
     </>
     );
