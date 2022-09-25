@@ -6,11 +6,12 @@ import Paper from '@mui/material/Paper';
 
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import HowToVoteOutlinedIcon from '@mui/icons-material/HowToVoteOutlined';
+import DynamicFormOutlinedIcon from '@mui/icons-material/DynamicFormOutlined';
 
 import { useState } from "react";
 
 const NavbarManager = () => {
-  const navigateTo = [ '/vote', '/login' ];
+  const navigateTo = [ '/vote', '/login', '/listQuestionnaire' ];
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const NavbarManager = () => {
 
         <BottomNavigationAction label="Vote" icon={<HowToVoteOutlinedIcon />} />
         <BottomNavigationAction label="Logout" icon={<LogoutOutlinedIcon />} />
+        <BottomNavigationAction label="Questionnaires" icon={<DynamicFormOutlinedIcon />} />
 
       </BottomNavigation>
     </Paper>
