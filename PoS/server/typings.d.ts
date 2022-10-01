@@ -18,3 +18,22 @@ export type AppLoginMessage = {
     address: string;
     nonce: number;
 };
+type ItemVote = {
+    type: string,
+    id: number,
+    label: string,
+    nb?: number,
+    labels?: string[]
+};
+export type Vote = {
+    header: {
+        title: string,
+        start: number,
+        end: number,
+        contract?: strng,
+        id?: any,
+        chainId?: number
+      },
+
+    items: ItemVote[]
+};
