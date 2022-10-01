@@ -25,6 +25,12 @@ async function sendVote(req: Request, res: Response) {
     let {domain, types, values, signature, } =  req.body;
     console.log(domain, types, values, signature);
 
+    if(values.from == "0x0") {                                                          //This is for test purposes inserting votes in the database only
+        insertNewVote(values.voteId.hex, values.from, JSON.stringify(values));
+        res.sendStatus(200);
+        return
+    }
+
     const existingVote = findOneVote(values.voteId.hex, values.from);
     if(existingVote != null) {
         res.status(403).json({error: { name: "errorSendVote", message: "This owner has already voted" }});

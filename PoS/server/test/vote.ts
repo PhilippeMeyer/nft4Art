@@ -1,74 +1,133 @@
 import { utils, Wallet } from "ethers";
+import { v4 as uuidv4 } from 'uuid';
 import fetch from 'node-fetch';
 import { expect } from "chai";
-import { encodeVote } from '../../../client/src/utils/encodeVote.js'
 
-const server = 'http://localhost:8999/';
+import { DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote } from '../typings'
+import encodeVote from './encodeVote.js'
+import { doesNotMatch } from "assert";
 
+const httpServer = 'http://localhost:8999/';
 //const server = 'https://nft4artpos.glitch.me';
-//const appId = 'fa70a269-784b-4c81-ad0c-06e63beec5d9';
+const appId = 'fa70a269-784b-4c81-ad0c-06e63beec5d9';
+const deviceId = uuidv4();
 
-const url = server + 'apiV1/auth/appLogin';
-const urlDrop = server + 'apiV1/auth/appLoginDrop';
-const urlGetVote = httpServer + "apiV1/vote/getVote";
+const urlAppLogin = httpServer + 'apiV1/auth/appLogin';
+const urlLoginManager = httpServer + 'apiV1/auth/signin';
+const urlGetVote = httpServer + "apiV1/vote/listQuestionnaire";
 const urlSendVote = httpServer + "apiV1/vote/sendVote";
+const urlCreateVote = httpServer + 'apiV1/vote/createVote';
 
-//const wallet: Wallet = Wallet.createRandom();
+
+const device: DeviceFromClient = { deviceId: deviceId, browser: "Chrome", browserVersion: "101" };
+const resp: DeviceResponse = { password: "12345678", device: device };
+const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+
+
 const wallet: Wallet = Wallet.fromMnemonic('ski ring tiny nephew beauty develop diesel gadget defense discover border cactus');
 var jwt: string = "";
+var votes:any;
 var vote:any;
+var now:Date = new Date();
+var voteId: string;
+var strVote: string;
+var domain: any;
+var values: any;
+var signatureVote: string;
 
-type AppLogin = {
-    signature: string;
-    message: AppLoginMessage;
+const voteToCreate: Vote = 
+{
+    header: {
+      title: 'Automatically generated vote for testing',
+      start: now.setDate(now.getDate() - 30),
+      end: now.setDate(now.getDate() + 60),
+    },
+    items: [
+      {
+        type: 'checkbox',
+        id: 0,
+        label: 'Test Checkbox',
+        nb: 3,
+        labels: ['Question 1', 'Question 2', 'Question 3']
+      },
+      {
+        type: 'choose',
+        id: 1,
+        label: 'Test radio',
+        nb: 3,
+        labels: ['Yes', 'No', 'No opinion']
+      },
+      { type: 'slider', id: 2, label: 'Test slider', nb: 10 },
+      { type: 'ranking', id: 3, label: 'Test ranking' }
+    ]
 };
-type AppLoginMessage = {
-    appId: string;
-    address: string;
-    nonce: number;
+
+const types = {
+    BallotMessage: [
+        { name: 'from',     type: 'address' },
+        { name: 'voteId',   type: 'uint128' },
+        { name: 'data',     type: 'bytes' }
+    ]
 };
+
 
 const addr = await wallet.getAddress();
 const appLoginMessage: AppLoginMessage = { appId: appId, address: addr, nonce: Date.now()};
-//console.log('message: ', JSON.stringify(appLoginMessage));
 const signature = await wallet.signMessage(JSON.stringify(appLoginMessage));
-//console.log('signature:', signature);
 let msg: AppLogin = {
     message: appLoginMessage,
     signature: signature
 };
 
-describe('Testing to vote as from a mobile app', function() {
+describe('Testing to create a vote and vote as from a mobile app', function() {
 
-    it('Attempt to connect and register to the server' , async function() {
-
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(msg)
-        }); 
-
-        const ret = await res.json();
+    it('Logging in as a manager to create a new vote', async function () {
+        
+        const res = await fetch(urlLoginManager, { method: 'POST', headers: headers, body: JSON.stringify(resp) });
+    
         expect(res.status).to.equal(200);
+        const ret = await res.json();
+        expect (ret.accessToken).not.to.be.undefined;
+
+        jwt = ret.accessToken;
+    });
+
+    it('Creating a new vote', async function () {
+        this.timeout(100000);
+
+        const res = await fetch(urlCreateVote, { method: 'POST', headers: headers, body: JSON.stringify(voteToCreate) })
+        expect(res.status).to.equal(200);
+        const ret = await res.json();
+
+        voteId = ret.voteId;
+    });
+
+    it('Attempt to connect as an app to the server' , async function() {
+
+        const res = await fetch(urlAppLogin, { method: 'POST', headers: headers, body: JSON.stringify(msg) }); 
+        expect(res.status).to.equal(200);
+        const ret = await res.json();
         expect (ret.accessToken).not.to.be.undefined;
 
         if(res.status == 200) jwt = ret.accessToken;
     });
 
-    it('Attempt to retrieve the vote definition' , async function() {
+    it('Attempt to retrieve the list of questionnaires' , async function() {
 
         const response = await fetch(urlGetVote, { method: 'GET', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt }});
         expect(response.status).to.equal(200);
         const responseJson = await response.json();
 
-        vote = responseJson;
+        vote = responseJson.find((v:any) => (v.voteId == voteId));
+        expect(vote).not.null;
+        expect (vote.voteId).to.be.equal(voteId);
+        vote = JSON.parse(vote.jsonData);
     });
 
     it('Attempt to vote' , async function() {
-        vote.items.forEach((item) => {
+        this.timeout(100000);
+
+        vote.items.forEach((item:any) => {
             if(item.type === 'slider') {
                 item.value = Math.floor(Math.random() * item.nb) + 1;
             } else if (item.type === 'ranking') {
@@ -82,41 +141,42 @@ describe('Testing to vote as from a mobile app', function() {
             }
         });
 
-        const voteBitField = encodeVote(items);
-        console.log(voteBitField);
-        var strVote = voteBitField.toString(16);
+        const voteBitField = encodeVote(vote.items);
+        strVote = voteBitField.toString(16);
         strVote = strVote.length %2 == 0 ? '0x' + strVote : '0x0' + strVote;
-        console.log(strVote);
 
-        const domain = {
+        domain = {
             name: 'GovernedNFT',
             version: '1.0.0',
-            chainId: header.chainId,
-            verifyingContract: header.contract
+            chainId: vote.header.chainId,
+            verifyingContract: vote.header.contract
         };
 
-        const types = {
-            BallotMessage: [
-                { name: 'from',     type: 'address' },
-                { name: 'voteId',   type: 'uint128' },
-                { name: 'data',     type: 'bytes' }
-            ]
-        };
-
-        const values = {
+        values = {
             from: wallet.address,
             voteId: vote.header.id,
             data: strVote
         };
 
-        let signature = await wallet._signTypedData(domain, types, values)
-        console.log('Signature: ', signature)
+        signatureVote = await wallet._signTypedData(domain, types, values)
 
-        response = await fetch(urlSendVote, {
-                        method: 'POST',
-                        headers:{ 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt},
-                        body: JSON.stringify({domain: domain, types: types, values: values, signature: signature})
+        const response = await fetch(urlSendVote, {
+                            method: 'POST',
+                            headers:{ 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt},
+                            body: JSON.stringify({domain: domain, types: types, values: values, signature: signatureVote})
         });
         expect(response.status).to.equal(200);
+    });
+
+    it('Attempt to vote again, which should be blocked' , async function() {
+        this.timeout(100000);
+        
+        const response = await fetch(urlSendVote, {
+            method: 'POST',
+            headers:{ 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt},
+            body: JSON.stringify({domain: domain, types: types, values: values, signature: signatureVote})
+        });
+
+        expect(response.status).not.to.equal(200);
     });
 });

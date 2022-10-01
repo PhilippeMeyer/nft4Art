@@ -40,7 +40,7 @@ async function createQuestionnaire(req: Request, res: Response) {
         app.locals.vote = newVote;
         logger.info('server.vote.voteInserted.completed');
 
-        res.sendStatus(200);
+        res.status(200).json({status: 200, voteId: newVote.header.id.toHexString()});
 
     } catch(err: any) {
         logger.error('server.vote.createVoteError %s txHash: %s', err, err.transactionHash);
