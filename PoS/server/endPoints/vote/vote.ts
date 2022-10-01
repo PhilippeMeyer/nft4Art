@@ -25,7 +25,7 @@ async function sendVote(req: Request, res: Response) {
     let {domain, types, values, signature, } =  req.body;
     console.log(domain, types, values, signature);
 
-    const existingVote = findOneVote(values.voteId, values.from);
+    const existingVote = findOneVote(values.voteId.hex, values.from);
     if(existingVote != null) {
         res.status(403).json({error: { name: "errorSendVote", message: "This owner has already voted" }});
         return;
@@ -37,9 +37,9 @@ async function sendVote(req: Request, res: Response) {
 
         let tx = await token.vote(values, signature, [101], overrides)
         const receipt = await tx.wait();
-        logger.info('server.vote.sendVote.success Tx hash: ', receipt.transactionHash );
+        logger.info('server.vote.sendVote.success Tx hash: %s', receipt.transactionHash );
 
-        insertNewVote(values.voteId, values.from, JSON.stringify(values));
+        insertNewVote(values.voteId.hex, values.from, JSON.stringify(values));
         res.sendStatus(200);
 
     } catch(err:any) { 

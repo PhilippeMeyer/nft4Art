@@ -97,29 +97,29 @@ const findAllSmartContracts = function() {
     return db.prepare('SELECT addressEth FROM smartContracts').all([]);
 }
 
-const insertNewVote = function(voteId:number, voterAddr: string, jsonData:string) {
+const insertNewVote = function(voteId:string, voterAddr: string, jsonData:string) {
     const stmt = db.prepare('INSERT INTO votes(voteId,voterAddr,jsonData) VALUES (?, ?, ?)');
     const params = [voteId, voterAddr, jsonData];
     const result = stmt.run(params);
 }
 
-const findOneVote = function(voteId:number, voterAddr:string) {
+const findOneVote = function(voteId:string, voterAddr:string) {
     const result = db.prepare('SELECT voteId,voterAddr,jsonData FROM votes WHERE voteId=? AND voterAddr=?').all([voteId, voterAddr]);
     if (result.length == 0) return null;
     else return result[0];
 }
 
-const findAllVote = function(voteId:number) {
+const findAllVote = function(voteId:string) {
     return db.prepare('SELECT voteId,voterAddr,jsonData FROM votes WHERE voteId=?').all([voteId]);
 }
 
-const insertNewQuestionnaire = function(voteId:number, cid: string, checksum:string, jsonData:string) {
+const insertNewQuestionnaire = function(voteId:string, cid: string, checksum:string, jsonData:string) {
     const stmt = db.prepare('INSERT INTO voteQuestionnaire(voteId,cid,checksum,jsonData) VALUES (?, ?, ?, ?)');
     const params = [voteId, cid, checksum, jsonData];
     const result = stmt.run(params);
 }
 
-const findOneQuestionnaire = function(voteId:number, voterAddr:string) {
+const findOneQuestionnaire = function(voteId:string, voterAddr:string) {
     const result = db.prepare('SELECT voteId,cid,checksum,jsonData FROM voteQuestionnaire WHERE voteId=?').all([voteId]);
     if (result.length == 0) return null;
     else return result[0];

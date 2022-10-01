@@ -36,7 +36,7 @@ async function createQuestionnaire(req: Request, res: Response) {
         var cid = await client.storeBlob(new Blob([bytes]));
         logger.info('server.vote.voteInsertedIpfs #%s', cid);
         const checksum = utils.keccak256(bytes);
-        insertNewQuestionnaire(newVote.header.id.toNumber(), cid, checksum, str);
+        insertNewQuestionnaire(newVote.header.id.toHexString(), cid, checksum, str);
         app.locals.vote = newVote;
         logger.info('server.vote.voteInserted.completed');
 

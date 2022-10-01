@@ -38,14 +38,14 @@ create table smartContracts (
 
 create table votes (
     id integer primary key,
-    voteId integer,
+    voteId text,
     voterAddr text,
     jsonData text,
     createdOn datetime default current_timestamp);
 
 create table voteQuestionnaire (
     id integer primary key,
-    voteId integer,
+    voteId text,
     cid text,
     checksum text,
     jsonData text,
