@@ -1,11 +1,5 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import { Request, Response } from "express";
-import sharp from 'sharp';
 import { NFTStorage, File, Blob } from 'nft.storage';
-import { filesFromPath } from 'files-from-path'
-import axios from "axios";
 import { Contract, errors, providers, utils, ethers } from "ethers";
 
 
