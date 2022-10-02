@@ -39,7 +39,8 @@ import { authorizePoS } from "./endPoints/auth/authorizePoS.js";
 import { batchMintTokenFromFiles, batchMintStart, batchMintFinalize } from "./endPoints/token/mintTokenFromFiles.js";
 import { collectionImage, collectionMap } from "./endPoints/token/collectionImage.js";
 import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/Questionnaire.js";
-import { sendVote } from "./endPoints/vote/vote.js";
+import { sendVote, getVotes } from "./endPoints/vote/vote.js";
+import { DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
 
 
 // TODO: Env var?
@@ -108,17 +109,7 @@ function loadHandler() {
     databaseInitialized = true;
 }
 
-type SaleEventRecord = {
-    typeMsg: string;
-    id: string;
-    isLocked: boolean;
-    destinationAddr?: string;
-    isStored?: boolean,
-    isTransferred?: boolean;
-    isFinalized?: boolean;
-    txId?: string;
-    error?: string;
-};
+
 
 // Express cleanup function. Saving the database when the server terminates
 
@@ -211,14 +202,6 @@ app.get('/*', function (req :Request, res :Response) {
 //
 //app.post("/apiV1/auth/registerPoS", function (req: Request, res: Response) {});
 
-type registeredPosRecord = {
-    deviceId: string;
-    autorized: number; 
-    namePoS: string;
-    browser: string;
-    browserVersion: string;
-    ip: string;
-}
 
 app.post("/apiV1/auth/signin", signin);
 app.post("/apiV1/auth/appLogin", appLogin); 
@@ -266,6 +249,7 @@ app.get('/apiV1/vote/getWallet', function (req: Request, res: Response) {
     res.status(200).sendFile(path.join(__dirname, './wallet.json'));
 });
 app.post('/apiV1/vote/sendVote', sendVote);
+app.get('/apiV1/vote/getVotes', getVotes);
 
 
 app.get("/map", function (req: Request, res: Response) {

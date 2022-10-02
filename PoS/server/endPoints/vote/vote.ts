@@ -12,7 +12,7 @@ import { Contract, errors, providers, utils, Wallet } from "ethers";
 import { app } from "../../app.js";
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
-import { insertNewVote, findOneVote, insertNewQuestionnaire, findAllQuestionnaire } from '../../services/db.js';
+import { insertNewVote, findOneVote, insertNewQuestionnaire, findAllQuestionnaire, findAllVote } from '../../services/db.js';
 
 
 const overrides = { gasLimit: 750000 };
@@ -54,5 +54,14 @@ async function sendVote(req: Request, res: Response) {
     }
 }
 
+async function getVotes(req: Request, res: Response) {
+    if (typeof req.query.voteId === "undefined") {
+        logger.warn('server.getVotes.noVotIdspecified');
+        res.status(404).json({error: 'noVoteIdSpecified', message: 'No VoteId specified'});
+        return;
+    }
+    res.status(200).json(findAllVote(req.query.voteId as string));
+}
 
-export { sendVote };
+
+export { sendVote, getVotes };

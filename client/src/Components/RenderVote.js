@@ -30,7 +30,7 @@ import { useSnackbar } from 'notistack';
 import { Wallet, BigNumber } from 'ethers';
 
 import * as cst from '../utils/constants.js'
-import { encodeVote } from '../utils/encodeVote.js'
+import encodeVote from '../utils/encodeVote.js'
 import { WalletContext } from '../WalletContext.js'
 import NavbarManager from "./NavbarManager";
 import '../App.css';
