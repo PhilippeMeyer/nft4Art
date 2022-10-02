@@ -37,3 +37,22 @@ export type Vote = {
 
     items: ItemVote[]
 };
+export type SaleEventRecord = {
+    typeMsg: string;
+    id: string;
+    isLocked: boolean;
+    destinationAddr?: string;
+    isStored?: boolean,
+    isTransferred?: boolean;
+    isFinalized?: boolean;
+    txId?: string;
+    error?: string;
+};
+export type registeredPosRecord = {
+    deviceId: string;
+    autorized: number; 
+    namePoS: string;
+    browser: string;
+    browserVersion: string;
+    ip: string;
+}
