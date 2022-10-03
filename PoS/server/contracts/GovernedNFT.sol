@@ -58,7 +58,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
                       bytes32 indexed buyer,                                // Buyer's address (can also be a bitcoin address)
                       bytes1  status);                                      // Sale's status: initiated, payed, completed, ....
 
-    struct BallotMessage {
+    struct BallotMessage {              // Structure used to communicate the Ballot
         address     from;               // Externally-owned account (EOA) of the voter.
         uint128     voteId;             // Vote Identifier.
         bytes       data;               // Data of the vote to be stored if the message is genuine.
@@ -72,9 +72,15 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
         uint256     timestamp;          // Timestamp of the vote (from the blockchain)
     }
 
+    struct Vote {                       // Storage structure for a vote 
+        uint256 startDate;              // Start date
+        uint256 endDate;                // End date
+        string  cid;                    // Ipfs Cid of the form used for the vote
+    }
+
     struct Person {
         bool    blocked;                // Is this person allowed to vote?
-        uint128 lastVote;               // Which the last vote this person has been participating into?
+        mapping(uint128 => bool) done;  // Has this person been participating to the vote?
     }
 
     struct SaleRecord {
@@ -90,8 +96,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
 
     mapping(address => Person) private _persons;                    // persons allowed to cast a vote 
     uint128 private _currentVoteId;                                 // The voteId which is currently open
-    uint256 private _startTimestamp;                                // start of the current vote
-    uint256 private _endTimestamp;                                  // end of the current vote
+    mapping(uint128 => Vote) private _votes;                      // list of the votes created, indexed by their voteId
     mapping(uint128 => Ballot[]) private _ballots;                  // ballots organised by votes
     mapping(uint256 => SaleRecord) private _sales;                  // sale status per tokenId
     mapping(uint256 => string) private _uris;                       // specific uris for some tokens overriding the default one
@@ -224,6 +229,9 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     //  - data: opaque data sent to the transfer function 
     //
     function mintBatch(uint256[] memory ids, uint256[] memory amounts, bytes memory data) public onlyOwner {
+        for (uint i = 0 ; i < ids.length ; i++) {
+            require(_totalSupply[ids[i]] == 0, "GovernedNFT: cannot re-mint an existing token");
+        }
         _mintBatch(owner(), ids, amounts, data);
     }
 
@@ -233,11 +241,10 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     //
     // Returns: 
     //  - the current voteId
-    //  - the starting time of the vote
-    //  - the ending time of the vote
+    //  - the vote details (Vote startucture)
     //
-    function getVote() public view returns (uint128, uint256, uint256) {
-        return (_currentVoteId, _startTimestamp, _endTimestamp);
+    function getVote() public view returns (uint128, Vote memory) {
+        return (_currentVoteId, _votes[_currentVoteId]);
     }
 
     //
@@ -251,13 +258,12 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     //
     // The new vote must be greater than the previous ones, the starting time has to be before the end and the vote cannot happen in the past
     //
-    function setVote(uint128 voteId, uint256 start, uint256 end) public {
+    function setVote(uint128 voteId, uint256 start, uint256 end, string memory cid) public onlyOwner {
         require( voteId > _currentVoteId, "GovernedNFT: the new vote must have a larger id than the previous ones");
         require( end > start, "GovernedNFT: the end cannot be before the start");
         require( end > block.timestamp, "GovernedNFT: the end cannot be in the past");
         _currentVoteId = voteId;
-        _startTimestamp = start;
-        _endTimestamp = end;
+        _votes[voteId] = Vote(start, end, cid);
     }
 
     //
@@ -274,10 +280,12 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     // defined timeframe. The function then verifies that the ballot message has been signed by the signer
     //
     function verify(BallotMessage calldata ballot, bytes calldata signature) public view returns (bool) {
-        require( ballot.voteId == _currentVoteId, "GovernedNFT: voting is not allowed on this proposal");
-        require(_persons[ballot.from].lastVote < _currentVoteId, "GovernedNFT: this individual has already voted");
-        require(block.timestamp > _startTimestamp, "GovernedNFT: this vote is not yet open");
-        require(block.timestamp < _endTimestamp, "GovernedNFT: this vote is not open anymore");
+        Vote memory lcl = _votes[ballot.voteId];
+        require( lcl.startDate != 0, "GovernedNFT: this voteId does not exist");
+        require(!_persons[ballot.from].blocked, "GovernedNFT: this individual is not allowed to vote");
+        require(_persons[ballot.from].done[ballot.voteId] == false, "GovernedNFT: this individual has already voted");
+        require(block.timestamp > lcl.startDate, "GovernedNFT: this vote is not yet open");
+        require(block.timestamp < lcl.endDate, "GovernedNFT: this vote is not open anymore");
 
         address signer = _hashTypedDataV4(keccak256(abi.encode(
             _TYPEHASH,
@@ -295,23 +303,17 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     // Parameters: 
     //  - the ballot message
     //  - the signature of this message
-    //  - array of the ids on which the voter is voting
+    //  - the id on which the voter is voting
     //
     // Verifies the signature, stores the ballot and emits the associated event if the signature is valid
     //
-    function vote(BallotMessage calldata ballot, bytes calldata signature, uint256[] calldata ids) public {
-        require(!_persons[ballot.from].blocked, "GovernedNFT: this individual is not allowed to vote");
+    function vote(BallotMessage calldata ballot, bytes calldata signature, uint256 id) public {
+        require(balanceOf(ballot.from, id) != 0, "GovernedNFT: this individual is not owning that token");
         require(verify(ballot, signature), "GovernedNFT: invalid vote");
-        bool voted = false;
-       
-        for (uint i = 0 ; i < ids.length ; i++) {
-            if (balanceOf(ballot.from, ids[i]) != 0) {
-                voted = true;
-                _ballots[ballot.voteId].push(Ballot( ballot.from, ids[i], bytes16(ballot.data), signature, block.timestamp ));
-                emit HasVoted(ballot.from, ids[i]);
-            }
-        }
-        if (voted) _persons[ballot.from].lastVote = _currentVoteId;
+                
+        _ballots[ballot.voteId].push(Ballot( ballot.from, id, bytes16(ballot.data), signature, block.timestamp ));
+        _persons[ballot.from].done[ballot.voteId] = true;
+        emit HasVoted(ballot.from, id);
     }
 
     //
@@ -320,11 +322,12 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     //
     // Parameters: 
     //  - address of the voter
+    //  - id of the vote
     //
-    // Returns the last vote to which the voter took place 
+    // Returns the true or false
     //
-    function hasVoted(address who) public view returns (bool) {
-        return _persons[who].lastVote == _currentVoteId;
+    function hasVoted(address who, uint128 voteId) public view returns (bool) {
+        return _persons[who].done[voteId];
     }
 
     //
@@ -352,7 +355,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     }
 
     //
-    // getVotes
+    // getBallots
     // retrieve all the ballots for a vote 
     //
     // Parameters: 
@@ -361,7 +364,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     // Returns:
     //  - an array of ballots
     //
-    function getVotes(uint128 voteId) public view returns(Ballot[] memory) {
+    function getBallots(uint128 voteId) public view returns(Ballot[] memory) {
         return _ballots[voteId];
     }
 
