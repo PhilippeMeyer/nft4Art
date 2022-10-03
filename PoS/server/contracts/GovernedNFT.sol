@@ -89,15 +89,18 @@ contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
 
     bytes32 private constant _TYPEHASH = keccak256("BallotMessage(address from,uint128 voteId,bytes data)");
 
-    mapping(address => Person) private _persons;        // persons allowed to cast a vote 
-    uint128 private _currentVoteId;                     // The voteId which is currently open
-    uint256 private _startTimestamp;                    // start of the current vote
-    uint256 private _endTimestamp;                      // end of the current vote
-    mapping(uint128 => Ballot[]) private _ballots;      // ballots organised by votes
-    mapping(uint256 => SaleRecord) private _sales;      // sale status per tokenId
-    mapping(uint256 => string) private _uris;           // specific uris for some tokens overriding the default one
-    string private _defaultUri;                         // default URI to be used by all the tokens
-    mapping(address => UnorderedKeySetLib.Set) private _owners;
+    mapping(address => Person) private _persons;                    // persons allowed to cast a vote 
+    uint128 private _currentVoteId;                                 // The voteId which is currently open
+    uint256 private _startTimestamp;                                // start of the current vote
+    uint256 private _endTimestamp;                                  // end of the current vote
+    mapping(uint128 => Ballot[]) private _ballots;                  // ballots organised by votes
+    mapping(uint256 => SaleRecord) private _sales;                  // sale status per tokenId
+    mapping(uint256 => string) private _uris;                       // specific uris for some tokens overriding the default one
+    string private _defaultUri;                                     // default URI to be used by all the tokens
+    mapping(address => UnorderedKeySetLib.Set) private _owners;     // List of tokens owned by an address
+    mapping(uint256 => uint256) private _totalSupply;               // Quantity of tokens per token
+    uint256[] private _tokensId;                                    // List of tokens that have been issued
+
 
     constructor() Ownable() ERC1155("") EIP712("GovernedNFT", "1.0.0") {
         _currentVoteId = 0;
@@ -157,8 +160,45 @@ contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
         return _defaultUri;
     }
 
+    //
+    // tokensOwned
+    // Returns the tokens owned by a specific address
+    //
+    // Parameters:
+    //  - address of the owner
+    //
+    // Returns:
+    //  - An array containing the tokens ids owned by this address
+    //
     function tokensOwned(address owner) public view returns(uint256[] memory) {
         return _owners[owner].values();
+    }
+
+    //
+    // tokensIssued
+    // Returns the list of tokens that have been issued
+    //
+    // Parameters: None
+    //
+    // Returns: 
+    //  - An array of token Ids (uint256) of all the minted Ids 
+    //
+    function tokensIssued() public view returns(uint256[] memory) {
+        return _tokensId;
+    }
+
+    //
+    // numberOfPieces
+    // Returns the number of pieces minted for a given token
+    //
+    // Parameters:
+    //  - tokenId : the token for which the number of pieces is requested
+    //
+    // Returns: 
+    //  - The number of pieces (uint256) minted for that token Id
+    //
+    function numberOfPieces(uint256 tokenId) public view returns(uint256) {
+        return _totalSupply[tokenId];
     }
 
     //
@@ -171,6 +211,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
     //  - data: opaque data sent to the transfer function 
     //
     function mint(uint256 id, uint256 amount, bytes memory data) public onlyOwner {
+        require(_totalSupply[id] == 0, "GovernedNFT: cannot re-mint an existing token");
         _mint(owner(), id, amount, data);
     }
 
@@ -374,8 +415,17 @@ contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
         bytes memory data ) internal override {
         super._afterTokenTransfer(operator, from, to, ids, amounts, data);
 
-        for(uint i = 0 ; i < ids.length ; i++) _owners[to].insert(ids[i]);
-        if (from == address(0)) return;
+        for(uint i = 0 ; i < ids.length ; i++) {
+            _owners[to].insert(ids[i]);                                     // The to address is receiving some tokens
+        
+            if (from == address(0)) {                                       // This is a mint -> register the tokens
+                _totalSupply[ids[i]] += amounts[i];
+                _tokensId.push(ids[i]);
+            }
+        }
+
+        if (from == address(0)) return;                                     // Mint nothing to remove from any user
+        
         for(uint i = 0 ; i < ids.length ; i++) 
             if(balanceOf(from, ids[i]) == 0) _owners[from].remove(ids[i]);
     }
