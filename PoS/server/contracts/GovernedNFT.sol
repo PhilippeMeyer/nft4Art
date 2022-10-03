@@ -2,12 +2,15 @@
 // Further information: https://eips.ethereum.org/EIPS/eip-2770
 pragma solidity ^0.8.5;
 
+import './UnorderedKeySetLib.sol';
+
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+
 
 //
 // GovernedNFT.sol
@@ -37,8 +40,11 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 // - a saleUpdate function which updates the sale's status
 // - a getSale function which returns the status of a sale
 //
+
 contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
     using ECDSA for bytes32;
+    using UnorderedKeySetLib for UnorderedKeySetLib.Set;
+
 
     event HasVoted(address indexed who, uint256 indexed tokenId);           // Emmitted when a vote has been performed on a specific token
     event ReceivedEth(address, uint);                                       // Emmitted when some ether has been recevived
@@ -91,6 +97,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
     mapping(uint256 => SaleRecord) private _sales;      // sale status per tokenId
     mapping(uint256 => string) private _uris;           // specific uris for some tokens overriding the default one
     string private _defaultUri;                         // default URI to be used by all the tokens
+    mapping(address => UnorderedKeySetLib.Set) private _owners;
 
     constructor() Ownable() ERC1155("") EIP712("GovernedNFT", "1.0.0") {
         _currentVoteId = 0;
@@ -148,6 +155,10 @@ contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
     function uri(uint256 tokenId_) public view virtual override returns (string memory) {
         if (bytes(_uris[tokenId_]).length != 0) return _uris[tokenId_];
         return _defaultUri;
+    }
+
+    function tokensOwned(address owner) public view returns(uint256[] memory) {
+        return _owners[owner].values();
     }
 
     //
@@ -338,6 +349,35 @@ contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
 
         require(!paused(), "GovernedNFT: token transfer while paused");
+    }
+
+    //
+    // _afterTokenTransfer
+    // internal method which is called after a transfer is taking place 
+    //
+    // Parameters: Parameters of the transfer method
+    //    address operator : who is calling for the transfer
+    //    address from : from where are the tokens transferred
+    //    address to : to where are the tokens transferred
+    //    uint256[] memory ids : array of tokens to be transferred identified by their ids
+    //    uint256[] memory amounts : array of amounts to be transferred 
+    //    bytes memory data : opaque data
+    //
+    // We use that hook to maintain the list of owners
+    //
+    function _afterTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data ) internal override {
+        super._afterTokenTransfer(operator, from, to, ids, amounts, data);
+
+        for(uint i = 0 ; i < ids.length ; i++) _owners[to].insert(ids[i]);
+        if (from == address(0)) return;
+        for(uint i = 0 ; i < ids.length ; i++) 
+            if(balanceOf(from, ids[i]) == 0) _owners[from].remove(ids[i]);
     }
 
     //
