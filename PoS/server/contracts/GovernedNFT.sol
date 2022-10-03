@@ -6,8 +6,7 @@ import './UnorderedKeySetLib.sol';
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
@@ -41,7 +40,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 // - a getSale function which returns the status of a sale
 //
 
-contract GovernedNFT is EIP712, Pausable, ERC1155URIStorage, Ownable {
+contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     using ECDSA for bytes32;
     using UnorderedKeySetLib for UnorderedKeySetLib.Set;
 
