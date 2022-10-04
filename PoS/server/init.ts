@@ -35,6 +35,7 @@ import generateAnimatedGif from './services/generateAnimatedGif.js'
 //  app.locals.passHash         Contains the hash of the wallet's password
 //  app.locals.wallet           Refers to the server's wallet
 //  app.locals.ipfsFolder       Contains the default URI from the smartcontract
+//  app.locals.crypto           Contains the crypto library
 //
 
 async function init(exApp: any, config: any) {  

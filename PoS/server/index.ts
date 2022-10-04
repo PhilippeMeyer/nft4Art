@@ -294,13 +294,8 @@ app.get("/apiV1/log/allEvents", verifyTokenManager, function (req: Request, res:
 // This end point deploys on the blockchain a new token
 //
 app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCustom, res :Response) {
-    if (typeof req.query.uri === 'undefined') {
-          res.sendStatus(400).json({error: {name: 'noURISpecified', message: 'The Uri for the contract is missing'}});
-          return;
-      }
-    let contract:any = createSmartContract();
-    res.status(200).json({contractAddress: contract.address});
-    
+    let contract:any = await createSmartContract();
+    res.status(200).json({contractAddress: contract.address});   
   });
   
 //
