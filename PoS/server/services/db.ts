@@ -119,7 +119,7 @@ const insertNewQuestionnaire = function(voteId:string, cid: string, checksum:str
     const result = stmt.run(params);
 }
 
-const findOneQuestionnaire = function(voteId:string, voterAddr:string) {
+const findOneQuestionnaire = function(voteId:string) {
     const result = db.prepare('SELECT voteId,cid,checksum,jsonData FROM voteQuestionnaire WHERE voteId=?').all([voteId]);
     if (result.length == 0) return null;
     else return result[0];
