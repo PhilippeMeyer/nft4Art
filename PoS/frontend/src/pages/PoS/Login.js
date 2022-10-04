@@ -130,7 +130,7 @@ function Login() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleLogin}>Login</Button>
+                <Button type="submit" onClick={handleLogin}>Login</Button>
               </DialogActions>
             </Dialog>
         </main>
