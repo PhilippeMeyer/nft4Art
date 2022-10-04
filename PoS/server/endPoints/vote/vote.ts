@@ -41,7 +41,12 @@ async function sendVote(req: Request, res: Response) {
         let ok = await token.verify(values, signature, overrides)
         logger.info('server.vote.sendVote.Verification: %s', ok);
 
-        let tx = await token.vote(values, signature, [101], overrides)
+        const tokensOwned = await token.tokensOwned(values.from);
+        if (tokensOwned.length == 0) {
+            logger.info('server.vote.sendVote.noOwnedTokens');
+            res.status(403).json({error: { name: "errorSendVote", message: "This individual does not own a token" }});
+        }
+        let tx = await token.vote(values, signature, tokensOwned[0], overrides)
         const receipt = await tx.wait();
         logger.info('server.vote.sendVote.success Tx hash: %s', receipt.transactionHash );
 
