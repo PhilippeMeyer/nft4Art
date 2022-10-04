@@ -45,16 +45,17 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     using UnorderedKeySetLib for UnorderedKeySetLib.Set;
 
 
-    event HasVoted(address indexed who, uint256 indexed tokenId);           // Emmitted when a vote has been performed on a specific token
-    event ReceivedEth(address, uint);                                       // Emmitted when some ether has been recevived
-    event Sale( uint256 indexed tokenId,                                    // Emmitted when a sale on tokenId is performed
+    event VoteCreated(address indexed who, uint256 indexed voteId);         // Emitted when a vote has been created
+    event HasVoted(address indexed who, uint256 indexed tokenId);           // Emitted when a vote has been performed on a specific token
+    event ReceivedEth(address, uint);                                       // Emitted when some ether has been received
+    event Sale( uint256 indexed tokenId,                                    // Emitted when a sale on tokenId is performed
                 bytes32 indexed buyer,                                      // Buyer's address (can also be a bitcoin address)
                 uint128 price,                                              // Price as an integer
                 uint8   decimals,                                           // Decimals applied to the price
                 bytes3  currency,                                           // Currency 3 letters Iso country code + ETH and BTC 
                 bytes1  network,                                            // Network on which the payment is performed
                 bytes1  status);                                            // Sale's status: initiated, payed, completed, ....
-    event SaleUpdate( uint256 indexed tokenId,                              // Emmitted when a sale on tokenId is performed
+    event SaleUpdate( uint256 indexed tokenId,                              // Emitted when a sale on tokenId is performed
                       bytes32 indexed buyer,                                // Buyer's address (can also be a bitcoin address)
                       bytes1  status);                                      // Sale's status: initiated, payed, completed, ....
 
@@ -280,6 +281,8 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
         require( end > block.timestamp, "GovernedNFT: the end cannot be in the past");
         _currentVoteId = voteId;
         _votes[voteId] = Vote(start, end, cid, hash);
+
+        emit VoteCreated(msg.sender, voteId);
     }
 
     //
@@ -329,6 +332,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
                 
         _ballots[ballot.voteId].push(Ballot( ballot.from, id, bytes16(ballot.data), signature, block.timestamp ));
         _persons[ballot.from].done[ballot.voteId] = true;
+
         emit HasVoted(ballot.from, id);
     }
 
