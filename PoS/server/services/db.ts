@@ -94,7 +94,7 @@ const insertNewSmartContract = function(address: string) {
 }
 
 const findAllSmartContracts = function() {
-    return db.prepare('SELECT addressEth FROM smartContracts').all([]);
+    return db.prepare('SELECT addressEth FROM smartContracts WHERE activeFlag=1').all();
 }
 
 const insertNewVote = function(voteId:string, voterAddr: string, jsonData:string) {

@@ -34,7 +34,8 @@ create table salesEvents (
 
 create table smartContracts (
     id integer primary key,
-    addressEth text);
+    addressEth text,
+    activeFlag integer);
 
 create table votes (
     id integer primary key,
