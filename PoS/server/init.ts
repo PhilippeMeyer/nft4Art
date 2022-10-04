@@ -100,7 +100,7 @@ async function loadToken(token: Contract, exApp:any ) {
 
     async function loadCollections() {
         let cols:any;
-        logger.info('server.init.loadingCollections');
+        logger.info('server.init.loadingCollections from %s', app.locals.ipfsFolder);
 
         str = app.locals.ipfsFolder.replace('ipfs:', 'https:').replace('/{id}.json', '.ipfs.dweb.link/' + 'collections.json'); //TODO parametrize the ipfs gateway
         let resp = await axios.get(str); //We retrieve the collections from ipfs

@@ -169,8 +169,8 @@ async function batchMintFinalize(req: Request, res: Response) {
             for (key in newCol) {
                 if (newCol[key].image == undefined) {           // No image of the collection is has been provided. Creating one as an animated GIF
                     const fileName = key + '.gif';
-                    generateAnimatedGif(newCol[key], fileName, app.locals.batchMintTokens, app.locals.batchMintFolder);
-                    let data = fs.readFileSync(fileName);
+                    generateAnimatedGif(newCol[key], fileName, req.app.locals.batchMintTokens, req.app.locals.batchMintFolder);
+                    let data = fs.readFileSync(path.join(req.app.locals.batchMintFolder, fileName));
                     var imageCid = await client.storeBlob(new Blob([data]));
                     newCol[key].image = 'ipfs://' + imageCid;
                     logger.info('server.batchMintFinalize.createAnimatedGif %s %s', fileName, imageCid);
