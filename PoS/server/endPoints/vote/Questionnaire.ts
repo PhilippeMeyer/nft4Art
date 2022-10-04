@@ -34,7 +34,7 @@ async function createQuestionnaire(req: Request, res: Response) {
         var cid = await client.storeBlob(new Blob([bytes]));            // cid of the questionnaire that is going to be stored on chain
         const checksum = utils.keccak256(bytes);
 
-        const txResp = await token.setVote(newVote.header.id, Math.floor(newVote.header.start / 1000), Math.floor(newVote.header.end / 1000), cid);
+        const txResp = await token.setVote(newVote.header.id, Math.floor(newVote.header.start / 1000), Math.floor(newVote.header.end / 1000), cid, checksum);
         const txReceipt = await txResp.wait();
         logger.info('server.vote.voteInserted #%s txHash: %s', newVote.id, txReceipt.transactionHash);
         logger.info('server.vote.voteInsertedIpfs #%s', cid);

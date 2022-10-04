@@ -29,7 +29,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 // - vote(ballot, signature, ids) : receives and store a ballot if it is valid. The ballot is valid for one or multiple tokens listed in the ids array
 // - hasVoted(address): returns true if the address has voted for the current vote
 // - revoke(address) : revoke the voting right for a given address
-// - getVotes(voteId) : sends back the data associated to a vote
+// - getVote(voteId) : sends back the data associated to a vote
 //
 // Inspired from: https://betterprogramming.pub/ethereum-erc-20-meta-transactions-4cacbb3630ee
 //
@@ -76,6 +76,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
         uint256 startDate;              // Start date
         uint256 endDate;                // End date
         string  cid;                    // Ipfs Cid of the form used for the vote
+        uint256 hash;                   // Hash of the file (to be able to check the integrity of what has been downloaded from Ipfs)
     }
 
     struct Person {
@@ -241,10 +242,25 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     //
     // Returns: 
     //  - the current voteId
-    //  - the vote details (Vote startucture)
+    //  - the vote details (Vote structure)
     //
     function getVote() public view returns (uint128, Vote memory) {
         return (_currentVoteId, _votes[_currentVoteId]);
+    }
+
+    //
+    // getVote
+    // returns the specified vote
+    //
+    // Parameter:
+    //  - voteId uint128 vote identifier
+    //
+    // Returns:
+    //  - the current voteId
+    //  - the vote details (Vote structure)
+    //
+    function getVote(uint128 voteId) public view returns (uint128, Vote memory) {
+        return (voteId, _votes[voteId]);
     }
 
     //
@@ -258,12 +274,12 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     //
     // The new vote must be greater than the previous ones, the starting time has to be before the end and the vote cannot happen in the past
     //
-    function setVote(uint128 voteId, uint256 start, uint256 end, string memory cid) public onlyOwner {
+    function setVote(uint128 voteId, uint256 start, uint256 end, string memory cid, uint256 hash) public onlyOwner {
         require( voteId > _currentVoteId, "GovernedNFT: the new vote must have a larger id than the previous ones");
         require( end > start, "GovernedNFT: the end cannot be before the start");
         require( end > block.timestamp, "GovernedNFT: the end cannot be in the past");
         _currentVoteId = voteId;
-        _votes[voteId] = Vote(start, end, cid);
+        _votes[voteId] = Vote(start, end, cid, hash);
     }
 
     //
