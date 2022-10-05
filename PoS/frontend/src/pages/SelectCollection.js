@@ -48,7 +48,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          <Typography component={'div'}>{children} </Typography>
         </Box>
       )}
     </div>
@@ -134,13 +134,13 @@ export default function SelectCollection() {
           {tabs.map((tab, index) => (
               <Tab label={<span>{tab.id}<IconButton component="div" onClick={event => handleCloseTab(event, tab)}><CloseIcon fontSize="small"/></IconButton></span>} {...a11yProps(index)} /> ))}
 
-          <Tab label={<IconButton component="div"><AddIcon /></IconButton>} {...a11yProps(tabs.length)} />
+          <Tab icon={<AddIcon />} {...a11yProps(tabs.length)} />
         </Tabs>
       </Box>
 
 
       {tabs.map((tab, index) => (
-        <TabPanel value={value} index={index} >
+        <TabPanel value={value} index={index} key={index}>
           {tab.grid ? <TokenGrid collectionId={tab.id}></TokenGrid> : <TokenMap collectionId={tab.id}></TokenMap>}
         </TabPanel> ))}
 
