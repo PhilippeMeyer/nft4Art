@@ -5,7 +5,7 @@ import { Contract, errors, providers, utils, ethers } from "ethers";
 
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
-import { insertNewVote, findOneVote, insertNewQuestionnaire, findAllQuestionnaire } from '../../services/db.js';
+import { insertNewVote, findOneVote, insertNewQuestionnaire, findAllQuestionnaire, findOneQuestionnaire } from '../../services/db.js';
 
 //
 // createQuestionnaire
@@ -61,14 +61,14 @@ async function createQuestionnaire(req: Request, res: Response) {
 async function getQuestionnaire(req: Request, res: Response) {
     logger.info('server.vote.getQuestionnaire');
 
-    if (req.query.questionnaireId == undefined)
-        res.status(404).json({error: server.vote.getQuestionnaire.noId, message: 'No Id specified' });
+    if (req.query.questionnaireId == undefined) {
+        res.status(404).json({error: 'server.vote.getQuestionnaire.noId', message: 'No Id specified' });
         return;
     }
-    const questionnaire = findOneQuestionnaire(req.query.questionnaireId);
+    const questionnaire = findOneQuestionnaire(req.query.questionnaireId as string);
     if (questionnaire.length == 0) {
         logger.info('server.vote.getQuestionnaire.wrongVoteId');
-        res.status(404).json({error: server.vote.getQuestionnaire.wrongVoteId, message: 'This vote Id does not exist'});
+        res.status(404).json({error: 'server.vote.getQuestionnaire.wrongVoteId', message: 'This vote Id does not exist'});
     }
     const ret = JSON.parse(questionnaire.jsonData);
     res.status(200).json(ret);
