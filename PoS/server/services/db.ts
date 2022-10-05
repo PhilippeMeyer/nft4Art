@@ -88,8 +88,8 @@ const removeAppId = function(appId: string) {
 }
 
 const insertNewSmartContract = function(address: string) {
-    const stmt = db.prepare('INSERT INTO smartContracts(addressEth) VALUES (?)');
-    const params = [address];
+    const stmt = db.prepare('INSERT INTO smartContracts(addressEth, activeFlag) VALUES (?, ?)');
+    const params = [address, 1];
     const result = stmt.run(params);
 }
 
