@@ -38,7 +38,7 @@ function TokenGrid({ collectionId }) {
 
   // Local state for the screen and pict dimensions and the clickable regions 
   const [selected, setSelected] = React.useState();
-  const [currency, setCurrency] = React.useState();
+  const [currency, setCurrency] = React.useState('fiat');
   const [filteredTokens, setFilteredTokens] = React.useState([]);
   const [screenSize, setScreenSize] = useState({});
 
@@ -66,15 +66,14 @@ function TokenGrid({ collectionId }) {
   };
 
   const onclick = (event) => {
-    setSelected(event.target.id);
+    setSelected(filteredTokens.find((elt) => elt.id == event.target.id));
     setOpen(true);
   };
 
-  const handleSale = () => {  
-    let t = filteredTokens[selected];
-    const params = new URLSearchParams({id: t.id, lock: true})
+  const handleSale = () => { 
+    const params = new URLSearchParams({id: selected.id, lock: true})
     fetch(lockUrl + params.toString(), { method: 'PUT', headers: jwtHeader });
-    navigate('/sales/token/' + currency + '/' + selected, { state: { token: filteredTokens[selected]  }});
+    navigate('/sales/token/' + currency + '/' + selected.id, { state: { token: selected  }});
   };
 
   useEffect( () => {
@@ -106,14 +105,13 @@ function TokenGrid({ collectionId }) {
 
   return (
     <>
-      <main>
-        <div>
           <ImageList cols={defineColumns()}>
             {filteredTokens.map((token) => (
               <ImageListItem key={token.id}>
                 <img
                   src={token.iconUrl}
                   alt={token.description}
+                  id={token.id}
                   loading="lazy"
                   onClick={onclick}
                 />
@@ -152,9 +150,6 @@ function TokenGrid({ collectionId }) {
               <Button onClick={handleSale}>Sell</Button>
             </DialogActions>
           </Dialog>
-
-        </div>
-      </main>
     </>
   );
 }
