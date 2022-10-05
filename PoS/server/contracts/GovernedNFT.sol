@@ -250,7 +250,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     }
 
     //
-    // getVote
+    // getVoteById
     // returns the specified vote
     //
     // Parameter:
@@ -260,7 +260,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     //  - the current voteId
     //  - the vote details (Vote structure)
     //
-    function getVote(uint128 voteId) public view returns (uint128, Vote memory) {
+    function getVoteById(uint128 voteId) public view returns (uint128, Vote memory) {
         return (voteId, _votes[voteId]);
     }
 
