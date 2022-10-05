@@ -202,7 +202,7 @@ async function loadToken(token: Contract, exApp:any ) {
     }
 
     for (key in collections) {
-        if (collections[key].image == undefined) {
+        if (collections[key].map == undefined) {
             generateAnimatedGif(collections[key], key + 'image.gif', metas, config.cacheFolder);
             collections[key].image = key + 'image.gif';
             collections[key].imageUrl = config.imgCollectionUrl + key;
