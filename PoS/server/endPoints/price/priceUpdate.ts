@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import * as dbPos from '../../services/db.js';
 import { logger } from "../../loggerConfiguration.js";
 import { sendMessage } from "../../index.js"
-import { app } from "../../app.js";
 
 
 class PriceMessage {
@@ -45,7 +44,7 @@ function priceUpdate(req: Request, res: Response) {
     const id: string = req.query.tokenId as string;
     const prc: number = parseFloat(req.query.price as string);
     dbPos.updatePriceToken(id, prc);
-    const tk: any = app.locals.metasMap.get(id);
+    const tk: any = req.app.locals.metasMap.get(id);
     if (tk != null) tk.price = prc;
     else logger.error('server.priceUpdate.inconsistentState %s', id);
     res.sendStatus(200);
@@ -85,7 +84,7 @@ function priceUpdates(req: Request, res: Response) {
         //tokens.update(token);
         const id: string = item.id as string;
         const prc: number = parseFloat(item.price as string);
-        const tk: any = app.locals.metasMap.get(id);
+        const tk: any = req.app.locals.metasMap.get(id);
         if (tk != null) tk.price = prc;
         else logger.error('server.priceUpdate.inconsistentState %s', id);
     

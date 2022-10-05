@@ -1,7 +1,6 @@
 import { BigNumber, constants, Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
 import { Response } from "express";
 
-import { app } from "../../app.js";
 import { logger } from "../../loggerConfiguration.js";
 import { RequestCustom } from "../../requestCustom.js";
 
@@ -16,8 +15,8 @@ import { RequestCustom } from "../../requestCustom.js";
 async function tokensOwned(req: RequestCustom, res: Response) {
     logger.info('server.tokensOwned %s', req.address);
 
-    const tokens = await tokensOwnedByAddress(req.address || "", app.locals.token);
-    res.status(200).json({address: app.locals.token.address, tokens: tokens});
+    const tokens = await tokensOwnedByAddress(req.address || "", req.app.locals.token);
+    res.status(200).json({address: req.app.locals.token.address, tokens: tokens});
 }
 
 //

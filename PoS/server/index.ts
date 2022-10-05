@@ -16,7 +16,6 @@ import { fileURLToPath } from "url";
 import { waitFor } from "./waitFor.js";
 
 import { init } from "./init.js";
-import { app } from "./app.js";
 import { RequestCustom } from "./requestCustom.js"
 import { logConf, logger } from "./loggerConfiguration.js";
 
@@ -158,7 +157,7 @@ cleanup(exitHandler);
 // When this signature is received, the server creates then a JWT which is used between the PoS and the server
 //
 
-
+const app = express();
 init(app, config);
 
 //initialize a simple http server
@@ -294,7 +293,7 @@ app.get("/apiV1/log/allEvents", verifyTokenManager, function (req: Request, res:
 // This end point deploys on the blockchain a new token
 //
 app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCustom, res :Response) {
-    let contract:any = await createSmartContract();
+    let contract:any = await createSmartContract(app);
     res.status(200).json({contractAddress: contract.address});   
   });
   

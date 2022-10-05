@@ -32,7 +32,7 @@ const wsMiddleware = store => next => action => {
             }
         };
         ws.onclose = (e) => {
-            console.log('ws close');
+            console.log('ws close: ', e);
 
             store.isEstablishingConnection = false;
             store.isConnected = false;

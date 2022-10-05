@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
-import { app } from "../../app.js";
 import * as dbPos from '../../services/db.js';
 import { createSmartContract } from "../../services/createSmartContract.js";
 import { loadToken } from "../../init.js"
@@ -54,13 +53,13 @@ function signin(req: Request, res: Response) {
     if (password) {
         let pass: string = password as string;
 
-        if (app.locals.passHash == "") {
+        if (req.app.locals.passHash == "") {
             // The password has not been provided yet -> try to unlock the wallet
             let jsonWallet = fs.readFileSync(config.walletFileName);
 
             Wallet.fromEncryptedJson(jsonWallet.toString(), pass)
                 .then(function (data) {
-                    loadWallet(data, pass, app);
+                    loadWallet(data, pass, req.app);
                     verification.authorized = true;
                     registerPoS({ ...device, ...verification }, pass, res);
                 })
@@ -76,7 +75,7 @@ function signin(req: Request, res: Response) {
                 });
         } else {
             // The password has already been provided, the wallet is unlocked. Verify if the password is Ok
-            if (app.locals.passHash != utils.keccak256(utils.toUtf8Bytes(pass))) {
+            if (req.app.locals.passHash != utils.keccak256(utils.toUtf8Bytes(pass))) {
                 logger.info("server.signin.wrongCredentials");
                 res.status(403).send({
                     error: {
@@ -92,7 +91,7 @@ function signin(req: Request, res: Response) {
         }
         }
     } else {
-        if (app.locals.passHash == "") {
+        if (req.app.locals.passHash == "") {
             // The wallet has not been loaded, the server is not ready and cannot accept PoS connections
             logger.info("server.signin.walletNotLoaded");
             res.status(403).json({
@@ -123,7 +122,7 @@ async function loadWallet(w: Wallet, pass: string, app: any) {
 
     if(app.locals.token === undefined) {
         logger.info('server.signing.loadWallet.createSmartContract');
-        let token = await createSmartContract();
+        let token = await createSmartContract(app);
         dbPos.insertNewSmartContract(token.address);
         loadToken(token, app);
     }

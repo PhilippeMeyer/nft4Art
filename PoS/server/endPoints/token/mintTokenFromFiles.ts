@@ -8,7 +8,6 @@ import { filesFromPath } from 'files-from-path'
 import axios from "axios";
 import { BigNumber, constants, Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
 
-import { app } from "../../app.js";
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
 import generateAnimatedGif from '../../services/generateAnimatedGif.js'
@@ -30,16 +29,16 @@ const appPrefix = 'nft4art';
 
 async function batchMintStart(req: Request, res: Response) {
     try {
-        app.locals.batchMintFolder = fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
+        req.app.locals.batchMintFolder = fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
         // TODO find the first free token 
-        app.locals.batchMintTokenId = 0;
-        app.locals.batchMintTokens = [];
+        req.app.locals.batchMintTokenId = 0;
+        req.app.locals.batchMintTokens = [];
 
-        if (app.locals.ipfsFolder !== undefined) {
-            let ipfsFolder = app.locals.ipfsFolder;
+        if (req.app.locals.ipfsFolder !== undefined) {
+            let ipfsFolder = req.app.locals.ipfsFolder;
             const folder:string = ipfsFolder.replace('/{id}.json', '').replace('ipfs://','');
             logger.info('server.batchMintStart.loadingFolder %s', folder)
-            await readIpfsFolder(folder, app.locals.batchMintFolder);
+            await readIpfsFolder(folder, req.app.locals.batchMintFolder);
         }
 
         res.sendStatus(200);
@@ -75,7 +74,7 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
     let numTokens:string;
 
     try {
-        logger.info('server.mintFromFiles.createFolder: %s', app.locals.batchMintFolder);
+        logger.info('server.mintFromFiles.createFolder: %s', req.app.locals.batchMintFolder);
 
         // Find among the fileds a field named image_raw which should point to the file containing the image
         if (req.body.image_raw === undefined) {
@@ -113,18 +112,18 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
         for (key in req.body)  metadata[key] = req.body[key];
         
         if(req.body.tokenId === undefined) {
-            tokenId = app.locals.batchMintTokenId.toString();
-            app.locals.batchMintTokenId++;
+            tokenId = req.app.locals.batchMintTokenId.toString();
+            req.app.locals.batchMintTokenId++;
         }
         else 
             tokenId = req.body.tokenId;
         
         const tid = parseInt(tokenId); 
-        fs.writeFileSync(path.join(app.locals.batchMintFolder, tid.toString() + ".json"), JSON.stringify(metadata));
+        fs.writeFileSync(path.join(req.app.locals.batchMintFolder, tid.toString() + ".json"), JSON.stringify(metadata));
         metadata.tokenId = tokenId;
-        app.locals.batchMintTokens.push(metadata);
+        req.app.locals.batchMintTokens.push(metadata);
 
-        const token:Contract = app.locals.token;
+        const token:Contract = req.app.locals.token;
         const txResp = await token.mint(tokenId, numTokens, []);
         const txReceipt = await txResp.wait();
 
@@ -194,7 +193,7 @@ async function batchMintFinalize(req: Request, res: Response) {
             }
             
             // Finding the old collections.json if it exists
-            let colFilename = app.locals.batchMintFolder + '/' + 'collections.json';
+            let colFilename = req.app.locals.batchMintFolder + '/' + 'collections.json';
             if(fs.existsSync(colFilename)) {
                 // Merging the old collections.json with the new collections (to be noted that the new collection superseeds the old definition)
                 const data = fs.readFileSync(colFilename);
@@ -205,12 +204,12 @@ async function batchMintFinalize(req: Request, res: Response) {
             fs.writeFileSync(colFilename, JSON.stringify(newCol));
         }
 
-        const files = filesFromPath(app.locals.batchMintFolder, { pathPrefix: path.resolve(app.locals.batchMintFolder), hidden: false });
+        const files = filesFromPath(req.app.locals.batchMintFolder, { pathPrefix: path.resolve(req.app.locals.batchMintFolder), hidden: false });
         const cid = await client.storeDirectory(files);
-        const oldFolder:string =  app.locals.ipfsFolder;
-        app.locals.ipfsFolder = cid;
+        const oldFolder:string =  req.app.locals.ipfsFolder;
+        req.app.locals.ipfsFolder = cid;
 
-        const token:Contract = app.locals.token;
+        const token:Contract = req.app.locals.token;
         const txResp = await token.setDefaultURI('ipfs://' + cid + '/{id}.json');
         const txReceipt = await txResp.wait();
         logger.info('server.mintFromFiles.uriInserted %s', cid);

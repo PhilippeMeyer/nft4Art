@@ -7,7 +7,6 @@ import path from "path";
 
 import { receivedEthCallback } from "./services/receivedEthCallback.js"
 import * as dbPos from './services/db.js';
-import { app } from "./app.js";
 import { createSmartContract } from "./services/createSmartContract.js";
 import { config } from "./config.js"
 import generateAnimatedGif from './services/generateAnimatedGif.js'
@@ -100,9 +99,9 @@ async function loadToken(token: Contract, exApp:any ) {
 
     async function loadCollections() {
         let cols:any;
-        logger.info('server.init.loadingCollections from %s', app.locals.ipfsFolder);
+        logger.info('server.init.loadingCollections from %s', exApp.locals.ipfsFolder);
 
-        str = app.locals.ipfsFolder.replace('ipfs:', 'https:').replace('/{id}.json', '.ipfs.dweb.link/' + 'collections.json'); //TODO parametrize the ipfs gateway
+        str = exApp.locals.ipfsFolder.replace('ipfs:', 'https:').replace('/{id}.json', '.ipfs.dweb.link/' + 'collections.json'); //TODO parametrize the ipfs gateway
         let resp = await axios.get(str); //We retrieve the collections from ipfs
         if (resp.status == 200) {
             cols = resp.data;
@@ -145,11 +144,11 @@ async function loadToken(token: Contract, exApp:any ) {
     for (i = 0; i < ids.length; i++) {
         const id = ids[i];
         strToken = await token.uri(id);
-        app.locals.ipfsFolder = strToken;
+        exApp.locals.ipfsFolder = strToken;
 
         if (i == 0) {
             collections = await loadCollections();
-            app.locals.collections = collections;
+            exApp.locals.collections = collections;
         }
 
         str = strToken.replace('ipfs:', 'https:').replace('/{id}', '.ipfs.dweb.link/' + id); //TODO parametrize the ipfs gateway

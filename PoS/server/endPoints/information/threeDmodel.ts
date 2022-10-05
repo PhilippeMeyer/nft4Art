@@ -2,7 +2,6 @@ import { Response } from "express";
 import fs from "fs";
 import path from "path";
 
-import { app } from "../../app.js";
 import { logger } from "../../loggerConfiguration.js";
 import { RequestCustom } from "../../requestCustom.js";
 import { config } from "../../config.js"

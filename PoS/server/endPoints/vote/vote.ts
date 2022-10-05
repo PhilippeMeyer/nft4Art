@@ -9,7 +9,6 @@ import axios from "axios";
 import { Contract, errors, providers, utils, Wallet } from "ethers";
 
 
-import { app } from "../../app.js";
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
 import { insertNewVote, findOneVote, insertNewQuestionnaire, findAllQuestionnaire, findAllVote } from '../../services/db.js';
@@ -20,7 +19,7 @@ const overrides = { gasLimit: 750000 };
 
 async function sendVote(req: Request, res: Response) {
     logger.info('server.vote.sendVote');
-    const token:Contract = app.locals.token;
+    const token:Contract = req.app.locals.token;
 
     let {domain, types, values, signature, } =  req.body;
     console.log(domain, types, values, signature);

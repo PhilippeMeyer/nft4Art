@@ -3,7 +3,6 @@ import path from 'path';
 
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
-import { app } from "../../app.js";
 
 
 async function collectionImage(req: Request, res: Response) {
@@ -14,13 +13,12 @@ async function collectionImage(req: Request, res: Response) {
     }
     const colId:any = req.query.id;
     
-    if (app.locals.collections[colId].image === undefined) {
+    if (req.app.locals.collections[colId].image === undefined) {
         logger.info('server.collectionImage.undefiinedImageCollection');
         res.sendStatus(404);
         return;
     }
-    console.log(app.locals.collections[colId].image);
-    res.sendFile(path.join(config.__dirname, config.cacheFolder, app.locals.collections[colId].image.replace('ipfs://', '')));
+    res.sendFile(path.join(config.__dirname, config.cacheFolder, req.app.locals.collections[colId].image.replace('ipfs://', '')));
 }
 
 async function collectionMap(req: Request, res: Response) {
@@ -30,13 +28,13 @@ async function collectionMap(req: Request, res: Response) {
         return;
     }
     const colId:any = req.query.id;
-    if (app.locals.collections[colId].map === undefined) {
+    if (req.app.locals.collections[colId].map === undefined) {
         logger.info('server.collectionImage.undefiinedImageCollection');
         res.sendStatus(404);
         return;
     }
 
-    res.sendFile(path.join(config.__dirname, config.cacheFolder, app.locals.collections[colId].map.replace('ipfs://', '')));
+    res.sendFile(path.join(config.__dirname, config.cacheFolder, req.app.locals.collections[colId].map.replace('ipfs://', '')));
 }
 
 export { collectionImage, collectionMap };

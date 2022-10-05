@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-import { utils, Wallet } from "ethers";
+import { utils, Contract } from "ethers";
 import jwt from "jsonwebtoken";
 
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
-import { app } from "../../app.js";
 import * as dbPos from '../../services/db.js';
 import { tokensOwnedByAddress } from "../information/tokensOwned.js"
 import { RequestCustom } from "../../requestCustom.js"
@@ -53,7 +52,7 @@ async function appLogin(req: Request, res: Response) {
         return res.status(403).json({error: { name: 'invalidSignature', message: 'invalid signature'}});       
     }
 
-    if(! await isAddressOwningToken(login.message.address)) return res.status(403).json({error: { name: 'noTokenOwner', message: 'address is not an owner of a token'}});
+    if(! await isAddressOwningToken(login.message.address, req.app.locals.token)) return res.status(403).json({error: { name: 'noTokenOwner', message: 'address is not an owner of a token'}});
 
     const token = jwt.sign({ id: login.message.appId, address: login.message.address }, config.secret, { expiresIn: config.jwtExpiry });
     return  res.status(200).json({ appId: login.message.appId, accessToken: token });
@@ -83,8 +82,8 @@ async function appLoginDrop(req: RequestCustom, res: Response) {
 // - address: the owner's address
 //
 // This function checks the Ethereum logs to find out whether the address is owning a token or not.
-async function isAddressOwningToken(address: string) {
-    let ret = await tokensOwnedByAddress(address || "", app.locals.token);
+async function isAddressOwningToken(address: string, contract: Contract) {
+    let ret = await tokensOwnedByAddress(address || "", contract);
     return ret.length != 0;
 }
 
