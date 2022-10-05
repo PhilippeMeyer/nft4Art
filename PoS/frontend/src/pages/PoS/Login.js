@@ -16,7 +16,7 @@ import {browserName, browserVersion} from 'react-device-detect';
 import { useDispatch } from 'react-redux'
 import { storeJwt, startConnecting, storeDevice } from '../../store/tokenSlice'
 
-import logo from './nft.png';
+import logo from './nft2art.png';
 
 const httpServer = process.env.REACT_APP_SERVER;
 const deviceItemId = 'nft4ArtPosId';
