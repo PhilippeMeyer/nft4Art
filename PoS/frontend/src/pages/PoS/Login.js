@@ -86,7 +86,7 @@ function Login() {
                     localStorage.setItem(deviceItemId, JSON.stringify(obj, filterPassword)); 
                 }
                 dispatch(storeJwt(responseJson.accessToken));
-                dispatch(startConnecting());
+                dispatch(startConnecting(responseJson.accessToken));
                 if (pwd !== undefined) navigate('/manager/tokens')
                 else navigate('/sales/selectCollection');
             }

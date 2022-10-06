@@ -13,7 +13,10 @@ import expressWinston from "express-winston";
 import "dotenv/config";
 import path from "path";
 import { fileURLToPath } from "url";
+import parseUrl from 'parse-url';
 import { waitFor } from "./waitFor.js";
+import jwt from "jsonwebtoken";
+
 
 import { init } from "./init.js";
 import { RequestCustom } from "./requestCustom.js"
@@ -550,25 +553,21 @@ export class LockMessage {
 wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
     const extWs = ws as ExtWebSocket;
 
-    extWs.address = req.socket.remoteAddress as string;
-    logger.info("server.ws.connection %s", extWs.address);
-    const pos: any = registeredPoS.findOne({ ip: extWs.address });
-    if (pos == null) {
-        logger.warn("server.ws.connection.rejected %s", extWs.address);
-        ws.close();
-        return;
-    }
-    if (!pos.authorized) {
-        logger.warn("server.ws.connection.unauthorized %s", extWs.address);
-        ws.close();
-        return;
-    }
+    console.log('url received', req.url);
+    const reqUrl = parseUrl(req.url as string);
+    console.log('received URL:', reqUrl);
+    var token = reqUrl.query.token;
+    console.log('Received token', token);
 
-    pos.isConnected = true;
-    registeredPoS.update(pos);
-    extWs.pos = pos;
+    jwt.verify(token, config.secret, (err: any, decoded: any) => {
+        if (err) {
+            const status = err.name == "TokenExpiredError" ? 401 : 403;
+            logger.warn('server.ws.connection.rejected.errorToken %s', err.name);
+            ws.close();
+        }
 
-    extWs.isAlive = true;
+        extWs.isAlive = true;
+    });
 
     extWs.on("pong", () => {
         extWs.isAlive = true;
@@ -576,14 +575,14 @@ wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
 
     extWs.on("error", (err) => {
         logger.warn("server.ws.disconnection %s %s", err, extWs.address);
-        extWs.pos.isConnected = false;
-        registeredPoS.update(pos);
+        //extWs.pos.isConnected = false;
+        //registeredPoS.update(pos);
     });
 
     extWs.on("close", (code: any, buffer: any) => {
         logger.info("server.ws.close %s", buffer);
-        extWs.pos.isConnected = false;
-        registeredPoS.update(pos);
+        //extWs.pos.isConnected = false;
+        //registeredPoS.update(pos);
     });
 });
 
