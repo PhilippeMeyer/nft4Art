@@ -5,6 +5,7 @@ create table registeredPoS (
     browser text,
     browserVersion text,
     ip text,
+    isConnected integer,
     createdOn datetime default current_timestamp);
 
 create table tokens (

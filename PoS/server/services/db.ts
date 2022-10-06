@@ -31,6 +31,10 @@ const findRegisteredPos = function(deviceId: string) {
     return findOne('registeredPoS', 'deviceId', deviceId);
 };
 
+const findRegisteredPosByIp = function(ip: string) {
+    return findOne('registeredPoS', 'ip', ip);
+};
+
 const insertNewPos = function(posObj: any) {
     posObj.namePoS = "undefined";
     const {deviceId, authorized, namePoS, browser, browserVersion, ip} = posObj;
@@ -42,6 +46,10 @@ const insertNewPos = function(posObj: any) {
 
 const updateAuthorizedRegisteredPos = function(id: string, authorized: string) {
     db.prepare('UPDATE registeredPoS SET authorized=? WHERE deviceId=?').run([authorized ? 1 : 0, id]);
+}
+
+const updateConnectedRegisteredPos = function(id: string, connected: boolean) {
+    db.prepare('UPDATE registeredPoS SET isConnected=? WHERE deviceId=?').run([connected ? 1 : 0, id]);
 }
 
 const updateIpRegisteredPos = function(id: string, ip: string) {
@@ -130,7 +138,7 @@ const findAllQuestionnaire = function() {
 }
 
 export {    initDb, closeDb, 
-            findRegisteredPos, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos,
+            findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos,
             findToken, insertNewToken, updatePriceToken, updateLockToken,
             findAppId, insertNewAppId, updateNonceAppId, removeAppId,
             insertNewSmartContract, findAllSmartContracts,
