@@ -10,7 +10,7 @@ const timeout = process.env.REACT_APP_SALES_TIMEOUT;
 const lockUrl = httpServer + 'lockUnlock?';
 
 
-function TokenSale() {
+function TokenSaleFiat() {
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const location = useLocation();
@@ -58,4 +58,4 @@ function TokenSale() {
     );
 }
 
-export default TokenSale;
+export default TokenSaleFiat;
