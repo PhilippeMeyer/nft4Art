@@ -17,7 +17,7 @@ export default async function generateAnimatedGif(collection:any, filename:strin
                 end_image.delay(100);
             }
         });
-        end_image.write(path.join(cacheFolder,filename), function(err){
+        end_image.write(path.join(cacheFolder,filename), function(err:any){
             if (err) {
                 logger.error("server.generate.animatedGif.created %s", err);
                 reject();
