@@ -3,14 +3,14 @@ import { startConnecting, connectionEstalished, updatePrice, updateLock } from '
 
 const wsServer = process.env.REACT_APP_WS_SERVER || "wss://" + window.location.host;
 
-const wsMiddleware = jwt => store => next => action => {
-    let ws;
+const wsMiddleware = store => next => action => {
+    let ws, jwt;
 
 
     if(startConnecting.match(action)) {
         if (store.getState().token.isEstablishingConnection) return next(action);
-        console.log('jwt:', jwt, 'server:', wsServer);
-        ws  = new WebSocket(wsServer + 'ws?token=' + jwt);
+
+        ws  = new WebSocket(wsServer + 'ws?token=' + store.getState().token.jwt);
 
         ws.onopen = () => {
             console.log('ws open');

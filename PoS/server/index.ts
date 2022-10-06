@@ -13,7 +13,6 @@ import expressWinston from "express-winston";
 import "dotenv/config";
 import path from "path";
 import { fileURLToPath } from "url";
-import parseUrl from 'parse-url';
 import { waitFor } from "./waitFor.js";
 import jwt from "jsonwebtoken";
 
@@ -553,11 +552,7 @@ export class LockMessage {
 wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
     const extWs = ws as ExtWebSocket;
 
-    console.log('url received', req.url);
-    const reqUrl = parseUrl(req.url as string);
-    console.log('received URL:', reqUrl);
-    var token = reqUrl.query.token;
-    console.log('Received token', token);
+    var token:string = req.url?.replace('/ws?token=','') || '';
 
     jwt.verify(token, config.secret, (err: any, decoded: any) => {
         if (err) {
@@ -566,6 +561,7 @@ wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
             ws.close();
         }
 
+        logger.info('server.ws.connection.accepted');
         extWs.isAlive = true;
     });
 
