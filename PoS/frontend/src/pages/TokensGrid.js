@@ -59,16 +59,19 @@ function TokenGrid({ collectionId }) {
   const loadData = () => {
     if (jwt !== undefined)
       fetchData(jwt) 
-      .then((tokens) => { 
-          dispatch(loadTokens(tokens)); 
-          setFilteredTokens(tokens.filter(elt => elt.collectionId == collectionId))
+      .then((tks) => { 
+          tks.forEach((tk, index) => tk.index = index);
+          dispatch(loadTokens(tks)); 
+          setFilteredTokens(tks.filter(elt => elt.collectionId == collectionId))
       })
       .catch((error) => { enqueueSnackbar('Error loading the tokens'); console.error(error); });
   };
 
   const onclick = (event) => {
-    console.log(filteredTokens);
-    setSelected(filteredTokens.find((elt) => elt.id == event.target.id));
+    const sel = filteredTokens.find((elt) => elt.id == event.target.id);
+    if(tokens[sel.index].isLocked) return;
+
+    setSelected(sel);
     setOpen(true);
   };
 
@@ -109,7 +112,7 @@ function TokenGrid({ collectionId }) {
     <>
           <ImageList cols={defineColumns()}>
             {filteredTokens.map((token) => (
-              <ImageListItem key={token.id} style={{cursor:token.isLocked ? "not-allowed" : "default"}}>
+              <ImageListItem key={token.id} style={{cursor:tokens[token.index].isLocked ? "not-allowed" : "default"}}>
                 <img
                   src={token.iconUrl}
                   alt={token.description}
