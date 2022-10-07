@@ -38,7 +38,7 @@ let msg: AppLogin = {
 
 describe('Testing logging in as a mobile app', function() {
 
-    it('Attempt to connect and register to the server' , async function() {
+    it('Attempt to connect and register to the server with address: ' + wallet.address , async function() {
 
         const res = await fetch(url, {
             method: 'POST',

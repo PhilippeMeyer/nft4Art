@@ -10,7 +10,7 @@ const wsMiddleware = store => next => action => {
     if(startConnecting.match(action)) {
         if (store.getState().token.isEstablishingConnection) return next(action);
 
-        ws  = new WebSocket(wsServer + 'ws?token=' + store.getState().token.jwt);
+        ws  = new WebSocket(wsServer + 'ws?token=' + store.getState().token.jwt + '&deviceId=' + store.getState().token.device.device.deviceId);
 
         ws.onopen = () => {
             console.log('ws open');

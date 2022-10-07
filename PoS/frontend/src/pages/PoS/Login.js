@@ -21,6 +21,24 @@ import logo from './nft2art.png';
 const httpServer = process.env.REACT_APP_SERVER;
 const deviceItemId = 'nft4ArtPosId';
 
+
+//
+// Login
+// login screen for the PoS
+//
+// The login offers two possible route: login as manager or login as sales
+//
+// The first connection on a new point of dale has to be performed as a maneger in order to register the point of sale in the system
+// The password used by the manager is the wallet password on the server. Providing the password and openning a PoS has a manageer loads the
+// wallet on the server side
+//
+// The device structure stored in local storage contains
+//  - deviceId : unique device identifier
+//  - browser: name of the browser used
+//  - browserVersion
+//
+
+
 function Login() {
     const [open, setOpen] = React.useState(false);
     const [password, setPassword] = React.useState();
@@ -38,7 +56,7 @@ function Login() {
         let device = localStorage.getItem(deviceItemId);
         if(device != null) {
           let dev = JSON.parse(device);
-          setDeviceId(JSON.parse(device));
+          setDeviceId(dev);
           dispatch(storeDevice(dev));
         }
     };

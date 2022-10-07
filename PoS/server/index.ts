@@ -552,7 +552,16 @@ export class LockMessage {
 wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
     const extWs = ws as ExtWebSocket;
 
-    var token:string = req.url?.replace('/ws?token=','') || '';
+    const url = new URL(req.url || '', 'http://example.com');
+    const token:string = url.searchParams.get('token') || '';
+    const deviceId:string = url.searchParams.get('deviceId') || '';
+    const pos = dbPos.findRegisteredPos(deviceId);
+    if (pos == null) { 
+        logger.warn('server.ws.connection.noregisteredPoS');
+        ws.close();
+        return;
+    }
+    extWs.pos = pos;
 
     jwt.verify(token, config.secret, (err: any, decoded: any) => {
         if (err) {
@@ -560,9 +569,10 @@ wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
             logger.warn('server.ws.connection.rejected.errorToken %s', err.name);
             ws.close();
         }
-
-        logger.info('server.ws.connection.accepted');
+        dbPos.updateConnectedRegisteredPos(deviceId, true);
         extWs.isAlive = true;
+
+        logger.info('server.ws.connection.accepted deviceId: %s', deviceId);
     });
 
     extWs.on("pong", () => {
@@ -571,14 +581,14 @@ wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
 
     extWs.on("error", (err) => {
         logger.warn("server.ws.disconnection %s %s", err, extWs.address);
-        //extWs.pos.isConnected = false;
-        //registeredPoS.update(pos);
+        extWs.pos.isConnected = false;
+        dbPos.updateConnectedRegisteredPos(extWs.pos.deviceId, false);
     });
 
     extWs.on("close", (code: any, buffer: any) => {
         logger.info("server.ws.close %s", buffer);
-        //extWs.pos.isConnected = false;
-        //registeredPoS.update(pos);
+        extWs.pos.isConnected = false;
+        dbPos.updateConnectedRegisteredPos(extWs.pos.deviceId, false);
     });
 });
 
