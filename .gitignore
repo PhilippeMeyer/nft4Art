@@ -14,6 +14,8 @@ PoS/server/package-lock.json
 PoS/server/*.keys
 PoS/server/cids-created.txt
 PoS/server/public/sample-mp4-file.mp4
+PoS/server/utils/**.js
+PoS/server/utils/transfer.json
 /client/.pnp
 /client/.pnp.js
 /client/coverage
