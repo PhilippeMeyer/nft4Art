@@ -25,6 +25,7 @@ import './Map.css';
 
 import NavbarManager from "./NavbarManager";
 import { storeJwt, loadTokens } from '../store/tokenSlice'
+import { toBeEnabled } from "@testing-library/jest-dom/dist/matchers";
 
 const httpServer = process.env.REACT_APP_SERVER;
 const imageSize = 200;
@@ -66,6 +67,7 @@ function TokenGrid({ collectionId }) {
   };
 
   const onclick = (event) => {
+    console.log(filteredTokens);
     setSelected(filteredTokens.find((elt) => elt.id == event.target.id));
     setOpen(true);
   };
@@ -107,7 +109,7 @@ function TokenGrid({ collectionId }) {
     <>
           <ImageList cols={defineColumns()}>
             {filteredTokens.map((token) => (
-              <ImageListItem key={token.id}>
+              <ImageListItem key={token.id} style={{cursor:token.isLocked ? "not-allowed" : "default"}}>
                 <img
                   src={token.iconUrl}
                   alt={token.description}

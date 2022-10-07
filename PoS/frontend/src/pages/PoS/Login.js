@@ -30,7 +30,8 @@ const deviceItemId = 'nft4ArtPosId';
 //
 // The first connection on a new point of dale has to be performed as a maneger in order to register the point of sale in the system
 // The password used by the manager is the wallet password on the server. Providing the password and openning a PoS has a manageer loads the
-// wallet on the server side
+// wallet on the server side. It has to be done before any further operation.
+//
 //
 // The device structure stored in local storage contains
 //  - deviceId : unique device identifier
@@ -61,7 +62,7 @@ function Login() {
         }
     };
 
-    const characteristicsDevice = () => {
+    var characteristicsDevice = () => {
         return { 
             device: {
                 deviceId: uuidv4(),
@@ -91,7 +92,7 @@ function Login() {
 
     const performLogin = async(pwd) => {
         let obj = deviceId == null ? characteristicsDevice() : deviceId;
-        if (typeof pwd != 'undefined') obj.password = pwd;
+        if (typeof pwd != 'undefined') obj = {device: obj.device, password: pwd};
          
         try {
             const response = await fetch(httpServer + 'apiV1/auth/signin', { method: 'POST', body: JSON.stringify(obj), headers: {"Content-type": "application/json;charset=UTF-8"}});

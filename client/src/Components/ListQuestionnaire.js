@@ -30,7 +30,7 @@ export default function ListQuestionnaire() {
     const navigate = useNavigate();
 
     useEffect(() => {
-
+        const jwt = JSON.parse(window.localStorage.getItem('jwt'));
         loadQuestionnaires();
 
     }, []);
@@ -53,7 +53,7 @@ export default function ListQuestionnaire() {
     };
 
     async function fetchData(jwt) {
-        const response = await fetch(urlListQuestionnaire, { method: 'GET', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }});
+        const response = await fetch(urlListQuestionnaire, { method: 'GET', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt}});
         const responseJson = await response.json();
         console.log(responseJson);
         return (responseJson);

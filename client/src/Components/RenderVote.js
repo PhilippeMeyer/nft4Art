@@ -58,6 +58,10 @@ export default function RenderVote() {
                 setItems(questionList.items);
                 setHeader(questionList.header);
             }
+            else if(window.nft4art_vote !== undefined) {
+                setItems(window.nft4art_vote.items);
+                setHeader(window.nft4art_vote.headers);
+            }
             else loadVote();
         } else {
             setItems(location.state.vote.items);

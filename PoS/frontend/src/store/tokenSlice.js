@@ -21,6 +21,7 @@ export const tokenSlice = createSlice({
 
     loadTokens: (state, action) => {
       state.data = action.payload;
+      console.log('tokens loaded:', state.data);
     },
 
     loadCollections: (state, action) => {
@@ -54,11 +55,14 @@ export const tokenSlice = createSlice({
     updateLock: (state, action) => {
       
       let index;
-      if (action.payload.id !== undefined) index = parseInt(action.payload.id.slice(42));    // This is a server update
-      else return;
+      if (action.payload.id === undefined) return;
 
+      //index = parseInt(action.payload.id.slice(42));    // This is a server update
+      console.log('tokens:', JSON.stringify(state.data));
+      const ind = state.data.findIndex((elt) => elt.id === action.payload.id )
+      console.log('index received:', ind);
       const newTokens = [...state.data];
-      newTokens[index].isLocked = action.payload.isLocked;
+      newTokens[ind].isLocked = action.payload.isLocked;
       state.data = newTokens;
     },
   },

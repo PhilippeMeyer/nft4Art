@@ -13,7 +13,7 @@ const priceUrl = httpServer + 'apiV1/priceInCrypto?';
 const QRcode = httpServer + 'QRcode';
 
 
-function TokenSale() {
+function TokenSaleEth() {
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const location = useLocation();
@@ -92,4 +92,4 @@ function TokenSale() {
     );
 }
 
-export default TokenSale;
+export default TokenSaleEth;

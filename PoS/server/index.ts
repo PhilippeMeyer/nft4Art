@@ -170,7 +170,11 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server: server });
 
 app.use(express.static("public"));
+app.use('/client',(req, res, next) => {
+    res.sendFile(path.join(__dirname, "build", "index.html"));
+});
 app.use(express.static("build"));
+
 app.use(cors());
 //app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

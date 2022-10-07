@@ -16,7 +16,7 @@ import { config } from "../../config.js"
 
 function threeDmodel(req: RequestCustom, res: Response) {
     if (req.query.tokenId === 'undefined') {
-      logger.warn('server.threeDmodel.missingTokenId %s', req.address);
+      logger.warn('server.threeDmodel.missingTokenId for address: %s', req.address);
       res.sendStatus(400);
       return;
     }
