@@ -28,7 +28,7 @@ function TokenTransfer() {
     console.log('cancel');
     const params = new URLSearchParams({id: token.id, lock: false})
     fetch(lockUrl + params.toString(), { method: 'PUT', headers: jwtHeader });
-    navigate('/sales/map');
+    navigate('/sales/selectCollection');
   };
 
   const transfer = () => {
@@ -36,12 +36,12 @@ function TokenTransfer() {
     fetch(tfrUrl, { method: 'POST', headers: jwtHeader, body: JSON.stringify({tokenAddr: token.addr, tokenId: token.tokenIdStr, destinationAddress: location.state.address}) })
       .then(() =>  { 
         enqueueSnackbar('Initiated transfer token to :' + location.state.address);
-        setTimeout( () => navigate('/sales/map'), 2000);
+        setTimeout( () => navigate('/sales/selectCollection'), 2000);
       })
       .catch((error) => { 
         enqueueSnackbar('Error in transfer token :' + error); 
         console.error(error); 
-        setTimeout( () => navigate('/sales/map'), 2000);
+        setTimeout( () => navigate('/sales/selectCollection'), 2000);
       });
   };
 
