@@ -6,11 +6,18 @@
     "type": "module",
     "scripts": {
         "start": "tsc && node index.js",
-        "test": "mocha ./test/*.js",
-        "testSignin": "mocha ./test/posLoginManager.js",
-        "testTokenList": "mocha ./test/tokenList.js",
-        "vote": "mocha ./test/vote.js",
-        "voteSimul": "mocha ./test/voteSimul.js"
+        "test": "tsc && concurrently -n server,tests --kill-others \"npm start\" \"wait-on tcp:8999 && mocha ./test/*.js\"",
+        "test:pos-signin": "tsc && concurrently -n server,tests --kill-others \"npm start\" \"wait-on tcp:8999 && mocha ./test/posLoginManager.js\"",
+        "test:app-signin": "tsc && concurrently -n server,tests --kill-others \"npm start\" \"wait-on tcp:8999 && mocha ./test/appLogin.js\"",
+        "test:tokenList": "tsc && concurrently -n server,tests --kill-others \"npm start\" \"wait-on tcp:8999 && mocha ./test/tokenList.js\"",
+        "test:vote": "tsc && concurrently -n server,tests --kill-others \"npm start\" \"wait-on tcp:8999 && mocha ./test/vote.js\"",
+        "test:voteSimul": "tsc && concurrently -n server,tests --kill-others \"npm start\" \"wait-on tcp:8999 && mocha ./test/voteSimul.js\"",
+        "local-test": "tsc && mocha ./test/*.js",
+        "local-test:pos-signin": "tsc && mocha ./test/posLoginManager.js",
+        "local-test:app-signin": "tsc && mocha ./test/appLogin.js",
+        "local-test:tokenList": "tsc && mocha ./test/tokenList.js",
+        "local-test:vote": "tsc && mocha ./test/vote.js",
+        "local-test:voteSimul": "tsc && mocha ./test/voteSimul.js"
     },
     "repository": {
         "type": "git",
@@ -79,11 +86,13 @@
         "@types/ws": "^8.5.3",
         "chai": "^4.3.6",
         "chai-http": "^4.3.0",
+        "concurrently": "^7.4.0",
         "mocha": "^10.0.0",
         "mockery": "^2.1.0",
         "prettier": "^2.7.1",
         "solc": "^0.8.17",
-        "typescript": "^4.7.4"
+        "typescript": "^4.7.4",
+        "wait-on": "^6.0.1"
     },
     "engines": {
         "npm": "^7.0.0",
