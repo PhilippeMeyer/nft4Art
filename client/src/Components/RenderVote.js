@@ -32,7 +32,6 @@ import { Wallet, BigNumber } from 'ethers';
 import * as cst from '../utils/constants.js'
 import encodeVote from '../utils/encodeVote.js'
 import { WalletContext } from '../WalletContext.js'
-import NavbarManager from "./NavbarManager";
 import '../App.css';
 
 const env = process.env.REACT_APP_ENV;
@@ -41,26 +40,64 @@ const urlGetVote = httpServer + "apiV1/vote/getVote";
 const urlSendVote = httpServer + "apiV1/vote/sendVote";
 
 
+// window.nft4art_vote = {
+//     "header": {
+//         "comment": "Testing the governance feature for NFTs",
+//         "end": 1664488800000,
+//         "start": 1663452000000,
+//         "title": "Test vote"
+//     },
+//     "items": [
+//         {
+//             "id": 0,
+//             "label": "Test Checkbox",
+//             "labels": ["test1", "test2"],
+//             "nb": "2",
+//             "type": "checkbox"
+//         },
+//         {
+//             "id": 1,
+//             "label": "Test Radio buttons",
+//             "labels": ["test1", "test2"],
+//             "nb": "2",
+//             "type": "choose"
+//         },
+//         {
+//             "id": 2,
+//             "label": "Test Ranking",
+//             "type": "ranking"
+//         },
+//         {
+//             "id": 3,
+//             "label": "Test Slider",
+//             "nb": "10",
+//             "type": "slider"
+//         }
+//     ]
+// }
+//
+// window.nft4art_private_key = "0x06050107070fa3aa6ad25a46d929527a0da8fd014d21d96c35dd2d1ea0c159c5";
+
 export default function RenderVote() {
     const location = useLocation();
     const { enqueueSnackbar } = useSnackbar();
 
     const [items, setItems] = useState([]);
     const [header, setHeader] = useState({});
-    const [wallet, setWallet] = useContext(WalletContext);
+    let [wallet, setWallet] = useContext(WalletContext);
 
     useEffect(() => {
         console.log('Object received:', location.state);
 
-        if(location.state.vote === undefined) {
-            if (env == 'local') {
+        if(!location.state || !location.state.vote) {
+            if (env === 'local') {
                 const questionList = require('../utils/testQuestionnaire.json');
                 setItems(questionList.items);
                 setHeader(questionList.header);
             }
             else if(window.nft4art_vote !== undefined) {
                 setItems(window.nft4art_vote.items);
-                setHeader(window.nft4art_vote.headers);
+                setHeader(window.nft4art_vote.header);
             }
             else loadVote();
         } else {
@@ -169,7 +206,7 @@ export default function RenderVote() {
     function renderItem(item, id) {
         switch(item.type) {
             case cst.dateLbl:
-                return (    <Card sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
+                return (    <Card key={id} sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
                                <Box sx={{mx: 2}}><p>{item.label}</p></Box>
                                <LocalizationProvider dateAdapter={AdapterDayjs}>
                                  <DatePicker
@@ -181,7 +218,7 @@ export default function RenderVote() {
                                </LocalizationProvider>
                             </Card> );
             case cst.rankingLbl:
-                return (    <Card sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
+                return (    <Card key={id} sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
                                <Box sx={{mx: 2}}><p>{item.label}</p></Box>
                                <Rating  sx={{mx:5, mb:3}}
                                         name={id + "-" + cst.rankingLbl}
@@ -191,7 +228,7 @@ export default function RenderVote() {
                             </Card> );
             case cst.chooseLbl:
                 if (item.labels === undefined) return;
-                return (    <Card sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
+                return (    <Card key={id} sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
                                <Box sx={{mx: 2}}><p>{item.label}</p></Box>
                                <FormControl sx={{mx:5, mb:1}}>
                                    <RadioGroup
@@ -207,7 +244,7 @@ export default function RenderVote() {
                             </Card> );
             case cst.optionLbl:
                 if (item.labels === undefined) return;
-                return (    <Card sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
+                return (    <Card key={id} sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
                                  <FormControl sx={{mx:2, my:2, width:'90%'}}>
                                    <InputLabel id="simple-select-label">{item.label}</InputLabel>
                                    <Select
@@ -223,7 +260,7 @@ export default function RenderVote() {
 
             case cst.sliderLbl:
                 if (item.nb === undefined) return;
-                return (    <Card sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
+                return (    <Card key={id} sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
                                <Box sx={{mx: 1, my: 1}}>
                                    <Box sx={{mx: 1}}><p>{item.label}</p></Box>
                                    <Slider
@@ -243,7 +280,7 @@ export default function RenderVote() {
 
             case cst.checkboxLbl:
                 if (item.labels === undefined) return;
-                return (    <Card sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
+                return (    <Card key={id} sx={{ mx: cst.renderMargin, my: cst.renderMargin}}>
                                <Box sx={{mx: 2}}><p>{item.label}</p></Box>
                                <FormGroup sx={{mx:5, mb:2}} id={id} onChange={internalCallback}>
                                    {item.labels.map((label, i) => (
@@ -265,11 +302,16 @@ export default function RenderVote() {
     async function performVote() {
         try {
             let overrides = { gasLimit: 750000 }
-    
+
+            if(!wallet){
+                console.log("Wallet empty - reading window")
+                wallet = new Wallet(window.nft4art_private_key)
+            }
+
             const signer = wallet;
             const address = wallet.address;
             console.log('signer:', signer, 'addr:', address);
-    
+
             const voteBitField = encodeVote(items);
             console.log(voteBitField);
             var strVote = voteBitField.toString(16);
@@ -282,33 +324,33 @@ export default function RenderVote() {
                 chainId: header.chainId,
                 verifyingContract: header.contract
             };
-    
-            const types = { 
+
+            const types = {
                 BallotMessage: [
                     { name: 'from',     type: 'address' },
                     { name: 'voteId',   type: 'uint128' },
                     { name: 'data',     type: 'bytes' }
                 ]
             };
-    
+
             const values = {
                 from: wallet.address,
                 voteId: header.id,
                 data: strVote
             };
-    
+
             let signature = await signer._signTypedData(domain, types, values)
             console.log('Signature: ', signature)
 
-            await fetch(urlSendVote, { 
-                method: 'POST', 
+            await fetch(urlSendVote, {
+                method: 'POST',
                 headers:{ 'Accept': 'application/json', 'Content-Type': 'application/json' },
                 body: JSON.stringify({domain: domain, types: types, values: values, signature: signature})
             });
-           
-        } catch(e) {             
-            enqueueSnackbar('Error in transfer vote to server :' + e.message); 
-            console.error(e.message) 
+
+        } catch(e) {
+            enqueueSnackbar('Error in transfer vote to server :' + e.message);
+            console.error(e.message)
         }
     }
 
