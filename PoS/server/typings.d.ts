@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 export type DeviceResponse = {
     password: string;
     device: DeviceFromClient;
@@ -55,4 +57,10 @@ export type registeredPosRecord = {
     browser: string;
     browserVersion: string;
     ip: string;
+}
+export interface RequestCustom extends Request {
+    deviceId?: string;
+    manager?: string;
+    address?: string;
+    appId?: string;
 }

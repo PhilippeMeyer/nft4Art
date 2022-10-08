@@ -137,10 +137,17 @@ const findAllQuestionnaire = function() {
     return db.prepare('SELECT voteId,cid,checksum,jsonData FROM voteQuestionnaire').all([]);
 }
 
+const insertSaleEvent = function( typeMsg:string, id:string, isLocked:number, destinationAddr:string, isStored:number, isTransferred:number, isFinalized:number, txId:string, error:string ) {
+    const stmt = db.prepare('INSERT INTO salesEvents (typeMsg, id, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const params = [typeMsg, id, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error];
+    const result = stmt.run(params);
+}
+
 export {    initDb, closeDb, 
             findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos,
             findToken, insertNewToken, updatePriceToken, updateLockToken,
             findAppId, insertNewAppId, updateNonceAppId, removeAppId,
             insertNewSmartContract, findAllSmartContracts,
             insertNewVote, findOneVote, findAllVote,
-            insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire };
+            insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire,
+            insertSaleEvent };

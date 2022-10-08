@@ -18,7 +18,6 @@ import jwt from "jsonwebtoken";
 
 
 import { init } from "./init.js";
-import { RequestCustom } from "./requestCustom.js"
 import { logConf, logger } from "./loggerConfiguration.js";
 
 import * as dbPos from './services/db.js';
@@ -41,7 +40,8 @@ import { batchMintTokenFromFiles, batchMintStart, batchMintFinalize } from "./en
 import { collectionImage, collectionMap } from "./endPoints/token/collectionImage.js";
 import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/Questionnaire.js";
 import { sendVote, getVotes } from "./endPoints/vote/vote.js";
-import { DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
+import { transfer } from "./endPoints/sale/transfer.js"
+import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
 
 
 // TODO: Env var?
@@ -303,93 +303,7 @@ app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCust
     res.status(200).json({contractAddress: contract.address});   
   });
   
-//
-// /apiV1/sale/transfer, parameters: the token's id and the destination address
-//
-// This end point transfers the specified token to the new owner.
-// It performs the Blockchain transaction
-//
-app.post("/apiV1/sale/transfer", verifyToken, async function (req: RequestCustom, res: Response) {
-    const tokenAddr: string = req.body.tokenAddr;
-    const tokenId: string = req.body.tokenId;
-    const destinationAddr: string = req.body.destinationAddress;
-    console.log("transfer tokenId: ", tokenAddr, tokenId, destinationAddr);
-
-    logger.info("server.transfer.requested - token: %s, destination: %s", tokenId, destinationAddr);
-    const saleEvent: SaleEventRecord = {
-        typeMsg: "transferRequest",
-        id: req.body.id as string,
-        isLocked: true,
-        destinationAddr,
-    };
-    saleEvents.insert(saleEvent);
-
-    let tokenWithSigner = app.locals.token.connect(app.locals.wallet);
-    console.log(tokenWithSigner);
-    console.log("token");
-    console.log(app.locals.token);
-    console.log("wallet");
-    console.log(app.locals.wallet);
-    tokenWithSigner
-        .safeTransferFrom(app.locals.wallet.address, destinationAddr, tokenId, 1, [])
-        .then((transferResult: TransactionResponse) => {
-            res.sendStatus(200);
-            const saleEvent: SaleEventRecord = {
-                typeMsg: "transferInitiated",
-                id: req.body.tokenId as string,
-                isLocked: true,
-                destinationAddr,
-                isTransferred: true,
-            };
-            saleEvents.insert(saleEvent);
-            logger.info("server.transfer.initiated - token: %s, destination: %s", tokenId, destinationAddr);
-            transferResult.wait().then((transactionReceipt: TransactionReceipt) => {
-                const saleEvent: SaleEventRecord = {
-                    typeMsg: "transferCompleted",
-                    id: req.body.tokenId as string,
-                    isLocked: true,
-                    destinationAddr,
-                    isTransferred: true,
-                    isFinalized: true,
-                    txId: transactionReceipt.transactionHash,
-                };
-
-                saleEvents.insert(saleEvent);
-                logger.info(
-                    "server.transfer.performed token %s destination %s - TxHash: %s",
-                    tokenId,
-                    destinationAddr,
-                    transactionReceipt.transactionHash,
-                );
-                // Update the balance once the transfer has been performed
-                app.locals.token.balanceOf(app.locals.wallet.address, tokenId).then((balance: any) => {
-                    const tk = app.locals.metasMap.get(tokenAddr + tokenId);
-                    if (tk != null) {
-                        tk.availableTokens = balance.toString();
-                        if (balance.isZero()) {
-                            tk.isLocked = true;
-                            sendLock(tokenId, true);
-                        }
-                    }
-                });
-            });
-        })
-        .catch((error: errors) => {
-            res.status(412).json(error);
-            logger.error("server.transfer.error %s", error);
-            const saleEvent: SaleEventRecord = {
-                typeMsg: "transferInitiated",
-                id: req.body.tokenId as string,
-                isLocked: true,
-                destinationAddr,
-                isTransferred: false,
-                isFinalized: false,
-                txId: undefined,
-                error,
-            };
-            saleEvents.insert(saleEvent);
-        });
-});
+app.post("/apiV1/sale/transfer", verifyToken, transfer);
 
 //
 // /apiV1/sale/transferEth
@@ -525,7 +439,6 @@ app.post("/apiV1/token/mintIpfsFolder", verifyTokenManager, async function (req:
     } catch(e) { res.status(400).json({error: {name: 'errorMintingTokens', message: 'Error minting the tokens'}}); }
 });
 
-
 interface ExtWebSocket extends WebSocket {
     isAlive: boolean;
     address: string;
@@ -545,7 +458,7 @@ function sendMessage(msg: string) {
     }, 1000);
 }
 
-export { sendMessage };
+export { sendMessage, sendLock };
 
 export class LockMessage {
     public typeMsg: string = "lock";
