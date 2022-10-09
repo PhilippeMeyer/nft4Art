@@ -171,6 +171,8 @@ async function loadToken(token: Contract, exApp:any ) {
                 dbPos.insertNewToken(data);
             } else {
                 data = JSON.parse(dataFromDb.jsonData);
+                data.price = dataFromDb.price;
+                data.isLocked = dataFromDb.isLocked;
                 logger.info("server.init.loadTokens.fromCache %s", str);
             }
         } catch (error) {
