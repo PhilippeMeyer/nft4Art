@@ -1,17 +1,7 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import { Request, Response } from "express";
-import sharp from 'sharp';
-import { NFTStorage, File, Blob } from 'nft.storage';
-import { filesFromPath } from 'files-from-path'
-import axios from "axios";
-import { Contract, errors, providers, utils, Wallet } from "ethers";
-
-
-import { config } from "../../config.js";
-import { logger } from "../../loggerConfiguration.js";
-import { insertNewVote, findOneVote, insertNewQuestionnaire, findAllQuestionnaire, findAllVote } from '../../services/db.js';
+import {Request, Response} from "express";
+import {Contract} from "ethers";
+import {logger} from "../../loggerConfiguration.js";
+import {findAllVote, findOneVote, insertNewVote} from '../../services/db.js';
 
 
 const overrides = { gasLimit: 750000 };
@@ -52,7 +42,7 @@ async function sendVote(req: Request, res: Response) {
         insertNewVote(values.voteId.hex, values.from, JSON.stringify(values));
         res.sendStatus(200);
 
-    } catch(err:any) { 
+    } catch(err:any) {
         logger.error('server.vote.sendVote.error %s', err.reason);
         res.status(500).json({error: { name: "errorSendVote", message: err.reason }});
     }

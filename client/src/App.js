@@ -33,6 +33,8 @@ function App() {
                         <Route path="/wallet" element={ <WalletCreation />} />
                         <Route path="/vote" element={ <PrivateRoute> <RenderVote /> </PrivateRoute> } />
                         <Route path="/listQuestionnaire" element={ <PrivateRoute> <ListQuestionnaire /> </PrivateRoute> } />
+                        <Route path="/unsecure-vote" element={ <RenderVote />  } />
+                        <Route path="/unsecure-listQuestionnaire" element={  <ListQuestionnaire />  } />
                     </Routes>
                 </div>
             </WalletContext.Provider>
