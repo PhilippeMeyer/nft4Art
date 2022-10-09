@@ -97,8 +97,17 @@ input[type="submit"]:hover {
 }
 
 .title {
-  font-size: 25px;
-  margin-bottom: 20px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 35px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.subTitle {
+  font-family: 'Oswald', sans-serif;
+  font-size: 15px;
+  margin-bottom: 10px;
+  text-align: left;
 }
 
 .input-container {
@@ -113,4 +122,10 @@ input[type="submit"]:hover {
   padding-right: 20px;
   padding-top: 40px;
   padding-bottom: 20px;
+}
+
+.rightAligned {
+  align-items: right;
+  text-align: right;
+  justify-content: right;
 }
