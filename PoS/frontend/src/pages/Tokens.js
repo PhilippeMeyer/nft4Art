@@ -54,7 +54,7 @@ function TablePaginationActions(props) {
   };
 
   return (
-    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+    <Box sx={{ flexShrink: 0, ml: 2.5}}>
       <IconButton
         onClick={handleFirstPageButtonClick}
         disabled={page === 0}
@@ -166,9 +166,9 @@ function Tokens() {
   if (tokens.length == 0 || tokens.length === undefined) return (<><main><NavbarManager /></main></>);
 
   return (
-    <>
-      <main>
-        <Table aria-label="simple table">
+      <Box sx={{width: 4/5, m:5, p:5}}>
+        <h1 className="title">Tokens available for sale</h1><br></br>
+        <Table aria-label="tokens table">
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
@@ -202,9 +202,9 @@ function Tokens() {
               </TableRow>
             )}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
+          <TableFooter className="rightAligned">
+            <TableRow className="rightAligned">
+              <TablePagination className="rightAligned"
                 rowsPerPageOptions={[5, 10, 20, { label: 'All', value: -1 }]}
                 colSpan={3}
                 count={tokens.length}
@@ -224,11 +224,12 @@ function Tokens() {
           </TableFooter>
 
         </Table>
-        <Button onClick={cancel}>Cancel</Button>
-        <Button onClick={save}>Save</Button>
+        <Box>
+          <Button sx={{p:10}} onClick={cancel}>Cancel</Button>
+          <Button sx={{p:10}} onClick={save}>Save</Button>
+        </Box>
         <NavbarManager />
-      </main>
-    </>
+      </Box>
   );
 }
 
