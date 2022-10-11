@@ -26,8 +26,8 @@ import { config } from "./config.js";
 
 import { generateWallets } from "./endPoints/information/generateWallets.js";
 import { tokensOwned } from "./endPoints/information/tokensOwned.js";
-import { threeDmodel } from "./endPoints/information/threeDmodel.js"; 
-import { video } from "./endPoints/information/video.js"; 
+import { threeDmodel } from "./endPoints/information/threeDmodel.js";
+import { video } from "./endPoints/information/video.js";
 import { signin } from "./endPoints/auth/signin.js";
 import { verifyTokenApp } from "./endPoints/auth/verifyTokenApp.js";
 import { verifyToken } from "./endPoints/auth/verifyToken.js";
@@ -171,10 +171,14 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server: server });
 
 app.use(express.static("public"));
+app.use('/client', express.static("build"));
 app.use('/client',(req, res, next) => {
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });
-app.use(express.static("build"));
+app.use('/pos-client', express.static("pos-build"));
+app.use('/pos-client',(req, res, next) => {
+    res.sendFile(path.join(__dirname, "pos-build", "index.html"));
+});
 
 app.use(cors());
 //app.use(express.urlencoded({ extended: true }));
@@ -210,7 +214,7 @@ app.get('/*', function (req :Request, res :Response) {
 
 
 app.post("/apiV1/auth/signin", signin);
-app.post("/apiV1/auth/appLogin", appLogin); 
+app.post("/apiV1/auth/appLogin", appLogin);
 app.post("/apiV1/auth/appLoginDrop", verifyTokenApp, appLoginDrop);
 app.put("/apiV1/auth/authorizePoS", verifyTokenManager, authorizePoS);
 
@@ -223,10 +227,10 @@ app.get('/apiV1/price/priceInCrypto', priceInCrypto);
 app.put("/apiV1/price/update", verifyTokenManager, priceUpdate);
 app.put("/apiV1/price/updates", verifyTokenManager, priceUpdates);
 
-app.post('/apiV1/token/batchMintStart', batchMintStart); 
-app.post('/apiV1/token/batchMintTokenFromFiles', upload.any(), batchMintTokenFromFiles); 
+app.post('/apiV1/token/batchMintStart', batchMintStart);
+app.post('/apiV1/token/batchMintTokenFromFiles', upload.any(), batchMintTokenFromFiles);
 app.post('/apiV1/token/batchMintFinalize', upload.any(), batchMintFinalize);
-app.post('/apiV1/token/addSmartContract', verifyTokenManager, addSmartContract); 
+app.post('/apiV1/token/addSmartContract', verifyTokenManager, addSmartContract);
 app.get('/apiV1/token/collectionImg', collectionImage);
 app.get('/apiV1/token/collectionMap', collectionMap);
 app.get(['/apiV1/token/list', '/tokens'], verifyToken, (req: Request, res: Response) => {
@@ -302,14 +306,14 @@ app.get("/apiV1/log/allEvents", verifyTokenManager, function (req: Request, res:
 //
 app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCustom, res :Response) {
     let contract:any = await createSmartContract(app);
-    res.status(200).json({contractAddress: contract.address});   
+    res.status(200).json({contractAddress: contract.address});
   });
-  
+
 app.post("/apiV1/sale/transfer", verifyToken, transfer);
 
 //
 // /apiV1/sale/transferEth
-// parameters: 
+// parameters:
 //  - the token's id
 //  - the token's address
 //  - destination address (which the address from which the token is going to be paid)
@@ -336,15 +340,15 @@ app.post("/apiV1/sale/transferEth", verifyToken, async function (req: RequestCus
     };
     saleEvents.insert(saleEvent);
 
-    /* 
-    
+    /*
+
     The NFT Smart contract is able to store sales records in the following format:
 
     struct SaleRecord {
         bytes32 buyer;                  // Buyer's address (can also be a bitcoin address)
         uint128 price;                  // Price as an integer
         uint8   decimals;               // Decimals applied to the price
-        bytes3  currency;               // Currency 3 letters Iso country code + ETH and BTC 
+        bytes3  currency;               // Currency 3 letters Iso country code + ETH and BTC
         bytes1  network;                // Network on which the payment is performed
         bytes1  status;                 // Sale's status: initiated, payed, completed, ....
     }
@@ -431,7 +435,7 @@ app.post("/apiV1/token/mintIpfsFolder", verifyTokenManager, async function (req:
         catch(e) {return undefined}
     })
     if (bigIntIds.findIndex(Object.is.bind(null, undefined)) != -1) return res.status(400).json({error: {name: 'invalidId', message: 'One of the Ids to mint is invalid'}});
-    
+
     var amounts = resp.data.Objects[0].Links.map( (item: any) => item.amount === undefined ? constants.One : BigNumber.from(item.amount));
     let tokenWithSigner = app.locals.token.connect(app.locals.wallet);
     try {
@@ -475,7 +479,7 @@ wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
     const token:string = url.searchParams.get('token') || '';
     const deviceId:string = url.searchParams.get('deviceId') || '';
     const pos = dbPos.findRegisteredPos(deviceId);
-    if (pos == null) { 
+    if (pos == null) {
         logger.warn('server.ws.connection.noregisteredPoS');
         ws.close();
         return;
