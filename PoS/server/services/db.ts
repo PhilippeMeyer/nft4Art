@@ -121,9 +121,9 @@ const findAllVote = function(voteId:string) {
     return db.prepare('SELECT voteId,voterAddr,jsonData FROM votes WHERE voteId=?').all([voteId]);
 }
 
-const insertNewQuestionnaire = function(voteId:string, cid: string, checksum:string, jsonData:string) {
-    const stmt = db.prepare('INSERT INTO voteQuestionnaire(voteId,cid,checksum,jsonData) VALUES (?, ?, ?, ?)');
-    const params = [voteId, cid, checksum, jsonData];
+const insertNewQuestionnaire = function(voteFullId:string, voteId:string, cid: string, checksum:string, jsonData:string) {
+    const stmt = db.prepare('INSERT INTO voteQuestionnaire(voteFullId,voteId,cid,checksum,jsonData) VALUES (?, ?, ?, ?, ?)');
+    const params = [voteFullId, voteId, cid, checksum, jsonData];
     const result = stmt.run(params);
 }
 

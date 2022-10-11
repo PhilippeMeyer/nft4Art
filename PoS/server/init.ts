@@ -10,6 +10,7 @@ import * as dbPos from './services/db.js';
 import { createSmartContract } from "./services/createSmartContract.js";
 import { config } from "./config.js"
 import generateAnimatedGif from './services/generateAnimatedGif.js'
+import { getVotes } from "./endPoints/vote/vote.js";
 
 //
 // Server initialization
@@ -58,6 +59,7 @@ async function init(exApp: any, config: any) {
     
     token = await new Contract(tokenList[0].addressEth, exApp.locals.gvdNftDef.abi, exApp.locals.ethProvider);
     loadToken(token, exApp);
+    loadQuestionnaire(exApp);
 }
 
 async function loadToken(token: Contract, exApp:any ) {
@@ -300,6 +302,38 @@ async function loadFromIpfs(cidUrl:string) :Promise<string> {
         logger.warn('server.loadFromIpfs.error %s', cid);
         return '';
     }
+}
+
+const loadQuestionnaire = async (exApp: any) => {
+
+    // Retrieve the past events on this contract to find out which votes have been created
+    const events = await exApp.locals.token.queryFilter( exApp.locals.token.filters.VoteCreated(),  0, "latest" );
+    console.log(events);
+    exApp.locals.votes = [];
+
+    events.forEach((evt:any) => {
+        let voteId: number = evt.args.voteId.toNumber();
+        exApp.locals.token.getVoteById(voteId).then((vote:any) => {
+            const voteId = vote[0].toHexString();
+
+            if (dbPos.findOneQuestionnaire(voteId) == null) {
+                logger.info('server.loadQuestionnaire %s', voteId);
+            
+                loadFromIpfs(vote[1].cid).then((file) => {
+                    if (file != '') {
+                        const jsonData = fs.readFileSync(config.cacheFolder + file);
+                        logger.info('server.insertQuestionnaire %s', voteId);
+                        dbPos.insertNewQuestionnaire(exApp.locals.token.address + voteId, voteId, vote[1].cid, vote[1].hash.toHexString(), jsonData.toString() );
+                        loadVotes(exApp, vote[0]);
+                    }
+                })
+            }
+        });
+    });
+}
+
+const loadVotes = async (exApp: any, voteId : BigNumber) => {
+
 }
 
 export { init, loadToken };

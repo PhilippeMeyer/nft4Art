@@ -47,6 +47,7 @@ create table votes (
 
 create table voteQuestionnaire (
     id integer primary key,
+    voteFullId text,
     voteId text,
     cid text,
     checksum text,

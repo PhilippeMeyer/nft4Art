@@ -38,7 +38,7 @@ async function createQuestionnaire(req: Request, res: Response) {
         const txReceipt = await txResp.wait();
         logger.info('server.vote.voteInserted #%s txHash: %s', newVote.id, txReceipt.transactionHash);
         logger.info('server.vote.voteInsertedIpfs #%s', cid);
-        insertNewQuestionnaire(newVote.header.id.toHexString(), cid, checksum, questionnaireStr);
+        insertNewQuestionnaire(newVote.header.contract + newVote.header.id.toHexString(), newVote.header.id.toHexString(), cid, checksum, questionnaireStr);
         logger.info('server.vote.voteInserted.completed');
 
         res.status(200).json({status: 200, voteId: newVote.header.id.toHexString()});
