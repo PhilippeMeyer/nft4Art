@@ -80,11 +80,8 @@ var saleEvents: any;                        // Database collection of events (lo
 //var wallet: Wallet;                         // Wallet
 //let ethProvider: providers.JsonRpcProvider; // Connection provider to Ethereum
 
-let url1 = import.meta.url;
-console.log("base",url1);
-const __filename = fileURLToPath(url1);
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-console.log("dir",__dirname)
 config.__dirname = __dirname;
 
 // Initialize and configure the logger (winston)
