@@ -16,3 +16,5 @@ PoS/server/.idea
 PoS/server/package-lock.json
 PoS/server/yarn.lock
 PoS/server/nft4art.db
+PoS/server/build
+PoS/server/pos-build

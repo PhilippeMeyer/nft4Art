@@ -1,20 +1,22 @@
-FROM node:16
+FROM node:16 AS build-client
 
 COPY ./client /client
 WORKDIR /client
-RUN npm install && npm run build
+RUN yarn install && yarn run build
 
+FROM node:16 AS build-pos
 COPY ./PoS/frontend /pos-frontend
 WORKDIR /pos-frontend
-RUN npm install && npm run build
+RUN yarn install && yarn run build
 
 
+FROM node:16
 COPY ./PoS/server /app
 WORKDIR /app
-RUN npm install
+RUN yarn install
 
-RUN cp -r /client/build .
-RUN cp -r /pos-frontend/build pos-build
+COPY --from=build-client /client/build /app/build
+COPY --from=build-pos /pos-frontend/build /app/pos-build
 
 RUN ./node_modules/typescript/bin/tsc
 
