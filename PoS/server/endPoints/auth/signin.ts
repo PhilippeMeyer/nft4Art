@@ -6,8 +6,7 @@ import jwt from "jsonwebtoken";
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
 import * as dbPos from '../../services/db.js';
-import { createSmartContract } from "../../services/createSmartContract.js";
-import { loadToken } from "../../init.js"
+import { connectToken, loadToken } from "../../init.js"
 
 //
 // /apiV1/auth/sigin
@@ -120,19 +119,8 @@ async function loadWallet(w: Wallet, pass: string, app: any) {
     logger.info("server.signin.loadedWallet");
     app.locals.passHash = utils.keccak256(utils.toUtf8Bytes(pass));
 
-    if(app.locals.token === undefined) {
-        logger.info('server.signing.loadWallet.createSmartContract');
-        let token = await createSmartContract(app);
-        dbPos.insertNewSmartContract(token.address);
-        loadToken(token, app);
-    }
-
-    app.locals.token = app.locals.token.connect(app.locals.wallet);
-    app.locals.metas.forEach(async (nft: any) => {
-        let balance = await app.locals.token.balanceOf(app.locals.wallet.address, nft.tokenId);
-        nft.availableTokens = balance.toString();
-        if (balance.isZero()) nft.isLocked = true;
-    });
+    if(app.locals.token === undefined) return;
+    else connectToken(w, app);
 }
 
 //

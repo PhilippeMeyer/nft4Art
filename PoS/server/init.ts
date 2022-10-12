@@ -7,10 +7,8 @@ import path from "path";
 
 import { receivedEthCallback } from "./services/receivedEthCallback.js"
 import * as dbPos from './services/db.js';
-import { createSmartContract } from "./services/createSmartContract.js";
 import { config } from "./config.js"
 import generateAnimatedGif from './services/generateAnimatedGif.js'
-import { getVotes } from "./endPoints/vote/vote.js";
 
 //
 // Server initialization
@@ -45,7 +43,7 @@ async function init(exApp: any, config: any) {
     exApp.locals.gvdNftDef = gvdNftDef;
 
     exApp.locals.passHash = "";
-    exApp.locals.wallet = {};
+    exApp.locals.wallet = null;
     exApp.locals.ethProvider = await new providers.InfuraProvider(config.network, config.infuraKey);
 
 
@@ -204,6 +202,8 @@ async function loadToken(token: Contract, exApp:any ) {
         errTimeout = 0;
     }
 
+    if (exApp.locals.wallet !== null) connectToken(exApp.locals.wallet, exApp);
+
     for (key in collections) {
         if (collections[key].map == undefined) {
             generateAnimatedGif(collections[key], key + 'image.gif', metas, config.cacheFolder);
@@ -308,7 +308,6 @@ const loadQuestionnaire = async (exApp: any) => {
 
     // Retrieve the past events on this contract to find out which votes have been created
     const events = await exApp.locals.token.queryFilter( exApp.locals.token.filters.VoteCreated(),  0, "latest" );
-    console.log(events);
     exApp.locals.votes = [];
 
     events.forEach((evt:any) => {
@@ -332,8 +331,19 @@ const loadQuestionnaire = async (exApp: any) => {
     });
 }
 
+const connectToken = async (wallet:Wallet, app:any) => {
+
+    app.locals.token = app.locals.token.connect(app.locals.wallet);
+
+    app.locals.metas.forEach(async (nft: any) => {
+        let balance = await app.locals.token.balanceOf(app.locals.wallet.address, nft.tokenId);
+        nft.availableTokens = balance.toString();
+        if (balance.isZero()) nft.isLocked = true;
+    });
+}
+
 const loadVotes = async (exApp: any, voteId : BigNumber) => {
 
 }
 
-export { init, loadToken };
+export { init, loadToken, connectToken };

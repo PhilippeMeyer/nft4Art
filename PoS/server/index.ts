@@ -41,6 +41,7 @@ import { collectionImage, collectionMap } from "./endPoints/token/collectionImag
 import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/Questionnaire.js";
 import { sendVote, getVotes } from "./endPoints/vote/vote.js";
 import { transfer } from "./endPoints/sale/transfer.js"
+import { addSmartContract } from "./endPoints/token/addSmartContract.js";
 import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
 
 
@@ -224,7 +225,8 @@ app.put("/apiV1/price/updates", verifyTokenManager, priceUpdates);
 
 app.post('/apiV1/token/batchMintStart', batchMintStart); 
 app.post('/apiV1/token/batchMintTokenFromFiles', upload.any(), batchMintTokenFromFiles); 
-app.post('/apiV1/token/batchMintFinalize', upload.any(), batchMintFinalize); 
+app.post('/apiV1/token/batchMintFinalize', upload.any(), batchMintFinalize);
+app.post('/apiV1/token/addSmartContract', verifyTokenManager, addSmartContract); 
 app.get('/apiV1/token/collectionImg', collectionImage);
 app.get('/apiV1/token/collectionMap', collectionMap);
 app.get(['/apiV1/token/list', '/tokens'], verifyToken, (req: Request, res: Response) => {

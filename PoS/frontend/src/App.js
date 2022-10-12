@@ -23,6 +23,7 @@ import RegisteredPoS from './pages/PoS/RegisteredPoS';
 import DisplayVote from "./pages/vote/DisplayVote";
 import ListQuesionnaire from "./pages/vote/ListQuestionnaire";
 import CreateVote  from './pages/vote/CreateVote';
+import Settings from './pages/PoS/Settings';
 
 import './App.css';
 
@@ -44,6 +45,7 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/manager/tokens" element={<PrivateRoute><Tokens /></PrivateRoute>} />
+            <Route path="/manager/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
             <Route path="/manager/wallets" element={<PrivateRoute><Wallets /></PrivateRoute>} />
             <Route path="/manager/contracts" element={<PrivateRoute><Contracts /></PrivateRoute>} />
             <Route path="/manager/createVote" element={<PrivateRoute><CreateVote /></PrivateRoute>} />

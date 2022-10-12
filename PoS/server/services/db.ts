@@ -2,6 +2,8 @@ import sqlite, { Database } from 'better-sqlite3';
 import path from "path";
 import fs from "fs";
 
+import { logger } from "../loggerConfiguration.js";
+
 var db : Database;
 
 function findOne(table: string, fieldName: string, id: string) {
@@ -17,6 +19,7 @@ const initDb =  function(config: any) {
     if (fs.existsSync(dbFile)) db = new sqlite(dbFile, {fileMustExist: true});
     else {
         const script = fs.readFileSync(dbScript);
+        logger.info('server.initDB.creating a newDB applying %s', config.creationScript);
         // TODO Manage the case when the script does not exist
         db = new sqlite(dbFile, {fileMustExist: false});
         db.exec(script.toString());
