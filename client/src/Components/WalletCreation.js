@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
-
 import { Wallet } from 'ethers';
+import { v4 as uuidv4 } from 'uuid';
 
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -13,9 +13,12 @@ import Typography from '@mui/material/Typography';
 
 import { useSnackbar } from 'notistack';
 import { WalletContext } from '../WalletContext.js'
+import { RestartAlt } from '@mui/icons-material';
 
 const httpServer = process.env.REACT_APP_SERVER;
 const urlGetVote = httpServer + 'apiV1/vote/getVote';
+const urlLogin = httpServer + 'apiV1/auth/appLogin';
+
 
 export default function WalletCreation() {
 
@@ -61,8 +64,35 @@ export default function WalletCreation() {
         }
         else if (mode === modeWalletExists) {
             setMode(modeProgress);
-            Wallet.fromEncryptedJson(walletJson, password, progressCallback).then((w) => { setWallet(w); })
+            Wallet.fromEncryptedJson(walletJson, password, progressCallback).then((w) => { 
+                setWallet(w);
+            })
         }
+    }
+
+    const loginServer = async () => {
+        var appId = localStorage.getItem('appId');
+        if (appId == null) {
+            appId = uuidv4();
+            localStorage.setItem('appId', appId);
+        }
+
+        const addr = await wallet.getAddress();
+        const appLoginMessage = { appId: appId, address: addr, nonce: Date.now()};
+        console.log('message: ', JSON.stringify(appLoginMessage));
+        const signature = await wallet.signMessage(JSON.stringify(appLoginMessage));
+        console.log('signature:', signature);
+        let msg = { message: appLoginMessage, signature: signature };
+        
+
+        const res = await fetch(urlLogin, {
+            method: 'POST',  headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify(msg) }); 
+
+        if (res.status !== 200) { console.log('Error login server: ' + res.status); return; }
+        const ret = await res.json();
+        const jwt = ret.accessToken;
+        localStorage.setItem('jwt', jwt);
     }
 
     useEffect(() => { 
@@ -75,7 +105,7 @@ export default function WalletCreation() {
     }, []);
 
     useEffect(() => {
-        if (wallet !== undefined) navigate('/');
+        if (wallet !== undefined) loginServer().then(() => navigate('/'));         
     }, [wallet]);
 
     function CircularProgressWithLabel(props) {

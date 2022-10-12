@@ -19,7 +19,7 @@ import '../App.css';
 
 const env = process.env.REACT_APP_ENV;
 const httpServer = process.env.REACT_APP_SERVER;
-const urlListQuestionnaire = httpServer + "apiV1/vote/listQuestionnaire";
+const urlListQuestionnaire = httpServer + "apiV1/vote/listQuestionnaireForUser";
 
 
 export default function ListQuestionnaire() {
@@ -29,16 +29,18 @@ export default function ListQuestionnaire() {
     const [wallet, setWallet] = useContext(WalletContext);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const jwt = JSON.parse(window.localStorage.getItem('jwt'));
-        loadQuestionnaires();
+    const jwt = window.localStorage.getItem('jwt');
 
+
+    useEffect(() => {
+        loadQuestionnaires();
     }, []);
 
 
     const loadQuestionnaires = async () => {
         try {
-            let list = await fetchData();
+            console.log('jwt: ' + jwt);
+            let list = await fetchData(jwt);
             console.log('questionnaires:', list);
             list.forEach((elt) => {
                 const data = JSON.parse(elt.jsonData);
