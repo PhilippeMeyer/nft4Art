@@ -14,7 +14,7 @@ FROM node:16
 COPY ./PoS/server /app
 WORKDIR /app
 RUN yarn install
-RUN apt-get update && apt-get install imagemagick graphicsmagick
+RUN apt-get update && apt-get install -y imagemagick graphicsmagick
 
 COPY --from=build-client /client/build /app/build
 COPY --from=build-pos /pos-frontend/build /app/pos-build
