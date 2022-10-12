@@ -343,7 +343,14 @@ const connectToken = async (wallet:Wallet, app:any) => {
 }
 
 const loadVotes = async (exApp: any, voteId : BigNumber) => {
+    const ballots = await exApp.locals.token.getBallots(voteId);
+    console.log(ballots);
 
+    for(var i = 0 ; i < ballots.length ; i++) {
+        const voteFullId:string = exApp.locals.token.address + voteId.toHexString();
+        if(dbPos.findOneVote(voteFullId, ballots[i].from) == null)
+            dbPos.insertNewVote(voteFullId, ballots[i].from, JSON.stringify({from: ballots[i].from, voteId: voteId, data: ballots[i].data }));
+    }
 }
 
 export { init, loadToken, connectToken };
