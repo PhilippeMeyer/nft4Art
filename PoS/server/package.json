@@ -47,7 +47,6 @@
         "express": "^4.17.3",
         "express-winston": "^4.2.0",
         "files-from-path": "^0.2.6",
-        "gm": "^1.24.0",
         "ipfs-http-client": "^57.0.3",
         "jsonwebtoken": "^8.5.1",
         "lokijs": "^1.5.12",

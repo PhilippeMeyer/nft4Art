@@ -23,13 +23,15 @@ import { useTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import TokenMap from './TokensMap';
 import TokenGrid from './TokensGrid';
+import ReactAnimateImages from '../services/ReactAnimateImages';
 
-import { loadCollections } from '../store/tokenSlice'
+import { loadCollections, loadTokens } from '../store/tokenSlice'
 
 import './Map.css';
 
 const httpServer = process.env.REACT_APP_SERVER;
-const colUrl = httpServer + 'apiV1/token/collections';
+const collectionUrl = httpServer + 'apiV1/token/collections';
+const tokenUrl = httpServer + 'apiV1/token/list';
 const mapUrlMap = httpServer + 'apiV1/token/collectionMap?collectionId=01';
 
 const lockUrl = httpServer + 'lockUnlock?';
@@ -79,20 +81,44 @@ export default function SelectCollection() {
   // Redux state for the jwt and the tokens
   const jwt = useSelector((state) => state.token.jwt);
   const collections = useSelector((state) => state.token.collections);
+  const tokens = useSelector((state) => state.token.data);
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt };
 
   const loadData = () => {
-    if (jwt !== undefined)
-      fetchData(jwt) 
-      .then((collections) => { dispatch(loadCollections(collections)); })
-      .catch((error) => { enqueueSnackbar('Error loading the collections'); console.error(error); });
-  };
+    if (jwt === undefined) return;
 
-  const onclick = (event) => {
-  };
+    fetchData(tokenUrl, jwt) 
+    .then((tokensData) => { 
+      dispatch(loadTokens(tokensData));
+
+      fetchData(collectionUrl, jwt) 
+      .then((collectionsData) => { 
+        dispatch(loadCollections(collectionsData)); 
+        collectionsData = loadImagesInCollections(collectionsData, tokensData);
+
+        dispatch(loadCollections(collectionsData));
+      })
+      .catch((error) => { enqueueSnackbar('Error loading the collections'); console.error(error); }); 
+    })
+    .catch((error) => { enqueueSnackbar('Error loading the tokens'); console.error(error); });
+};
+
+  const loadImagesInCollections = (collectionsData, tokensData) => {
+    let retValue = Object.assign({}, collectionsData);
+    for (var key in collectionsData) {
+      retValue[key] = collectionsData[key];
+
+      if(collectionsData[key].map === undefined) {
+        let tempvalue = {...collectionsData[key]};
+        tempvalue.images = tokensData.map((token) => {if (token.collectionId == key) return token.iconUrl; }).filter((val) => val !== undefined);
+        retValue[key] = tempvalue;
+      }
+    }
+    return retValue;
+  }
 
   const cardClick = (event) => {
     const allreadyExist = tabs.findIndex((elt) => elt.id == event.target.id);
@@ -149,14 +175,22 @@ export default function SelectCollection() {
               {Object.keys(collections).map((col, index) => (
                 <Grid item key={index}>
                   <Card id={col}>
-                    <CardActionArea onClick={cardClick}>
+                    <CardActionArea id={col} onClick={cardClick}>
+                      {collections[col].map !== undefined ?                       
                       <CardMedia
                         component="img"
-                        height="140"
+                        height="140px"
                         image={collections[col].imageUrl}
                         id={col}
                         alt={col}
-                      />
+                      /> :
+                      <ReactAnimateImages
+                        style={{ height: "140px", width: "100%" }}
+                        images={collections[col].images} 
+                        framInterval={2000} 
+                        id={col}
+                      /> }                     
+                        
                       <CardContent>
                         <React.Fragment>
                           <Typography variant="h5" component="div">
@@ -177,14 +211,8 @@ export default function SelectCollection() {
   );
 }
 
-function fetchData(jwt) {
-  return fetch(colUrl, {
-      method: 'get',
-      headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'authorization': 'Bearer ' + jwt
-      }})
+function fetchData(url, jwt) {
+  return fetch(url, { method: 'GET',  headers: { Accept: 'application/json', 'Content-Type': 'application/json',  authorization: 'Bearer ' + jwt  }})
     .then((response) =>  response.json())
     .then((responseJson) => {
       return (responseJson);

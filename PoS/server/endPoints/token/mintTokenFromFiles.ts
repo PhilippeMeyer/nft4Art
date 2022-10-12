@@ -10,7 +10,6 @@ import { BigNumber, constants, Contract, ContractFactory, errors, providers, uti
 
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
-import generateAnimatedGif from '../../services/generateAnimatedGif.js'
 
 let tmpDir;
 const appPrefix = 'nft4art';
@@ -166,15 +165,7 @@ async function batchMintFinalize(req: Request, res: Response) {
             const files: any[] = req.files as any[];
 
             for (key in newCol) {
-                if (newCol[key].image == undefined) {           // No image of the collection is has been provided. Creating one as an animated GIF
-                    const fileName = key + '.gif';
-                    await generateAnimatedGif(newCol[key], fileName, req.app.locals.batchMintTokens, req.app.locals.batchMintFolder);
-                    let data = fs.readFileSync(path.join(req.app.locals.batchMintFolder, fileName));
-                    var imageCid = await client.storeBlob(new Blob([data]));
-                    newCol[key].image = 'ipfs://' + imageCid;
-                    logger.info('server.batchMintFinalize.createAnimatedGif %s %s', fileName, imageCid);
-                }
-                else {                
+                if (newCol[key].image !== undefined){                
                     const image: any = files.find((file) =>  file.fieldname == newCol[key].image);
                     if(image == null) continue; 
                     var imageCid = await client.storeBlob(new Blob([image.buffer]));

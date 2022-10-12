@@ -8,7 +8,6 @@ import path from "path";
 import { receivedEthCallback } from "./services/receivedEthCallback.js"
 import * as dbPos from './services/db.js';
 import { config } from "./config.js"
-import generateAnimatedGif from './services/generateAnimatedGif.js'
 
 //
 // Server initialization
@@ -203,14 +202,6 @@ async function loadToken(token: Contract, exApp:any ) {
     }
 
     if (exApp.locals.wallet !== null) connectToken(exApp.locals.wallet, exApp);
-
-    for (key in collections) {
-        if (collections[key].map == undefined) {
-            generateAnimatedGif(collections[key], key + 'image.gif', metas, config.cacheFolder);
-            collections[key].image = key + 'image.gif';
-            collections[key].imageUrl = config.imgCollectionUrl + key;
-        }
-    }
 
     // TODO: store incrementally the transfers in the database so that the loading time does not increase over time
     // This can be performed storing the last block id retrieved and re querying from there
