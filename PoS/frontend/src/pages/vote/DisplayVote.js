@@ -229,12 +229,12 @@ export default function DisplayVote() {
     return tempData;
   };
 
-  if (nbVotes === 0) return <></>;
+  if (nbVotes === 0) return <><h1 className="title">No vote for this questionnaire</h1></>;
   else
     return (
       <Box sx={{ display: 'block',  alignItems: 'center', justifyContent: 'center', m: 10 }}>
-        <h1>Vote results</h1><br/><hr/>
-        <h2>Vote taking place from: {formatTime(vote.header.start)} to: {formatTime(vote.header.end)}</h2>
+        <h1 className="title">Vote results</h1><br/><hr/>
+        <h2 className="subTitle">Vote taking place from: {formatTime(vote.header.start)} to: {formatTime(vote.header.end)}</h2>
         <h2>{nbVotes} votes recorded</h2>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }} >
           {vote.items.map((elt, index) => (

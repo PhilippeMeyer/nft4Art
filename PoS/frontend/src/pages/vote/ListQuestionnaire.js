@@ -71,6 +71,7 @@ export default function ListQuestionnaire() {
     return (
     <>
         <main>
+            <h1 className="title">Questionnaires list</h1>
             <Table aria-label="Questionnaires List">
                 <TableHead>
                     <TableRow>
