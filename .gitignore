@@ -30,3 +30,7 @@ PoS/server/utils/transfer.json
 /client/yarn-error.log*
 /client/package-lock.json
 /client/node_modules/
+/PoS/node_modules/
+/.idea/
+/client/.idea/
+/PoS/server/pos-build/
