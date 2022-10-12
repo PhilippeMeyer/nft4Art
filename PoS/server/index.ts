@@ -42,6 +42,7 @@ import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endP
 import { sendVote, getVotes } from "./endPoints/vote/vote.js";
 import { transfer } from "./endPoints/sale/transfer.js"
 import { addSmartContract } from "./endPoints/token/addSmartContract.js";
+import { listQuestionnaireForUser } from "./endPoints/vote/Questionnaire.js";
 import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
 
 
@@ -255,10 +256,7 @@ app.get('/apiV1/token/collections', function (req: Request, res: Response) {
 app.post('/apiV1/vote/createVote', createQuestionnaire);
 app.get('/apiV1/vote/getVote', getQuestionnaire);
 app.get('/apiV1/vote/listQuestionnaire', listQuestionnaire);
-//TODO: remove this end point
-app.get('/apiV1/vote/getWallet', function (req: Request, res: Response) {
-    res.status(200).sendFile(path.join(__dirname, './wallet.json'));
-});
+app.get('/apiV1/vote/listQuestionnaireForUser', verifyTokenApp, listQuestionnaireForUser);
 app.post('/apiV1/vote/sendVote', sendVote);
 app.get('/apiV1/vote/getVotes', getVotes);
 

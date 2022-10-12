@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import { NFTStorage, File, Blob } from 'nft.storage';
 import { Contract, errors, providers, utils, ethers } from "ethers";
 
-
+import { RequestCustom } from "../../requestCustom.js";
 import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
-import { insertNewVote, findOneVote, insertNewQuestionnaire, findAllQuestionnaire, findOneQuestionnaire } from '../../services/db.js';
+import { insertNewQuestionnaire, findAllQuestionnaire, findOneQuestionnaire, findOneVote } from '../../services/db.js';
 
 //
 // createQuestionnaire
@@ -89,4 +89,25 @@ async function listQuestionnaire(req: Request, res: Response) {
     res.status(200).json(questionnaires);
 }
 
-export { createQuestionnaire, getQuestionnaire, listQuestionnaire };
+//
+// listQuestionnaireForUser
+// Get the list of all the questionnaires and whether the user has voted or not
+//
+// Parameters: none
+// The address of the customer is extracted from the jwt and injected in the request
+//
+// Returns:
+//  - a json array of all the questionnaires in the system (including their jsonData)
+//
+
+async function listQuestionnaireForUser(req: RequestCustom, res: Response) {
+    const questionnaires = findAllQuestionnaire();
+    questionnaires.forEach((q) => {
+        const hasVoted = findOneVote(q.voteFullId, req.address as string)
+        q.hasVoted = (hasVoted !== null);
+    });
+    console.log(questionnaires);
+    res.status(200).json(questionnaires);
+}
+
+export { createQuestionnaire, getQuestionnaire, listQuestionnaire, listQuestionnaireForUser };

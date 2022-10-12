@@ -131,13 +131,13 @@ const insertNewQuestionnaire = function(voteFullId:string, voteId:string, cid: s
 }
 
 const findOneQuestionnaire = function(voteId:string) {
-    const result = db.prepare('SELECT voteId,cid,checksum,jsonData FROM voteQuestionnaire WHERE voteId=?').all([voteId]);
+    const result = db.prepare('SELECT voteId,voteFullId,cid,checksum,jsonData FROM voteQuestionnaire WHERE voteId=?').all([voteId]);
     if (result.length == 0) return null;
     else return result[0];
 }
 
 const findAllQuestionnaire = function() {
-    return db.prepare('SELECT voteId,cid,checksum,jsonData FROM voteQuestionnaire').all([]);
+    return db.prepare('SELECT voteId,voteFullId,cid,checksum,jsonData FROM voteQuestionnaire').all([]);
 }
 
 const insertSaleEvent = function( typeMsg:string, id:string, isLocked:number, destinationAddr:string, isStored:number, isTransferred:number, isFinalized:number, txId:string, error:string ) {
