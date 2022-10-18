@@ -121,10 +121,10 @@ function TokenGrid({ collectionId }) {
                   onClick={onclick}
                 />
                 <ImageListItemBar
-                  title={token.description}
-                  subtitle={token.author}
+                  title={`Price: ${token.price}CHF`}
+                  subtitle={`Qty: ${token.availableTokens}`}
                   actionIcon={
-                    <Tooltip title={`${token.description} - Price: ${token.price}CHF - Qty: ${token.availableTokens}`}>
+                    <Tooltip title={`${token.description} - ${token.author}`}>
                       <IconButton
                         sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
                         aria-label={`info about ${token.description}`}
