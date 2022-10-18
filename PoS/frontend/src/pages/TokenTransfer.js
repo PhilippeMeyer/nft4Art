@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { useSnackbar } from 'notistack';
@@ -18,22 +19,25 @@ function TokenTransfer() {
   const location = useLocation();
   const navigate = useNavigate();
   const jwt = useSelector((state) => state.token.jwt);
+  const timer = useRef(null);
 
   var token = location.state.token;
 
   const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt };
 
   const cancel = () => {
-    clearTimeout(myTimeout);
-    console.log('cancel');
+    clearTimeout(timer.current);
+    
+    console.log('cancel timeout tokenTransfer');
     const params = new URLSearchParams({id: token.id, lock: false})
     fetch(lockUrl + params.toString(), { method: 'PUT', headers: jwtHeader });
     navigate('/sales/selectCollection');
   };
 
   const transfer = () => {
-    clearTimeout(myTimeout);
-    fetch(tfrUrl, { method: 'POST', headers: jwtHeader, body: JSON.stringify({tokenAddr: token.addr, tokenId: token.tokenIdStr, destinationAddress: location.state.address}) })
+    clearTimeout(timer.current);
+    
+    fetch(tfrUrl, { method: 'POST', headers: jwtHeader, body: JSON.stringify({tokenAddr: token.addr, tokenId: token.id, destinationAddress: location.state.address}) })
       .then(() =>  { 
         enqueueSnackbar('Initiated transfer token to :' + location.state.address);
         setTimeout( () => navigate('/sales/selectCollection'), 2000);
@@ -45,7 +49,11 @@ function TokenTransfer() {
       });
   };
 
-  const myTimeout = setTimeout(cancel, timeout);
+  useEffect( () => {
+    timer.current = setTimeout(cancel, timeout);
+
+    return () => clearTimeout(timer.current);
+  }, []);
 
   return (
     <>

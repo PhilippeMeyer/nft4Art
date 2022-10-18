@@ -325,12 +325,13 @@ const loadQuestionnaire = async (exApp: any) => {
 const connectToken = async (wallet:Wallet, app:any) => {
 
     app.locals.token = app.locals.token.connect(app.locals.wallet);
+    logger.info('server.connectedToken.withWallet');
 
-    app.locals.metas.forEach(async (nft: any) => {
+    await Promise.all(app.locals.metas.map(async (nft: any, index: number) => {
         let balance = await app.locals.token.balanceOf(app.locals.wallet.address, nft.tokenId);
-        nft.availableTokens = balance.toString();
-        if (balance.isZero()) nft.isLocked = true;
-    });
+        app.locals.metas[index].availableTokens = balance.toString();
+        app.locals.metas[index].isLocked = balance.isZero();
+    }));
 }
 
 const loadVotes = async (exApp: any, voteId : BigNumber) => {

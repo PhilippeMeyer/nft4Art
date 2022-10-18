@@ -11,7 +11,8 @@ export const tokenSlice = createSlice({
     collections: {},
     device: {},
     isEstablishingConnection: false,
-    isConnected: false
+    isConnected: false,
+    error: {}
   },
 
   reducers: {
@@ -62,10 +63,15 @@ export const tokenSlice = createSlice({
       newTokens[ind].isLocked = action.payload.isLocked;
       state.data = newTokens;
     },
+
+    updateError: (state, action) => {
+      state.error = action.payload;
+    },
+
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { storeJwt, loadTokens, loadCollections, storeDevice, startConnecting, connectionEstalished, updatePrice, updateLock } = tokenSlice.actions;
+export const { storeJwt, loadTokens, loadCollections, storeDevice, startConnecting, connectionEstalished, updatePrice, updateLock, updateError } = tokenSlice.actions;
 
 export default tokenSlice.reducer;

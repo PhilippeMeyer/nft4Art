@@ -452,6 +452,9 @@ interface ExtWebSocket extends WebSocket {
 function sendLock(id: string, isLocked: boolean) {
     sendMessage(JSON.stringify(new LockMessage(id, isLocked)));
 }
+function sendError(status: number, message: string) {
+    sendMessage(JSON.stringify(new ErrorMessage(status, message)));
+}
 
 function sendMessage(msg: string) {
     setTimeout(() => {
@@ -462,12 +465,17 @@ function sendMessage(msg: string) {
     }, 1000);
 }
 
-export { sendMessage, sendLock };
+export { sendMessage, sendLock, sendError };
 
 export class LockMessage {
     public typeMsg: string = "lock";
 
     constructor(public id: string, public isLocked: boolean = true) {}
+}
+export class ErrorMessage {
+    public typeMsg: string = "error";
+
+    constructor(public status: number, public message: string) {}
 }
 
 wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {

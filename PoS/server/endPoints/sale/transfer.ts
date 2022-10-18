@@ -5,7 +5,7 @@ import { errors } from "ethers";
 import { SaleEventRecord, RequestCustom } from "../../typings";
 import { logger } from "../../loggerConfiguration.js";
 import { insertSaleEvent } from "../../services/db.js"
-import { sendLock } from "../../index.js"
+import { sendLock, sendError } from "../../index.js"
 
 //
 // /apiV1/sale/transfer, parameters: the token's id and the destination address
@@ -27,7 +27,7 @@ async function transfer (req: RequestCustom, res: Response) {
     tokenWithSigner
         .safeTransferFrom(req.app.locals.wallet.address, destinationAddr, tokenId, 1, [])
         .then((transferResult: TransactionResponse) => {
-            res.sendStatus(200);
+            res.sendStatus(202);
             insertSaleEvent("transferInitiated", req.body.tokenId as string, 1, destinationAddr, 1, 0, 0, '', '');
             logger.info("server.transfer.initiated - token: %s, destination: %s", tokenId, destinationAddr);
 
@@ -39,19 +39,18 @@ async function transfer (req: RequestCustom, res: Response) {
                 req.app.locals.token.balanceOf(req.app.locals.wallet.address, tokenId).then((balance: any) => {
                     const tk = req.app.locals.metasMap.get(tokenAddr + tokenId);
                     if (tk != null) {
+                        logger.info('server.transfer.updatingBalance');
                         tk.availableTokens = balance.toString();
-                        if (balance.isZero()) {
-                            tk.isLocked = true;
-                            sendLock(tokenId, true);
-                        }
+                        tk.isLocked = balance.isZero();
+                        sendLock(tokenId, true);
                     }
                 });
             });
         })
         .catch((error: errors) => {
-            res.status(412).json(error);
+            sendError(412, 'Error in transferring token: ' + error.toString());
             logger.error("server.transfer.error %s", error);
-            insertSaleEvent("transferInitiated", req.body.tokenId as string, 1, destinationAddr, 0, 0, 0, '', error);
+            insertSaleEvent("transferInitiated", req.body.tokenId as string, 1, destinationAddr, 0, 0, 0, '', error.toString());
         });
 }
 

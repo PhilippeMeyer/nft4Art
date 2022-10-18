@@ -120,7 +120,7 @@ async function loadWallet(w: Wallet, pass: string, app: any) {
     app.locals.passHash = utils.keccak256(utils.toUtf8Bytes(pass));
 
     if(app.locals.token === undefined) return;
-    else connectToken(w, app);
+    else await connectToken(w, app);
 }
 
 //
