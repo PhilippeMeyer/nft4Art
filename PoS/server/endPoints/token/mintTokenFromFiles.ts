@@ -74,6 +74,8 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
 
     try {
         logger.info('server.mintFromFiles.createFolder: %s', req.app.locals.batchMintFolder);
+        console.log('img raw', req.body.image_raw);
+
 
         // Find among the fileds a field named image_raw which should point to the file containing the image
         if (req.body.image_raw === undefined) {
@@ -83,7 +85,7 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
         }
 
         const files: any[] = req.files as any[];
-        const image_raw: any = files.find((file) =>  file.fieldname == req.body.image_raw);
+        const image_raw: any = files.find((file) =>  file.originalname == req.body.image_raw);
 
         if( image_raw === undefined) {
             logger.info('server.batchMintTokenFromFiles.noImageProvided');
