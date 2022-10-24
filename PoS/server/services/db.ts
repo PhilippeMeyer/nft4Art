@@ -140,11 +140,19 @@ const findAllQuestionnaire = function() {
     return db.prepare('SELECT voteId,voteFullId,cid,checksum,jsonData FROM voteQuestionnaire').all([]);
 }
 
-const insertSaleEvent = function( typeMsg:string, id:string, isLocked:number, destinationAddr:string, isStored:number, isTransferred:number, isFinalized:number, txId:string, error:string ) {
-    const stmt = db.prepare('INSERT INTO salesEvents (typeMsg, id, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    const params = [typeMsg, id, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error];
+const insertSaleEvent = function( typeMsg:string, id:string, price:number, isLocked:number, destinationAddr:string, isStored:number, isTransferred:number, isFinalized:number, txId:string, error:string ) {
+    const stmt = db.prepare('INSERT INTO salesEvents (typeMsg, id, price, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const params = [typeMsg, id, price, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error];
     const result = stmt.run(params);
 }
+
+const findSaleEventByAddress = function(address:string, amount:number) {
+    const stmt = db.prepare('SELECT typeMsg,id,price,isLocked,destinationAddr,isStored,isTransferred,isFinalized,txId,error FROM salesEvents where destinationAddr=? and price=? and isTransferred=0 and isFinalized=0')
+    const result = stmt.all([address, amount]);
+    if (result.length == 0) return null;
+    else return result[0];
+}
+
 
 export {    initDb, closeDb, 
             findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos,
@@ -153,4 +161,4 @@ export {    initDb, closeDb,
             insertNewSmartContract, findAllSmartContracts,
             insertNewVote, findOneVote, findAllVote,
             insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire,
-            insertSaleEvent };
+            insertSaleEvent, findSaleEventByAddress };

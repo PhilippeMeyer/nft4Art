@@ -25,6 +25,7 @@ create table appIds (
 create table salesEvents (
     typeMsg text,
     id text,
+    price real,
     isLocked integer,
     destinationAddr text,
     isStored integer,
