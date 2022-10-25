@@ -24,7 +24,7 @@ function threeDmodel(req: RequestCustom, res: Response) {
     logger.info('server.threeDmodel %s, tokenID %s', req.address, req.query.tokenId);
 
     // TODO Manage the tokenId to retreive the associated model. For now, always sending the same
-    let data: Buffer = fs.readFileSync(path.join(config.__dirname, "public/Shard_" + req.query.tokenId + ".STL"));
+    let data: Buffer = req.app.locals.icons.get(req.query.tokenId + 'model');
     res.render("3dmodel", {model: "data:model/gltf-binary;base64," + data.toString('base64')});
 }
 
