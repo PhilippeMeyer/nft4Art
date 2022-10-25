@@ -203,42 +203,53 @@ async function loadToken(token: Contract, exApp:any ) {
 
     if (exApp.locals.wallet !== null) connectToken(exApp.locals.wallet, exApp);
 
-    // TODO: store incrementally the transfers in the database so that the loading time does not increase over time
-    // This can be performed storing the last block id retrieved and re querying from there
-    //const transfersSingle = await token.queryFilter( token.filters.TransferSingle(null, null), 0, "latest");
-    //const transfersBatch = await token.queryFilter( token.filters.TransferBatch(null, null), 0, "latest");
-
-    //console.log('Single transfers', transfersSingle);
-    //console.log('Batch transfers', transfersBatch);
-
     //
-    // Retrieve the icons, looking at the cache in case the icon has been already retrieved
+    // Retrieve all the ipfs resources
     //
     let buf: Buffer;
 
     const getIcons = Promise.all(
         metas.map(async (meta: any) => {
-            let cid = config.cacheFolder + meta.image.replace("ipfs://", ""); // We remove the ipfs prefix to only keep the cid
-            let icon = meta.image.replace("ipfs", "https").concat(".ipfs.dweb.link"); // We form an url for dweb containing the ipfs cid
-            try {
-                if (fs.existsSync(cid)) {
-                    // We try to find this cid in the cache
-                    logger.info("server.init.loadIcons.cache %s", cid);
-                    buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
-                } else {
-                    // Not available in the cache, we get it from ipfs
-                    logger.info("server.init.loadIcons.ipfs %s", cid);
-                    const resp = await axios.get(icon, { responseType: "arraybuffer" });
-                    buf = Buffer.from(resp.data, "binary");
-                    fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache
+            let key:string;
+
+            for (key in meta) {
+                console.log('key: ' + key + ' value: ' + meta[key]);
+                if (typeof meta[key] !== 'string' && !(meta[key] instanceof String)) continue;
+                if (meta[key].indexOf('ipfs://') == -1) continue;
+                
+                let cid = config.cacheFolder + meta[key].replace("ipfs://", ""); // We remove the ipfs prefix to only keep the cid
+                let icon = meta[key].replace("ipfs", "https").concat(".ipfs.dweb.link"); // We form an url for dweb containing the ipfs cid
+                try {
+                    if (fs.existsSync(cid)) {
+                        // We try to find this cid in the cache
+                        logger.info("server.init.loadResource.cache %s, %s, cid %s", meta.tokenIdStr, key, cid);
+                        buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
+                    } else {
+                        // Not available in the cache, we get it from ipfs
+                        logger.info("server.init.loadResource.ipfs %s, %s, cid %s", meta.tokenIdStr, key, cid);
+                        const resp = await axios.get(icon, { responseType: "arraybuffer" });
+                        buf = Buffer.from(resp.data, "binary");
+                        fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache
+                    }
+
+                } catch (error) {
+                    logger.error("server.init.loadResource %s", error);
                 }
 
-                icons.set(meta.id, buf); // Store the icon in memory
-            } catch (error) {
-                logger.error("server.init.loadIcons %s", error);
-            }
+                icons.set(meta.id + key, buf);
 
-            meta.iconUrl = config.iconUrl + meta.id; // Reference the icon's url
+                meta[key + 'Url'] = config.resourceUrl + meta.id + '&type=' + key;      // Reference the resource's url
+
+                // Compatibility mode with previous versions and the rest of the code
+                if (key == 'image_raw') {
+                    meta.imgUrl = config.imgUrl + meta.id;                              // Reference the image's url
+                    images.set(meta.id, buf);
+                }
+                if (key == 'image') {
+                    meta.iconUrl = config.iconUrl + meta.id;                            // Reference the icon's url
+                    icons.set(meta.id, buf); // Store the icon in memory
+                }
+            }
         }),
     );
 
@@ -270,7 +281,20 @@ async function loadToken(token: Contract, exApp:any ) {
     );
 
     await Promise.all([getIcons, getImages]);
-    
+
+    const imageProperties = ['iso1', 'bottom', 'iso2', 'right', 'front', 'left', 'iso3', 'top', 'iso4'];
+
+    metas.map((meta:any) => {
+        let key: string;
+        meta.images = new Array<string>(imageProperties.length);
+
+        for(key in meta) {
+            const index = imageProperties.indexOf(key);                                              // Is this resource an image?
+            if (index != -1) meta.images[index] = config.resourceUrl + meta.id + '&type=' + key;
+        }
+    });
+
+
     logger.info('server.init.loadTerminated');
 }
 

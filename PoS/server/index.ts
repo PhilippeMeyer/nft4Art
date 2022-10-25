@@ -250,6 +250,11 @@ app.get(['/apiV1/token/image', '/image'], function (req: Request, res: Response)
     res.type("jpeg");
     res.status(200).send(app.locals.images.get(req.query.id));
 });
+app.get('/apiV1/token/resource', function (req: Request, res: Response) {
+    res.type("jpeg");
+    const resourceId:string = req.query.id as string + req.query.type as string;
+    res.status(200).send(app.locals.icons.get(resourceId));
+});
 app.get('/apiV1/token/collections', function (req: Request, res: Response) {
     res.status(200).json(app.locals.collections);
 });

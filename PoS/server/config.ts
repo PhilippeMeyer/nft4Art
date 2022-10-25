@@ -16,6 +16,7 @@ config.dbName = process.env.APP_DB_NAME;
 config.creationScript = process.env.APP_DB_CREATION_SCRIPT;
 config.iconUrl = process.env.APP_WEBSITE + "/apiV1/token/icon?id=";
 config.imgUrl = process.env.APP_WEBSITE + "/apiV1/token/image?id=";
+config.resourceUrl = process.env.APP_WEBSITE + "/apiV1/token/resource?id=";
 config.imgCollectionUrl = process.env.APP_WEBSITE + "/apiV1/token/collectionImg?id=";
 config.mapCollectionUrl = process.env.APP_WEBSITE + "/apiV1/token/collectioMap?id=";
 config.jwtExpiry = process.env.APP_JWT_EXPIRY;
