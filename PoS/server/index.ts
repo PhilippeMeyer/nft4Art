@@ -44,6 +44,7 @@ import { transfer } from "./endPoints/sale/transfer.js"
 import { addSmartContract } from "./endPoints/token/addSmartContract.js";
 import { listQuestionnaireForUser } from "./endPoints/vote/Questionnaire.js";
 import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
+import { transferEth } from "./endPoints/sale/transferEth.js";
 
 
 // TODO: Env var?
@@ -308,107 +309,7 @@ app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCust
   });
 
 app.post("/apiV1/sale/transfer", verifyToken, transfer);
-
-//
-// /apiV1/sale/transferEth
-// parameters:
-//  - the token's id
-//  - the token's address
-//  - destination address (which the address from which the token is going to be paid)
-//  - the final token's price
-//
-// This end point records the sale of the specified token to the new owner when paid in Ether
-// The effective transfer is performed whan the ethers have been received
-// When ethers are reaching the smart contract, it is triggering an event which is received by the server and triggers the transfer
-//
-app.post("/apiV1/sale/transferEth", verifyToken, async function (req: RequestCustom, res: Response) {
-    const tokenAddr: string = req.body.tokenAddr;
-    const tokenId: string = req.body.tokenId;
-    const finalPrice: string = req.body.finalPrice;
-    const destinationAddr: string = req.body.destinationAddress;
-    const decimalsEth = 18;
-    console.log("transfer tokenId: ", tokenAddr, tokenId, destinationAddr);
-
-    logger.info("server.transfer.requested - token: %s, destination: %s, price: %s", tokenId, destinationAddr, finalPrice);
-    const saleEvent: SaleEventRecord = {
-        typeMsg: "transferRequest",
-        id: req.body.id as string,
-        isLocked: true,
-        destinationAddr,
-    };
-    saleEvents.insert(saleEvent);
-
-    /*
-
-    The NFT Smart contract is able to store sales records in the following format:
-
-    struct SaleRecord {
-        bytes32 buyer;                  // Buyer's address (can also be a bitcoin address)
-        uint128 price;                  // Price as an integer
-        uint8   decimals;               // Decimals applied to the price
-        bytes3  currency;               // Currency 3 letters Iso country code + ETH and BTC
-        bytes1  network;                // Network on which the payment is performed
-        bytes1  status;                 // Sale's status: initiated, payed, completed, ....
-    }
-    */
-
-    const saleRecord = {
-        buyer: utils.formatBytes32String(destinationAddr),
-        decimals: decimalsEth,
-        price: parseFloat(finalPrice) * 10 ** decimalsEth,
-        currency: 'eth',
-        network: NFT4ART_ETH_NETWORK,
-        status: NFT4ART_SALE_INITIATED
-    };
-
-    let tokenWithSigner = app.locals.token.connect(app.locals.wallet);
-    tokenWithSigner
-        .saleRecord(tokenId, saleRecord)
-        .then((transferResult: TransactionResponse) => {
-            res.sendStatus(200);
-            const saleEvent: SaleEventRecord = {
-                typeMsg: NFT4ART_SALE_INITIATED_MSG,
-                id: tokenId,
-                isLocked: true,
-                destinationAddr: destinationAddr,
-                isTransferred: false,
-                isStored: false
-            };
-            saleEvents.insert(saleEvent);
-            logger.info("server.store.sale.init - token: %s, destination: %s", tokenId, destinationAddr);
-            transferResult.wait().then((transactionReceipt: TransactionReceipt) => {
-                const saleEvent: SaleEventRecord = {
-                    typeMsg: NFT4ART_SALE_STORED_MSG,
-                    id: tokenId,
-                    isLocked: true,
-                    destinationAddr: destinationAddr,
-                    isTransferred: false,
-                    isFinalized: false,
-                    isStored: true,
-                    txId: transactionReceipt.transactionHash,
-                };
-
-                saleEvents.insert(saleEvent);
-                logger.info("server.store.sale.performed token %s destination %s - TxHash: %s", tokenId, destinationAddr, transactionReceipt.transactionHash );
-            });
-        })
-        .catch((error: errors) => {
-            res.status(412).json(error);
-            logger.error("server.store.sale.error %s", error);
-            const saleEvent: SaleEventRecord = {
-                typeMsg: NFT4ART_SALE_INITIATED_MSG,
-                id: tokenId,
-                isLocked: true,
-                destinationAddr: destinationAddr,
-                isTransferred: false,
-                isFinalized: false,
-                isStored: false,
-                txId: undefined,
-                error,
-            };
-            saleEvents.insert(saleEvent);
-        });
-});
+app.post("/apiV1/sale/transferEth", verifyToken, transferEth);
 
 //
 // /apiV1/token/mintIpfsFolder
