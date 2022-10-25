@@ -64,7 +64,7 @@ async function loadToken(token: Contract, exApp:any ) {
     exApp.locals.token = token;
 
     var receivedEth = token.filters.ReceivedEth();
-    token.on(receivedEth, receivedEthCallback)
+    token.on(receivedEth, (from:any, amount:any, event:any) => receivedEthCallback(from, amount, event, exApp));
     logger.info("server.init %s", token.address);
 
     let metas: Object[] = [];                   // list of the Nfts loaded from the smart contract
@@ -247,15 +247,14 @@ async function loadToken(token: Contract, exApp:any ) {
     //
     const getImages = Promise.all(
         metas.map(async (meta: any) => {
-            const img = meta.image_raw;
-            let cid = config.cacheFolder + meta[img].replace("ipfs://", "");
+            let cid = config.cacheFolder + meta.image_raw.replace("ipfs://", "");
             try {
                 if (fs.existsSync(cid)) {
                     logger.info("server.init.loadImages.cache %s", cid);
                     buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
                 } else {
                     logger.info("server.init.loadImages.ipfs %s", cid);
-                    let image = meta[img].replace("ipfs", "https").concat(".ipfs.dweb.link");
+                    let image = meta.image_raw.replace("ipfs", "https").concat(".ipfs.dweb.link");
                     const resp = await axios.get(image, { responseType: "arraybuffer" });
                     buf = Buffer.from(resp.data, "binary");
                     fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" });
