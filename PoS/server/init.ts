@@ -213,7 +213,6 @@ async function loadToken(token: Contract, exApp:any ) {
             let key:string;
 
             for (key in meta) {
-                console.log('key: ' + key + ' value: ' + meta[key]);
                 if (typeof meta[key] !== 'string' && !(meta[key] instanceof String)) continue;
                 if (meta[key].indexOf('ipfs://') == -1) continue;
                 
@@ -359,7 +358,6 @@ const connectToken = async (wallet:Wallet, app:any) => {
 
 const loadVotes = async (exApp: any, voteId : BigNumber) => {
     const ballots = await exApp.locals.token.getBallots(voteId);
-    console.log(ballots);
 
     for(var i = 0 ; i < ballots.length ; i++) {
         const voteFullId:string = exApp.locals.token.address + voteId.toHexString();
