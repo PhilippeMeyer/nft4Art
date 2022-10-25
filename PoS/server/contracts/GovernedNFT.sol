@@ -3,13 +3,14 @@
 pragma solidity ^0.8.5;
 
 import './UnorderedKeySetLib.sol';
+import './ContextMixin.sol';
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 
 //
 // GovernedNFT.sol
@@ -40,7 +41,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 // - a getSale function which returns the status of a sale
 //
 
-contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
+contract GovernedNFT is Ownable, Pausable, ContextMixin, EIP712, ERC1155, ERC2981 {
     using ECDSA for bytes32;
     using UnorderedKeySetLib for UnorderedKeySetLib.Set;
 
@@ -58,6 +59,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     event SaleUpdate( uint256 indexed tokenId,                              // Emitted when a sale on tokenId is performed
                       bytes32 indexed buyer,                                // Buyer's address (can also be a bitcoin address)
                       bytes1  status);                                      // Sale's status: initiated, payed, completed, ....
+    event Exclusivity( address indexed operator, uint256 until);            // The owner is granting an exclusivity to an operator
 
     struct BallotMessage {              // Structure used to communicate the Ballot
         address     from;               // Externally-owned account (EOA) of the voter.
@@ -96,20 +98,29 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
 
     bytes32 private constant _TYPEHASH = keccak256("BallotMessage(address from,uint128 voteId,bytes data)");
 
-    mapping(address => Person) private _persons;                    // persons allowed to cast a vote 
-    uint128 private _currentVoteId;                                 // The voteId which is currently open
-    mapping(uint128 => Vote) private _votes;                      // list of the votes created, indexed by their voteId
-    mapping(uint128 => Ballot[]) private _ballots;                  // ballots organised by votes
-    mapping(uint256 => SaleRecord) private _sales;                  // sale status per tokenId
-    mapping(uint256 => string) private _uris;                       // specific uris for some tokens overriding the default one
-    string private _defaultUri;                                     // default URI to be used by all the tokens
-    mapping(address => UnorderedKeySetLib.Set) private _owners;     // List of tokens owned by an address
-    mapping(uint256 => uint256) private _totalSupply;               // Quantity of tokens per token
-    uint256[] private _tokensId;                                    // List of tokens that have been issued
+    mapping(address => Person) private _persons;                            // persons allowed to cast a vote 
+    uint128 private _currentVoteId;                                         // The voteId which is currently open
+    mapping(uint128 => Vote) private _votes;                                // list of the votes created, indexed by their voteId
+    mapping(uint128 => Ballot[]) private _ballots;                          // ballots organised by votes
+    mapping(uint256 => SaleRecord) private _sales;                          // sale status per tokenId
+    mapping(uint256 => string) private _uris;                               // specific uris for some tokens overriding the default one
+    string private _defaultUri;                                             // default URI to be used by all the tokens
+    mapping(address => UnorderedKeySetLib.Set) private _owners;             // List of tokens owned by an address
+    mapping(uint256 => uint256) private _totalSupply;                       // Quantity of tokens per token
+    uint256[] private _tokensId;                                            // List of tokens that have been issued
+    address exclusiveOperator;                                              // address of an exclusive operator who acts on the behalf of the token owner
+    uint256 exclusivityPeriod;                                              // date until when the exclusivity is granted
 
 
     constructor() Ownable() ERC1155("") EIP712("GovernedNFT", "1.0.0") {
         _currentVoteId = 0;
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, ERC2981) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+    function _msgSender() internal override view returns (address) {
+        return ContextMixin.msgSender();
     }
 
     // setDefaultURI
@@ -235,6 +246,25 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
             require(_totalSupply[ids[i]] == 0, "GovernedNFT: cannot re-mint an existing token");
         }
         _mintBatch(owner(), ids, amounts, data);
+    }
+
+    //
+    // setExclusivityForAll
+    // Defines an operator as the exclusive seller for a period of time (meaning that the artist owning the freshy created tokens cannot sell)
+    //
+    // Parameters:
+    //  - operator: address of the operator who is exclusively selling on the behalf of the artist
+    //  - until: date until when the operator benefits from his exclusivity
+    //
+    function setExclusivityForAll( address operator, uint256 until ) public onlyOwner {
+        _setApprovalForAll(owner(), operator, true);
+        exclusivityPeriod = until;
+        exclusiveOperator = operator;
+        emit Exclusivity(operator, until);
+    }
+
+    function getExclusivityForAll() public view returns (address, uint256) {
+        return (exclusiveOperator, exclusivityPeriod);
     }
 
     //
@@ -389,6 +419,26 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
     }
 
     //
+    // pause 
+    // Pause the contract operations 
+    //
+    // Calls the pause internal function
+    //
+    function pause() public onlyOwner { 
+        _pause(); 
+    }
+
+    //
+    // unpause 
+    // Unpause the contract operations 
+    //
+    // Calls the unpause internal function
+    //
+    function unpause() public onlyOwner { 
+        _unpause(); 
+    } 
+
+    //
     // _beforeTokenTransfer
     // internal method which is called before a transfer is taking place 
     //
@@ -412,6 +462,7 @@ contract GovernedNFT is EIP712, Pausable, ERC1155, Ownable {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
 
         require(!paused(), "GovernedNFT: token transfer while paused");
+        require((operator != owner()) || (block.timestamp > exclusivityPeriod) || (from == address(0)), "GovernedNFT: token transfer not allowed during the exclusivity period");
     }
 
     //
