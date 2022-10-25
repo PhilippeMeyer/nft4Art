@@ -110,7 +110,11 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
         metadata.image = "ipfs://" + cid;  
 
         let key;
-        for (key in req.body)  metadata[key] = req.body[key];
+        for (key in req.body)  
+            metadata[key] = req.body[key];
+
+        metadata['image_raw'] = metadata[image_raw.fieldname];
+
         
         if(req.body.tokenId === undefined) {
             tokenId = req.app.locals.batchMintTokenId.toString();
