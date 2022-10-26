@@ -26,14 +26,6 @@ function TokenSaleFiat() {
 
   const token = location.state.token;
 
-  const sectionStyle = {
-    height: "100vh",
-  
-    backgroundImage: `url(${token.overviewUrl})`,
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "cover"
-  };
-
   const onNewScanResult = (decodedText, decodedResult) => {
     clearTimeout(timer.current);
 
