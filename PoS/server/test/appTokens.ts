@@ -73,7 +73,6 @@ describe('Testing logging in as a mobile app', function() {
 
         expect(res.status).to.equal(200);
         const ret = await res.json();
-        ret.tokens.forEach((t:any) => console.log(t.description))
         tokens = ret.tokens;
     });
 
@@ -90,6 +89,7 @@ describe('Testing logging in as a mobile app', function() {
         }); 
 
         expect(res.status).to.equal(200);
+        console.log(res.body);
     });
 
 });
