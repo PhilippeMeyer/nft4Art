@@ -78,7 +78,7 @@ When the questionnaire is built, it can be saved on the server and will get acti
 
 Shows all the votes that have been created, ckicking on one of them displays the results
 
-![](ListQuestionnares.png)
+![](ListQuestionnaires.png)
 
 # PoS
 
