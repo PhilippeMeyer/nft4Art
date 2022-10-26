@@ -4,12 +4,12 @@ import { logger } from "./loggerConfiguration.js";
 import { BigNumber, constants, Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
 import axios from "axios";
 import path from "path";
+// @ts-ignore
+import { convertSTLIntoGLTF } from 'asset-mgmt';
 
 import { receivedEthCallback } from "./services/receivedEthCallback.js"
 import * as dbPos from './services/db.js';
 import { config } from "./config.js"
-// @ts-ignore
-import { convertSTLIntoGLTF } from 'asset-mgmt';
 
 //
 // Server initialization
@@ -37,7 +37,7 @@ import { convertSTLIntoGLTF } from 'asset-mgmt';
 //  app.locals.crypto           Contains the crypto library
 //
 
-async function init(exApp: any, config: any) {  
+async function init(exApp: any, config: any) {
     // Read the ABI of the GovernedNft contract
     let rawAbi = fs.readFileSync(config.gvdNftAbiFile);
     const gvdNftDef = JSON.parse(rawAbi.toString());
@@ -55,7 +55,7 @@ async function init(exApp: any, config: any) {
     }
 
     let token: Contract;
-    
+
     token = await new Contract(tokenList[0].addressEth, exApp.locals.gvdNftDef.abi, exApp.locals.ethProvider);
     loadToken(token, exApp);
     loadQuestionnaire(exApp);
@@ -84,7 +84,7 @@ async function loadToken(token: Contract, exApp:any ) {
 
     const QRaddr: string = path.join(config.cacheFolder, token.address + '.png');
     if(!fs.existsSync(QRaddr)) await QRCode.toFile(QRaddr, token.address);
-    
+
     let i: number = 0;
     let str: string, strToken: string;
     let data: any;
@@ -196,7 +196,7 @@ async function loadToken(token: Contract, exApp:any ) {
         for (key in collections) {
             if(collections[key].tokenIds.find((eltId: string) => parseInt(eltId) == data.tokenIdStr) !== undefined) data.collectionId = key;
         }
-        
+
         metas.push(data);
         metasMap.set(data.id, data);
 
@@ -217,7 +217,7 @@ async function loadToken(token: Contract, exApp:any ) {
             for (key in meta) {
                 if (typeof meta[key] !== 'string' && !(meta[key] instanceof String)) continue;
                 if (meta[key].indexOf('ipfs://') == -1) continue;
-                
+
                 let cid = config.cacheFolder + meta[key].replace("ipfs://", ""); // We remove the ipfs prefix to only keep the cid
                 let icon = meta[key].replace("ipfs", "https").concat(".ipfs.dweb.link"); // We form an url for dweb containing the ipfs cid
                 try {
@@ -232,10 +232,10 @@ async function loadToken(token: Contract, exApp:any ) {
                         buf = Buffer.from(resp.data, "binary");
                         if(key == 'model') {
                             fs.writeFileSync(cid + '.stl', buf, { flag: "w", encoding: "binary" }); // Save the file in cache
-                            convertSTLIntoGLTF(cid + '.stl', cid + '.gltf');
+                            await convertSTLIntoGLTF(cid + '.stl', cid + '.gltf');
                             fs.renameSync(cid + '.gltf', cid);
-                        } else 
-                            fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache                      
+                        } else
+                            fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache
                     }
 
                 } catch (error) {
@@ -337,7 +337,7 @@ const loadQuestionnaire = async (exApp: any) => {
 
             if (dbPos.findOneQuestionnaire(voteId) == null) {
                 logger.info('server.loadQuestionnaire %s', voteId);
-            
+
                 loadFromIpfs(vote[1].cid).then((file) => {
                     if (file != '') {
                         const jsonData = fs.readFileSync(config.cacheFolder + file);
