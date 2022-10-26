@@ -8,6 +8,8 @@ import path from "path";
 import { receivedEthCallback } from "./services/receivedEthCallback.js"
 import * as dbPos from './services/db.js';
 import { config } from "./config.js"
+// @ts-ignore
+import { convertSTLIntoGLTF } from 'asset-mgmt';
 
 //
 // Server initialization
@@ -228,7 +230,12 @@ async function loadToken(token: Contract, exApp:any ) {
                         logger.info("server.init.loadResource.ipfs %s, %s, cid %s", meta.tokenIdStr, key, cid);
                         const resp = await axios.get(icon, { responseType: "arraybuffer" });
                         buf = Buffer.from(resp.data, "binary");
-                        fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache
+                        if(key == 'model') {
+                            fs.writeFileSync(cid + '.stl', buf, { flag: "w", encoding: "binary" }); // Save the file in cache
+                            convertSTLIntoGLTF(cid + '.stl', cid + '.gltf');
+                            fs.renameSync(cid + '.gltf', cid);
+                        } else 
+                            fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache                      
                     }
 
                 } catch (error) {

@@ -37,6 +37,7 @@
         "@types/sharp": "^0.30.5",
         "@types/sqlite3": "^3.1.8",
         "archiver": "^5.3.1",
+        "asset-mgmt": "github:laurentmmeyer/stlconvert",
         "axios": "^0.26.1",
         "better-sqlite3": "^7.6.2",
         "cors": "^2.8.5",

@@ -25,6 +25,10 @@ function threeDmodel(req: RequestCustom, res: Response) {
 
     // TODO Manage the tokenId to retreive the associated model. For now, always sending the same
     let data: Buffer = req.app.locals.icons.get(req.query.tokenId + 'model');
+    if (data == null) {
+      logger.error('server.threeDmodel.missingModel %s', req.query.tokenId);
+      res.sendStatus(404);
+    }
     res.render("3dmodel", {model: "data:model/gltf-binary;base64," + data.toString('base64')});
 }
 
