@@ -62,6 +62,9 @@ const updateIpRegisteredPos = function(id: string, ip: string) {
 const findToken = function(tokenId: string) {
     return findOne('tokens', 'tokenId', tokenId);
 }
+const findAllTokens = function() {
+    return db.prepare('SELECT * FROM tokens').all();
+}
 
 const insertNewToken = function(token: any) {
     const {id, tokenIdStr, isLocked, price} = token;
@@ -156,7 +159,7 @@ const findSaleEventByAddress = function(address:string, amount:number) {
 
 export {    initDb, closeDb, 
             findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos,
-            findToken, insertNewToken, updatePriceToken, updateLockToken,
+            findToken, insertNewToken, updatePriceToken, updateLockToken, findAllTokens,
             findAppId, insertNewAppId, updateNonceAppId, removeAppId,
             insertNewSmartContract, findAllSmartContracts,
             insertNewVote, findOneVote, findAllVote,
