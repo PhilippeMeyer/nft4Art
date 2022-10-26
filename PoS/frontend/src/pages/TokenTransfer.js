@@ -4,12 +4,15 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { useSnackbar } from 'notistack';
 import Button from '@mui/material/Button';
+import { Box } from '@mui/system';
+
 import QRcodeScanner from '../QRcodeScanner';
 
 import NavbarManager from "./NavbarManager";
 
 const httpServer = process.env.REACT_APP_SERVER;
-const timeout = process.env.REACT_APP_SALES_TIMEOUT;
+//const timeout = process.env.REACT_APP_SALES_TIMEOUT;
+const timeout = 1000000000;
 const lockUrl = httpServer + 'lockUnlock?';
 const tfrUrl = httpServer + 'apiV1/sale/transfer';
 
@@ -58,10 +61,16 @@ function TokenTransfer() {
   return (
     <>
       <main>
-        <h2>Transferring token {token.description} to {location.state.address}</h2>
-        <h2>Token's price : <b>{token.price}</b></h2>
-        <Button onClick={transfer}>Transfer</Button>
-        <Button onClick={cancel}>Cancel</Button>
+        <Box className='saleMain'>
+            <img className="opaqueImg" src={token.overviewUrl}/>
+            <Box className='boxTitle'>
+              <h1 className="title">Confirming the transfer of token {token.description} to {location.state.address}</h1>        
+              <h1 className="title">Token's price : <b>{token.price}</b></h1>
+              <Button onClick={transfer} color="warning">Transfer</Button>
+              <Button onClick={cancel} color="warning">Cancel</Button>
+            </Box>
+
+        </Box>
       </main>
     </>
   );

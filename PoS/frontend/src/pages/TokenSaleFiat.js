@@ -77,7 +77,7 @@ function TokenSaleFiat() {
                     disableFlip={false}
                     qrCodeSuccessCallback={onNewScanResult}
             />
-            <Button onClick={cancel}>Cancel</Button>
+            <Button sx={{m:5}} onClick={cancel} color='warning'>Cancel</Button>
             </Box>
         </Box>
       </>
