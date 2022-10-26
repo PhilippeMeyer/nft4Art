@@ -1,11 +1,18 @@
 import React, {useEffect, useState, useRef} from "react";
+import { useSelector, useDispatch } from 'react-redux'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack';
+import { Box } from '@mui/system';
+import InputAdornment from '@mui/material/InputAdornment';
+
+import TextField from '@mui/material/TextField';
+
 import Button from '@mui/material/Button';
 import QRcodeScanner from '../QRcodeScanner';
 
 const httpServer = process.env.REACT_APP_SERVER;
-const timeout = process.env.REACT_APP_SALES_TIMEOUT;
+//const timeout = process.env.REACT_APP_SALES_TIMEOUT;
+const timeout = 1000000000;
 
 const lockUrl = httpServer + 'lockUnlock?';
 
@@ -18,6 +25,14 @@ function TokenSaleFiat() {
   const timer = useRef(null);
 
   const token = location.state.token;
+
+  const sectionStyle = {
+    height: "100vh",
+  
+    backgroundImage: `url(${token.overviewUrl})`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover"
+  };
 
   const onNewScanResult = (decodedText, decodedResult) => {
     clearTimeout(timer.current);
@@ -44,6 +59,7 @@ function TokenSaleFiat() {
     return () => clearTimeout(timer.current);
   }, []);
 
+  const updatePriceField = () => {}
 
   if (token === undefined)
     return (
@@ -52,18 +68,26 @@ function TokenSaleFiat() {
   else
     return (
       <>
-        <main>
-          <h1 className="title">Sale of token #{token.id} in CHF</h1>
-          <h2>Token price: {token.price}<b></b></h2>
-          <p>When the cash transaction is completed, please scan the customer's personnal address</p>
-          <QRcodeScanner
-                  fps={10}
-                  qrbox={250}
-                  disableFlip={false}
-                  qrCodeSuccessCallback={onNewScanResult}
-          />
-          <Button onClick={cancel}>Cancel</Button>
-        </main>
+        <Box className='saleMain'>
+            <img className="opaqueImg" src={token.overviewUrl}/>
+            <Box className='boxTitle'>
+              <h1 className="title">Sale of token {token.description}</h1>
+              <TextField className='leftAligned' label="New Price" variant="standard" type="number" defaultValue={token.price} color='warning'
+                  onChange={updatePriceField}
+                  InputProps={{ startAdornment: <InputAdornment position="start">Chf</InputAdornment>, style: {fontSize: 40 } }}
+                  InputLabelProps={{style: {fontSize: 35}}}
+              />
+            </Box>
+            <Box className='qrCode'>
+            <QRcodeScanner
+                    fps={10}
+                    qrbox={250}
+                    disableFlip={false}
+                    qrCodeSuccessCallback={onNewScanResult}
+            />
+            <Button onClick={cancel}>Cancel</Button>
+            </Box>
+        </Box>
       </>
     );
 }

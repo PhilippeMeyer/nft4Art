@@ -129,3 +129,33 @@ input[type="submit"]:hover {
   text-align: right;
   justify-content: right;
 }
+.leftAligned {
+  align-items: left;
+  text-align: left;
+  justify-content: left;
+}
+
+.opaqueImg {
+  background-blend-mode: screen;
+  background-color: rgba(215, 209, 208, 0.9);
+  height: 100%
+}
+
+.saleMain {
+  position: relative;
+  background: rgba(215, 209, 208, 0.9);
+}
+
+.qrCode {
+  position: absolute;
+  bottom: 200px;
+  width: 100%;
+}
+
+.boxTitle {
+  position: absolute;
+  top: 200px;
+  left: 150px;
+  width: 100%;
+  text-align: left;
+}
