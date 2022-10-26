@@ -272,7 +272,6 @@ app.get("/map", function (req: Request, res: Response) {
 });
 app.get("/QRCode", function (req: Request, res: Response) {
     res.type("png");
-    console.log('QRcode', config.cacheFolder, req.app.locals.token.address);
     res.status(200).sendFile(path.join(__dirname, config.cacheFolder, req.app.locals.token.address + '.png'));
 });
 
