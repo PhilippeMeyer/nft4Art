@@ -19,14 +19,14 @@ async function transfer(req: RequestCustom, res: Response) {
     const destinationAddr: string = req.body.destinationAddress;                            // Buyer's address
 
     logger.info("server.transfer.requested - token: %s, destination: %s", tokenId, destinationAddr);
-    const tk = req.app.locals.metasMap.get(tokenAddr + tokenId);
+    const tk = req.app.locals.metasMap.get(tokenId);
     if (tk == null) {
         logger.error("server.transfer.nonExitingToken");
-        res.sendStatus(500).json({error: "non exsting token"});
+        res.send(500).json({error: "non exsting token"});
         return;
     }
 
-    insertSaleEvent("transferRequest", tokenAddr + tokenId, tk.price, 1, destinationAddr, 0, 0, 0, '', '');
+    insertSaleEvent("transferRequest", tokenId, tk.price, 1, destinationAddr, 0, 0, 0, '', '');
     res.sendStatus(202);
 
     transferToken(tk, destinationAddr, req.app)

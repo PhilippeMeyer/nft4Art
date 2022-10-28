@@ -144,11 +144,12 @@ input[type="submit"]:hover {
 .saleMain {
   position: relative;
   background: rgba(215, 209, 208, 0.9);
+  height: 100%
 }
 
 .qrCode {
   position: absolute;
-  bottom: 200px;
+  bottom: 150px;
   width: 100%;
 }
 

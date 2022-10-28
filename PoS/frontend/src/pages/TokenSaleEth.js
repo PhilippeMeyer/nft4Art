@@ -4,12 +4,14 @@ import { useSnackbar } from 'notistack';
 import Button from '@mui/material/Button';
 import QRcodeScanner from '../QRcodeScanner';
 import TextField from '@mui/material/TextField';
+import { Box } from '@mui/system';
+import InputAdornment from '@mui/material/InputAdornment';
 
 const timeout = process.env.REACT_APP_SALES_TIMEOUT *1000;
 
 const httpServer = process.env.REACT_APP_SERVER;
 const lockUrl = httpServer + 'lockUnlock?';
-const priceUrl = httpServer + 'apiV1/priceInCrypto?';
+const priceUrl = httpServer + 'apiV1/price/priceInCrypto?';
 const QRcode = httpServer + 'QRcode';
 
 
@@ -79,26 +81,33 @@ function TokenSaleEth() {
   else
     return (
       <>
-        <main>
-          <h1 className="title">Sale of token #{token.id} in Ether</h1>
-          <h2>Token price: {token.price} CHF</h2>
-          <h2>Token price: {price.priceFiat} Ethers based on Ether price at {price.rate}</h2>
-          <TextField  autoFocus margin="dense" id="amount" label="Negociated price" type="number" variant="standard"
+        <Box className='saleMain'>
+          <img className="opaqueImg" src={token.overviewUrl}/>
+          <Box className='boxTitle'>
+            <h1 className="title">Sale of token {token.description} in Ether</h1>
+            <h1 className="title">Token price: {token.price} CHF</h1>
+            <h1 className="title">Token price: {price.priceFiat} Ethers based on Ether price at {price.rate}</h1>
+            <TextField  sx={{my:5}}autoFocus id="amount" label="Negociated price" type="number" variant="standard" color="warning"
                   onChange={(e) => setNogociatedPrice(e.target.value)}
-          />
-          <br></br>
-          <h2>The ethers should be sent to the address: {token.addr} represented by the QR code below</h2>
-          <img src={QRcode} />
-          <br></br>
-          <p>When the cash transaction is completed, please scan the customer's personnal address</p>
-          <QRcodeScanner
+                  InputProps={{ startAdornment: <InputAdornment position="start">ETH</InputAdornment>, style: {fontSize: 40 } }}
+                  InputLabelProps={{style: {fontSize: 35}}}
+            />
+            <br></br>
+            <h2 className="subTitle">The ethers should be sent to the address: {token.addr} represented by the QR code below</h2>
+            <img src={QRcode} />
+            <br></br>
+            <h2 className="subTitle">Please scan below the customer's personnal address</h2>
+          </Box>
+          <Box className='qrCode'>
+            <QRcodeScanner
                   fps={10}
                   qrbox={250}
                   disableFlip={false}
                   qrCodeSuccessCallback={onNewScanResult}
-          />
-          <Button onClick={cancel}>Cancel</Button>
-        </main>
+            />
+            <Button sx={{m:5}} onClick={cancel} color='warning'>Cancel</Button>
+          </Box>
+        </Box>
       </>
     );
 }
