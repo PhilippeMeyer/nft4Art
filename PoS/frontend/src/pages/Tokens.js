@@ -136,6 +136,7 @@ function Tokens() {
   const updatePriceField = (e) => {
     if (e.target === undefined) return;
 
+    console.log('target: ', e.target.id, e.target.value);
     let i = parseInt(e.target.id);
     let value = Number(e.target.value);
 
@@ -146,9 +147,13 @@ function Tokens() {
   const save = async () => {
     let tokensUpdate = [];
     console.log(priceUpdate);
-    priceUpdate.map((index) => { 
-        let t = { id: tokens[index].id, price: tokens[index].price };
-        tokensUpdate.push(t); 
+    priceUpdate.map((index) => {
+        let tk = tokens.find((elt) => elt.tokenIdStr == index)
+        console.log(tk);
+        if (tk != null)  {
+          let t = { id: tk.id, price: tk.price };
+          tokensUpdate.push(t); 
+        }
     });
     console.log(tokensUpdate);
     const cancel = () => { loadData(); };
@@ -192,7 +197,7 @@ function Tokens() {
                 <TableCell align="left" component="th" scope="row">{token.availableTokens}</TableCell>
                 <TableCell align="left" component="th" scope="row">{token.description}</TableCell>
                 <TableCell align="left" component="th" scope="row">
-                  <TextField id={index.toString()} label="New Price" variant="standard" type="number" defaultValue={token.price} 
+                  <TextField id={token.tokenIdStr} label="New Price" variant="standard" type="number" defaultValue={token.price} 
                     onChange={updatePriceField}
                     InputProps={{
                       startAdornment: <InputAdornment position="start">Chf</InputAdornment>,
