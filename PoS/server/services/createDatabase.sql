@@ -17,7 +17,7 @@ create table tokens (
     createdOn datetime default current_timestamp);
 
 create table appIds (
-    appId text primary key,
+    appId text,
     addressEth text,
     nonce integer
     createdOn datetime default current_timestamp);

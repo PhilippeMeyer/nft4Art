@@ -14,6 +14,8 @@ const url = server + '/apiV1/auth/appLogin';
 const urlDrop = server + '/apiV1/auth/appLoginDrop';
 //const wallet: Wallet = Wallet.createRandom();
 const wallet: Wallet = Wallet.fromMnemonic('ski ring tiny nephew beauty develop diesel gadget defense discover border cactus');
+const wallet2: Wallet = Wallet.fromMnemonic('romance sniff swing side fresh dish easy vast evolve obey wrap pioneer');
+
 var jwt: string = "";
 
 type AppLogin = {

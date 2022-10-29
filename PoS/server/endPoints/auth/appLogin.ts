@@ -34,10 +34,15 @@ async function appLogin(req: Request, res: Response) {
     let app = dbPos.findAppId(login.message.address);
     if (app == null) dbPos.insertNewAppId(login.message);
     else {
+        
+/*  Section removed for now. Removing this we enable two different appId to connect with the same ethereum address. 
+    This will need to be reintroduced when the votes will be in place
+
         if (app.appId != login.message.appId) {
             logger.info('server.loginApp.alreadyRegistered');
             return res.status(403).json({error: { name: 'addressRegistered', message: 'address already registered with device: ' + app.appId}})
         }
+*/
         if (login.message.nonce <= app.nonce) {
             logger.info('server.loginApp.messageAlreadyUsed');
             return res.status(403).json({error: { name: 'messageUsed', message: 'login message already received'}});
