@@ -235,7 +235,7 @@ app.post('/apiV1/token/batchMintFinalize', upload.any(), batchMintFinalize);
 app.post('/apiV1/token/addSmartContract', verifyTokenManager, addSmartContract);
 app.get('/apiV1/token/collectionImg', collectionImage);
 app.get('/apiV1/token/collectionMap', collectionMap);
-app.get(['/apiV1/token/list', '/tokens'], verifyToken, (req: Request, res: Response) => {
+app.get(['/apiV1/token/list', '/tokens'], (req: Request, res: Response) => {
     res.status(200).json(app.locals.metas);
 });
 app.get(['/apiV1/token/token', '/token'], verifyToken, (req: Request, res: Response) => {
