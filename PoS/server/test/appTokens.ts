@@ -16,7 +16,8 @@ const urlTokens = server + '/apiV1/information/tokensOwned';
 const urlModel = server + '/apiV1/information/3Dmodel';
 
 //const wallet: Wallet = Wallet.createRandom();
-const wallet: Wallet = Wallet.fromMnemonic('ski ring tiny nephew beauty develop diesel gadget defense discover border cactus');
+//const wallet: Wallet = Wallet.fromMnemonic('ski ring tiny nephew beauty develop diesel gadget defense discover border cactus');
+const wallet: Wallet = Wallet.fromMnemonic('romance sniff swing side fresh dish easy vast evolve obey wrap pioneer');
 var jwt: string = "";
 
 type AppLogin = {
