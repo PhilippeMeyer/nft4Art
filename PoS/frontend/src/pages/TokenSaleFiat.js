@@ -59,10 +59,8 @@ function TokenSaleFiat() {
     );
   else
     return (
-      <>
-        <Box className='saleMain'>
-            <img className="opaqueImg" src={token.overviewUrl}/>
-            <Box className='boxTitle'>
+        <Box className='saleMain' style={{backgroundImage:'url('+token.overviewUrl+')'}}>
+           {/*  <Box className='boxTitle'>
               <h1 className="title">Sale of token {token.description}</h1>
               <TextField className='leftAligned' label="New Price" variant="standard" type="number" defaultValue={token.price} color='warning'
                   onChange={updatePriceField}
@@ -78,9 +76,25 @@ function TokenSaleFiat() {
                     qrCodeSuccessCallback={onNewScanResult}
             />
             <Button sx={{m:5}} onClick={cancel} color='warning'>Cancel</Button>
+            </Box> */}
+            <Box className='boxTitle'>
+              <h1 className="title">Sale of token {token.description}</h1>
+              <TextField className='leftAligned' label="New Price" variant="standard" type="number" defaultValue={token.price} color='warning'
+                  onChange={updatePriceField}
+                  InputProps={{ startAdornment: <InputAdornment position="start">Chf</InputAdornment>, style: {fontSize: 40 } }}
+                  InputLabelProps={{style: {fontSize: 35}}}
+              />
+            </Box>
+            <Box className='qrCode'>
+            <QRcodeScanner
+                    fps={10}
+                    qrbox={250}
+                    disableFlip={false}
+                    qrCodeSuccessCallback={onNewScanResult}
+            />
+            <Button sx={{m:{xs:0, md:2}}} onClick={cancel} color='warning'>Cancel</Button>
             </Box>
         </Box>
-      </>
     );
 }
 

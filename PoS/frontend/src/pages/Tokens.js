@@ -229,9 +229,9 @@ function Tokens() {
           </TableFooter>
 
         </Table>
-        <Box>
-          <Button sx={{p:10}} onClick={cancel}>Cancel</Button>
-          <Button sx={{p:10}} onClick={save}>Save</Button>
+        <Box sx={{mt:5}}>
+          <Button sx={{p:1}} onClick={cancel}>Cancel</Button>
+          <Button sx={{p:1}} onClick={save}>Save</Button>
         </Box>
         <NavbarManager />
       </Box>

@@ -49,10 +49,9 @@
   display: flex;
   align-items: center;
   text-align: center;
-  justify-content: center;
   flex-direction: column;
   gap: 20px;
-  height: 100vh;
+  min-height: 100vh;
   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
 }
 
@@ -136,27 +135,54 @@ input[type="submit"]:hover {
 }
 
 .opaqueImg {
-  background-blend-mode: screen;
   background-color: rgba(215, 209, 208, 0.9);
-  height: 100%
+  height: 100vh;
 }
 
 .saleMain {
-  position: relative;
-  background: rgba(215, 209, 208, 0.9);
-  height: 100%
+  height: 100vh;
+  width:100vw;
+  background-color: rgba(215, 209, 208, 0.9);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position:relative;
 }
 
 .qrCode {
   position: absolute;
-  bottom: 150px;
+  bottom: 0px;
   width: 100%;
 }
 
+@media screen and (min-width: 500px) {
+  .boxTitle {
+    bottom: 150px;
+  }
+}
+
+
+
 .boxTitle {
   position: absolute;
-  top: 200px;
-  left: 150px;
-  width: 100%;
+  top: 30px;
   text-align: left;
+  left: 20px;
+}
+
+@media screen and (min-width: 500px) {
+  .boxTitle {
+    top: 200px;
+    left: 150px;
+
+  }
+}
+
+#html5qr-code-full-region__camera_permission_button {
+  background-color: #a1b7ff;
+  padding: 10px;
+  border: 0;
+  color: white;
+  margin-bottom: 10px;
+  border-radius: 4px;
 }
