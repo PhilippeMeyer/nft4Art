@@ -1,10 +1,6 @@
-import { Response } from "express";
-import fs from "fs";
-import path from "path";
+import { Request, Response } from "express";
 
 import { logger } from "../../loggerConfiguration.js";
-import { RequestCustom } from "../../requestCustom.js";
-import { config } from "../../config.js"
 
 
 //
@@ -14,16 +10,15 @@ import { config } from "../../config.js"
 // Gets as input the token for which the 3D model is required
 //
 
-function threeDmodel(req: RequestCustom, res: Response) {
+function threeDmodel(req: Request, res: Response) {
     if (req.query.tokenId === 'undefined') {
-      logger.warn('server.threeDmodel.missingTokenId for address: %s', req.address);
+      logger.warn('server.threeDmodel.missingTokenId');
       res.sendStatus(400);
       return;
     }
   
-    logger.info('server.threeDmodel %s, tokenID %s', req.address, req.query.tokenId);
+    logger.info('server.threeDmodel.tokenID %s', req.query.tokenId);
 
-    // TODO Manage the tokenId to retreive the associated model. For now, always sending the same
     let data: Buffer = req.app.locals.icons.get(req.query.tokenId + 'model');
     if (data == null) {
       logger.error('server.threeDmodel.missingModel %s', req.query.tokenId);

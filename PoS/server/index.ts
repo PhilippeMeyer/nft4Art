@@ -222,7 +222,7 @@ app.put("/apiV1/auth/authorizePoS", verifyTokenManager, authorizePoS);
 
 app.get('/apiV1/information/video', verifyTokenApp, video);
 app.get('/apiV1/information/tokensOwned', verifyTokenApp, tokensOwned);
-app.get('/apiV1/information/3Dmodel', verifyTokenApp, threeDmodel);
+app.get('/apiV1/information/3Dmodel', threeDmodel);
 app.get("/apiV1/information/generateWallets", verifyTokenManager, generateWallets);
 
 app.get('/apiV1/price/priceInCrypto', priceInCrypto);
