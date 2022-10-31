@@ -45,6 +45,7 @@ import { addSmartContract } from "./endPoints/token/addSmartContract.js";
 import { listQuestionnaireForUser } from "./endPoints/vote/Questionnaire.js";
 import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
 import { transferEth } from "./endPoints/sale/transferEth.js";
+import { transferBtc } from "./endPoints/sale/transferBtc.js"
 
 
 // TODO: Env var?
@@ -72,15 +73,15 @@ const upload = multer({ storage: storage })
 
 // Global variables
 
-var databaseInitialized = false;            // Is the database initialized? Used to wait for the database init before starting the server
+var databaseInitialized = false;                    // Is the database initialized? Used to wait for the database init before starting the server
 
 //TODO: have a look if it is possible to type the loki collection
-var registeredPoS: any;                     // Database collection of registered point of sale
-var tokens: any;                            // Database collection of tokens
-var saleEvents: any;                        // Database collection of events (lock/unlock/transfer/completedTransfer)
-//var appIds: Collection<AppLoginMessage>;    // Database collection of companion app Ids
-//var wallet: Wallet;                         // Wallet
-//let ethProvider: providers.JsonRpcProvider; // Connection provider to Ethereum
+var registeredPoS: any;                             // Database collection of registered point of sale
+var tokens: any;                                    // Database collection of tokens
+var saleEvents: any;                                // Database collection of events (lock/unlock/transfer/completedTransfer)
+//var appIds: Collection<AppLoginMessage>;          // Database collection of companion app Ids
+//var wallet: Wallet;                               // Wallet
+//let ethProvider: providers.JsonRpcProvider;       // Connection provider to Ethereum
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -274,6 +275,10 @@ app.get("/QRCode", function (req: Request, res: Response) {
     res.type("png");
     res.status(200).sendFile(path.join(__dirname, config.cacheFolder, req.app.locals.token.address + '.png'));
 });
+app.get("/QRCodeBtc", function (req: Request, res: Response) {
+    res.type("png");
+    res.status(200).sendFile(path.join(__dirname, config.cacheFolder, config.bitcoinAddr + '.png'));
+});
 
 
 //
@@ -315,6 +320,7 @@ app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCust
 
 app.post("/apiV1/sale/transfer", verifyToken, transfer);
 app.post("/apiV1/sale/transferEth", verifyToken, transferEth);
+app.post("/apiV1/sale/transferBtc", verifyToken, transferBtc);
 
 //
 // /apiV1/token/mintIpfsFolder

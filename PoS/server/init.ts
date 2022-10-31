@@ -45,6 +45,7 @@ async function init(exApp: any, config: any) {
 
     exApp.locals.passHash = "";
     exApp.locals.wallet = null;
+    exApp.locals.walletLoaded = false;
     exApp.locals.ethProvider = await new providers.InfuraProvider(config.network, config.infuraKey);
 
 
@@ -84,6 +85,8 @@ async function loadToken(token: Contract, exApp:any ) {
 
     const QRaddr: string = path.join(config.cacheFolder, token.address + '.png');
     if(!fs.existsSync(QRaddr)) await QRCode.toFile(QRaddr, token.address);
+    const QRaddrBtc: string = path.join(config.cacheFolder, config.bitcoinAddr + '.png');
+    if(!fs.existsSync(QRaddrBtc)) await QRCode.toFile(QRaddrBtc, token.address);
 
     let i: number = 0;
     let str: string, strToken: string;
