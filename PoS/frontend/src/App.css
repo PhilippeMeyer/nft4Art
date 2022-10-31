@@ -151,30 +151,31 @@ input[type="submit"]:hover {
 
 .qrCode {
   position: absolute;
-  bottom: 0px;
-  width: 100%;
+  bottom: 1vh;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, 0%);
 }
-
-@media screen and (min-width: 500px) {
-  .boxTitle {
-    bottom: 150px;
-  }
-}
-
-
 
 .boxTitle {
   position: absolute;
-  top: 30px;
+  top: 2vh;
   text-align: left;
-  left: 20px;
+  left: 2vw;
 }
 
+@media screen and (min-height: 800px) {
+  .boxTitle {
+    top: 10vh;
+    bottom: 15vh;
+  }
+  .qrCode {
+    bottom: 5vh;
+  }
+}
 @media screen and (min-width: 500px) {
   .boxTitle {
-    top: 200px;
-    left: 150px;
-
+    left: 10vw;
   }
 }
 
@@ -185,4 +186,12 @@ input[type="submit"]:hover {
   color: white;
   margin-bottom: 10px;
   border-radius: 4px;
+}
+
+.loginScreen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
 }

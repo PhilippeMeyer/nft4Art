@@ -21,7 +21,7 @@ function TokenSaleEth() {
   const location = useLocation();
   const navigate = useNavigate();
   const [constructorHasRun, setConstructorHasRun] = useState(false);
-  const [price, setPrice] = useState({});
+  const [price, setPrice] = useState(undefined);
   const [finalPrice, setFinalPrice] = useState();
   const timer = useRef(null);
 
@@ -74,28 +74,23 @@ function TokenSaleEth() {
   
   constructor();
   
-  if (token === undefined)
+  if ((token === undefined) || (price === undefined))
     return (
       <><main><h1>Error loading token</h1></main></>
     );
   else
     return (
-      <>
-        <Box className='saleMain'>
-          <img className="opaqueImg" src={token.overviewUrl}/>
+        <Box className='saleMain' style={{backgroundImage:'url('+token.overviewUrl+')'}}>
           <Box className='boxTitle'>
             <h1 className="title">Sale of token {token.description} in Ether</h1>
-            <h1 className="title">Token price: {token.price} CHF</h1>
-            <h1 className="title">Token price: {price.priceFiat} Ethers based on Ether price at {price.rate}</h1>
-            <TextField  sx={{my:5}}autoFocus id="amount" label="Negociated price" type="number" variant="standard" color="warning"
+            <h1 className="title">Token price: {price.priceFiat} CHF / {price.price.toFixed(5)} Ethers (Ether price: {price.rate.toFixed(2)} CHF)</h1>
+            <TextField sx={{mb:2}} className='leftAligned' autoFocus id="amount" label="Negociated price" type="number" variant="standard" color="warning"
                   onChange={(e) => setNogociatedPrice(e.target.value)}
                   InputProps={{ startAdornment: <InputAdornment position="start">ETH</InputAdornment>, style: {fontSize: 40 } }}
                   InputLabelProps={{style: {fontSize: 35}}}
             />
-            <br></br>
             <h2 className="subTitle">The ethers should be sent to the address: {token.addr} represented by the QR code below</h2>
-            <img src={QRcode} />
-            <br></br>
+            <img src={QRcode}/>
             <h2 className="subTitle">Please scan below the customer's personnal address</h2>
           </Box>
           <Box className='qrCode'>
@@ -105,10 +100,9 @@ function TokenSaleEth() {
                   disableFlip={false}
                   qrCodeSuccessCallback={onNewScanResult}
             />
-            <Button sx={{m:5}} onClick={cancel} color='warning'>Cancel</Button>
+            <Button sx={{m:{xs:0, md:2}}} onClick={cancel} color='primary' variant="info">primary</Button>
           </Box>
         </Box>
-      </>
     );
 }
 
