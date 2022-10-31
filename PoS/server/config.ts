@@ -10,6 +10,7 @@ config.cacheFolder = process.env.APP_CACHE_FOLDER;
 config.priceFeedETH = process.env.APP_PRICE_FEED_ETH;
 config.priceFeedBTC = process.env.APP_PRICE_FEED_BTC;
 config.priceFeedCHF = process.env.APP_PRICE_FEED_CHF;
+config.bitcoinAddr = process.env.APP_BITCOIN_ADDR;
 config.gvdNftAbiFile = process.env.APP_GVDNFT_ABI_FILE;
 config.urlIpfs = process.env.APP_IPFS_URL;
 config.dbName = process.env.APP_DB_NAME;
