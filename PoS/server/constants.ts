@@ -7,6 +7,7 @@ export const NFT4ART_SALE_REQUESTED_MSG = "saleRequested";
 export const NFT4ART_SALE_INITIATED_MSG = "saleInitiated";
 export const NFT4ART_SALE_ERROR_MSG = "saleError";
 export const NFT4ART_SALE_STORED_MSG = "saleStored";
+export const NFT4ART_SALE_LOGIN_POS_MSG = "saleLogin";
 export const NFT4ART_SALE_PAID = 2;
 export const NFT4ART_SALE_PAID_MSG = "salePaid";
 export const NFT4ART_SALE_TRANSFERRED = 3;
