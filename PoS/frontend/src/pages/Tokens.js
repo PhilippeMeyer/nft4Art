@@ -123,7 +123,9 @@ function Tokens() {
   };
 
   useEffect(() => { 
-    loadData(); }, [location]);
+    loadData(); 
+    setRowsPerPage(Math.floor((window.innerHeight - 300)/120));
+  }, [location]);
 
   
   const loadData = () => {
@@ -171,16 +173,16 @@ function Tokens() {
   if (tokens.length == 0 || tokens.length === undefined) return (<><main><NavbarManager /></main></>);
 
   return (
-      <Box sx={{width: 4/5, m:5, p:5}}>
+      <Box sx={{width: {sm: 4/5}, m: {sm:5}, p:{sm:5}}}>
         <h1 className="title">Tokens available for sale</h1><br></br>
         <Table aria-label="tokens table">
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
               <TableCell>Id</TableCell>
-              <TableCell>Collection</TableCell>
+              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }}}>Collection</TableCell>
               <TableCell>Qty</TableCell>
-              <TableCell>Name</TableCell>
+              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }}}>Name</TableCell>
               <TableCell>Price</TableCell>
             </TableRow>
           </TableHead>
@@ -193,9 +195,9 @@ function Tokens() {
                   <Avatar src={token.iconUrl} sx={{ width: 70, height: 70 }}/>
                 </TableCell>
                 <TableCell align="left" component="th" scope="row">{token.tokenIdStr}</TableCell>
-                <TableCell align="left" component="th" scope="row">{token.collectionId}</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }}} align="left" component="th" scope="row">{token.collectionId}</TableCell>
                 <TableCell align="left" component="th" scope="row">{token.availableTokens}</TableCell>
-                <TableCell align="left" component="th" scope="row">{token.description}</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }}} align="left" component="th" scope="row">{token.description}</TableCell>
                 <TableCell align="left" component="th" scope="row">
                   <TextField id={token.tokenIdStr} label="New Price" variant="standard" type="number" defaultValue={token.price} 
                     onChange={updatePriceField}
@@ -207,11 +209,11 @@ function Tokens() {
               </TableRow>
             )}
           </TableBody>
-          <TableFooter className="rightAligned">
-            <TableRow className="rightAligned">
-              <TablePagination className="rightAligned"
+          <TableFooter>
+            <TableRow>
+              <TablePagination
                 rowsPerPageOptions={[5, 10, 20, { label: 'All', value: -1 }]}
-                colSpan={3}
+                colSpan={5}
                 count={tokens.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
