@@ -9,7 +9,7 @@ import NavbarManager from "./NavbarManager";
 const httpServer = process.env.REACT_APP_SERVER;
 const timeout = process.env.REACT_APP_SALES_TIMEOUT;
 const lockUrl = httpServer + 'lockUnlock?';
-const tfrUrl = httpServer + 'apiV1/sale/transferEtn';
+const tfrUrl = httpServer + 'apiV1/sale/transferEth';
 
 function TokenTransfer() {
 
