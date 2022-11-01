@@ -287,7 +287,7 @@ app.get("/QRCodeBtc", function (req: Request, res: Response) {
 // This end point sends back all the registered PoS
 //
 app.get("/apiV1/auth/registeredPoS", verifyTokenManager, function (req: Request, res: Response) {
-    res.status(200).json(registeredPoS.find());
+    res.status(200).json(dbPos.findAllRegisteredPos());
 });
 
 //

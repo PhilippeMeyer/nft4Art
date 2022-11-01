@@ -38,6 +38,10 @@ const findRegisteredPosByIp = function(ip: string) {
     return findOne('registeredPoS', 'ip', ip);
 };
 
+const findAllRegisteredPos = function() {
+    return db.prepare('SELECT * from registeredPoS').all();
+}
+
 const insertNewPos = function(posObj: any) {
     posObj.namePoS = "undefined";
     const {deviceId, authorized, namePoS, browser, browserVersion, ip} = posObj;
@@ -158,7 +162,7 @@ const findSaleEventByAddress = function(address:string, amount:number) {
 
 
 export {    initDb, closeDb, 
-            findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos,
+            findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos, findAllRegisteredPos,
             findToken, insertNewToken, updatePriceToken, updateLockToken, findAllTokens,
             findAppId, insertNewAppId, updateNonceAppId, removeAppId,
             insertNewSmartContract, findAllSmartContracts,
