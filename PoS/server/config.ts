@@ -21,5 +21,6 @@ config.mapCollectionUrl = process.env.APP_WEBSITE + "/apiV1/token/collectioMap?i
 config.jwtExpiry = process.env.APP_JWT_EXPIRY;
 config.nftSorageToken = process.env.APP_NFTSTORAGE_TOKEN;
 config.galleryLogo = process.env.APP_GALLERY_LOGO;
+config.urlAppInstallation = process.env.APP_WEBSITE + "/installApp";
 
 export { config };
