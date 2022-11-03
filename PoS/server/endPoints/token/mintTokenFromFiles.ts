@@ -99,6 +99,7 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
         var metadata: any = {};
 
         for (const file of files) {
+            console.log('storing ', file);
             var cid = await client.storeBlob(new Blob([file.buffer]));
             logger.info('server.mintFromFiles.createIpfsFile %s', cid);
             metadata[file.fieldname] = "ipfs://" + cid;

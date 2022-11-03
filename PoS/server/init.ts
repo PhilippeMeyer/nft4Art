@@ -265,31 +265,31 @@ async function loadToken(token: Contract, exApp:any ) {
     //
     // Retrieve the images, looking at the cache in case the image has been already retrieved
     //
-    const getImages = Promise.all(
-        metas.map(async (meta: any) => {
-            let cid = config.cacheFolder + meta.image_raw.replace("ipfs://", "");
-            try {
-                if (fs.existsSync(cid)) {
-                    logger.info("server.init.loadImages.cache %s", cid);
-                    buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
-                } else {
-                    logger.info("server.init.loadImages.ipfs %s", cid);
-                    let image = meta.image_raw.replace("ipfs", "https").concat(".ipfs.dweb.link");
-                    const resp = await axios.get(image, { responseType: "arraybuffer" });
-                    buf = Buffer.from(resp.data, "binary");
-                    fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" });
-                }
+    // const getImages = Promise.all(
+    //     metas.map(async (meta: any) => {
+    //         let cid = config.cacheFolder + meta.image_raw.replace("ipfs://", "");
+    //         try {
+    //             if (fs.existsSync(cid)) {
+    //                 logger.info("server.init.loadImages.cache %s", cid);
+    //                 buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
+    //             } else {
+    //                 logger.info("server.init.loadImages.ipfs %s", cid);
+    //                 let image = meta.image_raw.replace("ipfs", "https").concat(".ipfs.dweb.link");
+    //                 const resp = await axios.get(image, { responseType: "arraybuffer" });
+    //                 buf = Buffer.from(resp.data, "binary");
+    //                 fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" });
+    //             }
 
-                images.set(meta.id, buf);
-            } catch (error) {
-                logger.error("server.init.loadIcons %s", error);
-            }
+    //             images.set(meta.id, buf);
+    //         } catch (error) {
+    //             logger.error("server.init.loadIcons %s", error);
+    //         }
 
-            meta.imgUrl = config.imgUrl + meta.id;
-        }),
-    );
+    //         meta.imgUrl = config.imgUrl + meta.id;
+    //     }),
+    // );
 
-    await Promise.all([getIcons, getImages]);
+    await Promise.all([getIcons]);
 
     const imageProperties = ['iso1', 'bottom', 'iso2', 'right', 'front', 'left', 'iso3', 'top', 'iso4'];
 

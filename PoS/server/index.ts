@@ -68,8 +68,8 @@ const SALES_EVENTS_COLLECTION_NAME = "saleEvents";
 const APP_ID_COLLECTION_NAME = "appIds";
 
 const storage = multer.memoryStorage()
-const upload = multer({ storage: storage })
-//const upload = multer({dest: 'uploads/'});
+//const upload = multer({ storage: storage })
+const upload = multer({dest: 'uploads/', limits: { fileSize: 1024 * 1024 * 500 }});
 
 // Global variables
 
@@ -189,7 +189,6 @@ app.use(express.json());
 app.use(expressWinston.logger(logConf));
 app.set('views', path.join(config.__dirname, 'views'));
 app.set('view engine', 'ejs');
-
 
 waitFor(() => databaseInitialized).then(() =>
     server.listen(process.env.PORT || 8999, () => {
@@ -313,7 +312,7 @@ app.get("/apiV1/log/allEvents", verifyTokenManager, function (req: Request, res:
 //
 // This end point deploys on the blockchain a new token
 //
-app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCustom, res :Response) {
+app.post('/apiV1/sale/createToken', verifyTokenManager, async function(req :RequestCustom, res :Response) {
     let contract:any = await createSmartContract(app);
     res.status(200).json({contractAddress: contract.address});
   });
