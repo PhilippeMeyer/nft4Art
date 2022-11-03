@@ -119,6 +119,7 @@ function TokenGrid({ collectionId }) {
                   id={token.id}
                   loading="lazy"
                   onClick={onclick}
+                  style={{'background-color':'white'}}
                 />
                 <ImageListItemBar
                   title={`Price: ${token.price}CHF`}
