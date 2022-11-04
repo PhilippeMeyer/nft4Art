@@ -10,6 +10,7 @@ import archiver from "archiver";
 import { config } from "../../config.js"
 
 const logo = config.galleryLogo;
+const appStoreLogo = './public/appStoreLogo.png'
 
 async function generateWallets(req: Request, res: Response) {
     let nbWallets = 10;
@@ -27,6 +28,8 @@ async function generateWallets(req: Request, res: Response) {
     var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "nft4Art"));
     const envFile = fs.createWriteStream(path.join(tmpDir, "enveloppes.pdf"));
     const docFile = fs.createWriteStream(path.join(tmpDir, "wallets.pdf"));
+    const qrc = await QRCode.toFile(path.join(tmpDir, 'installationQRcode.png'), config.urlAppInstallation);
+
     envFile.on("finish", () => {
         fileWritten();
     });
@@ -43,34 +46,37 @@ async function generateWallets(req: Request, res: Response) {
         env.font("Helvetica").fontSize(10);
         env.addPage();
         env.image(logo, 20, 20, { width: 120 });
-        env.image(path.join(tmpDir, "addr" + i + ".png"), 400, 30, {
-            width: 200,
-        });
+        env.image(path.join(tmpDir, "addr" + i + ".png"), 400, 30, { width: 200 });
         env.fontSize(10).text("Ethereum address:", 0, 240, { align: "right" });
         env.font("Courier").fontSize(10).text(w.address, { align: "right" });
+        env.moveDown(2).text((i+1) + '/' + nbWallets, { align: "right" });
 
         doc.addPage();
+        doc.fontSize(8).text((i+1) + '/' + nbWallets, { align: "right" });
         doc.image(logo, 20, 20, { width: 150 });
-        doc.moveDown(8);
-        doc.font("Helvetica-Bold").fontSize(25).text("Your personnal Ethereum Wallet", { align: "center" });
-        doc.moveDown(3);
+        doc.moveDown(5);
+        doc.font("Helvetica-Bold").fontSize(20).text("Your personnal Ethereum Paper Wallet");
+        doc.moveDown(1);
         doc.font("Times-Roman").fontSize(12);
         doc.text(
-            "You'll find below the mnemonic words that you will insert in any Ethereum compatible wallet. This list of words represents the secret which enables you to access your newly purchased piece of art. Do not communicate this information to anybody!",
+            "Insert the mnemonic words below in any Ethereum compatible wallet to access your digital artwork by Thomas Julier. Treat this as a password and do not share it with anyone."
         );
         doc.moveDown(2);
-        doc.font("Times-Bold").fontSize(12).text(w.mnemonic.phrase, { align: "center" });
+        doc.font("Times-Bold").fontSize(12).text(w.mnemonic.phrase);
         doc.moveDown(2);
         doc.fontSize(12).text("The Ethereum address of this wallet is: ", { continued: true });
         doc.font("Courier").fontSize(12).text(w.address);
         let qr = await QRCode.toFile(path.join(tmpDir, "phrase" + i + ".png"), w.mnemonic.phrase);
         doc.moveDown(2);
-        doc.font("Times-Roman").fontSize(12).text("In the Nft4ART app you'll be invited to scan your secret phrase:");
-        doc.moveDown(2);
-        doc.image(path.join(tmpDir, "phrase" + i + ".png"), 200, 500, {
-            width: 200,
-        });
+        doc.font("Times-Roman").fontSize(12).text("For an overview and co-governance of the artwork, install the companion App scanning the QR code below:");
+        let tempX = doc.x;
+        let tempY = doc.y;
+        doc.image(path.join(tmpDir, 'installationQRcode.png'), doc.x, doc.y, {width: 150});
+        doc.image(appStoreLogo, tempX + 150, tempY + 50, {width: 100});
+        doc.moveDown(2).text("And then, we running the companion app, scan the QR code below to insert your wallet");
+        doc.image(path.join(tmpDir, "phrase" + i + ".png"), doc.x, doc.y, {width: 150});
     }
+    
     doc.end();
     env.end();
 
