@@ -10,6 +10,7 @@ import NavbarManager from "../NavbarManager";
 
 const httpServer = process.env.REACT_APP_SERVER;
 const addSCUrl = httpServer + 'apiV1/token/addSmartContract?scAddress=';
+const deploySCUrl = httpServer + 'apiV1/sale/createToken';
 
 
 function Settings() {
@@ -32,20 +33,32 @@ function Settings() {
       .catch((e) => { enqueueSnackbar('Error connecting to server: ' + e);});
   };
 
+  const deploy = () => {
+    fetch(deploySCUrl, { method: 'POST', headers: { authorization: 'Bearer ' + jwt }})
+    .then((resp) => {
+      console.log(resp)
+      if (!resp.ok) {
+        enqueueSnackbar('Error connecting to server: ' + resp.status);
+      }
+    })
+    .catch((e) => { enqueueSnackbar('Error connecting to server: ' + e);});
+  }
+
   const changeValue = (evt) => { setScAddress(evt.target.value)}
 
   return (
-    <>
       <main>
-      <h1 className="title">Add an existing smart contract</h1>
-      <h2 className="subTitle">This adds an existing smart contract to the database</h2>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt:4}}>
-        <TextField id="scAddress" label="Smart Contract address" variant="standard" sx={{justifyContent: 'flex-end'}} onChange={changeValue}/>
-        <Button sx={{ ml:10, mt:3}} onClick={generate}>Add</Button>
-      </Box>
+        <h1 className="title">Add an existing smart contract</h1>
+        <h2 className="subTitle">This adds an existing smart contract to the database</h2>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt:4}}>
+          <TextField id="scAddress" label="Smart Contract address" variant="standard" sx={{justifyContent: 'flex-end'}} onChange={changeValue}/>
+          <Button sx={{ ml:10, mt:3}} onClick={generate}>Add</Button>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt:4}}>
+          <Button sx={{ ml:10, mt:3}} onClick={deploy}>Deploy a new Contract</Button>
+        </Box>
         <NavbarManager />
       </main>
-    </>
   );
 }
 
