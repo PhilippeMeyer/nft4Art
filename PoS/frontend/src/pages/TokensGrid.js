@@ -146,7 +146,8 @@ function TokenGrid({ collectionId }) {
                 Which currency is the customer requesting?
               </DialogContentText>
               <RadioGroup name="use-radio-group" defaultValue="fiat" onChange={changeCurrency}>
-                <FormControlLabel value="fiat" label="Chf" control={<Radio />} />
+              <FormControlLabel value="invoice" label="Invoice" control={<Radio />} />
+              <FormControlLabel value="fiat" label="Cash - Chf" control={<Radio />} />
                 <FormControlLabel value="btc" label="Bitcoin" control={<Radio />} />
                 <FormControlLabel value="eth" label="Ether" control={<Radio />} />
               </RadioGroup>

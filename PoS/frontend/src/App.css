@@ -164,6 +164,13 @@ input[type="submit"]:hover {
   left: 2vw;
 }
 
+.boxTitleBlock {
+  margin-top: 5vh;
+  text-align: left;
+  margin-left: 5vw;
+  margin-right: 10vw;
+}
+
 @media screen and (min-height: 800px) {
   .boxTitle {
     top: 10vh;

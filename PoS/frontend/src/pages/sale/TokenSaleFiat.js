@@ -8,7 +8,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 
 import Button from '@mui/material/Button';
-import QRcodeScanner from '../QRcodeScanner';
+import QRcodeScanner from '../../QRcodeScanner';
 
 const httpServer = process.env.REACT_APP_SERVER;
 //const timeout = process.env.REACT_APP_SALES_TIMEOUT;

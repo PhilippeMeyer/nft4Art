@@ -179,13 +179,14 @@ export default function SelectCollection() {
                       {collections[col].map !== undefined ?                       
                       <CardMedia
                         component="img"
-                        height="140px"
+                        height="150px"
+                        width="150px"
                         image={collections[col].imageUrl}
                         id={col}
                         alt={col}
-                      /> :
+                        /> :
                       <ReactAnimateImages
-                        style={{ height: "140px", width: "100%" }}
+                        style={{ height: "150px", width: "150px"}}
                         images={collections[col].images} 
                         framInterval={2000} 
                         id={col}

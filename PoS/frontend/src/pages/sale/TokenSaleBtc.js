@@ -2,7 +2,7 @@ import React, {useEffect, useState, useRef} from "react";
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack';
 import Button from '@mui/material/Button';
-import QRcodeScanner from '../QRcodeScanner';
+import QRcodeScanner from '../../QRcodeScanner';
 import TextField from '@mui/material/TextField';
 import { Box } from '@mui/system';
 import InputAdornment from '@mui/material/InputAdornment';

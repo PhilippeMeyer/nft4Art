@@ -49,8 +49,10 @@ class ReactAnimateImages extends React.Component {
 
     render() {
         const { activeImageIndex, images, className, style, id } = this.state
+        let style2 = {...style};
+        style2['object-fit']='cover';
         return (
-            <img src={images[activeImageIndex-1]} alt="" className={className} style={style} id={id}
+            <img src={images[activeImageIndex-1]} alt="" className={className} style={style2} id={id}
             />
         )
     }
