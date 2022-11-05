@@ -82,6 +82,7 @@ async function loadToken(token: Contract, exApp:any ) {
 
 
     if (!fs.existsSync(config.cacheFolder)) fs.mkdirSync(config.cacheFolder);
+    if (!fs.existsSync(config.invoiceFolder)) fs.mkdirSync(config.invoiceFolder);
 
     const QRaddr: string = path.join(config.cacheFolder, token.address + '.png');
     if(!fs.existsSync(QRaddr)) await QRCode.toFile(QRaddr, token.address);

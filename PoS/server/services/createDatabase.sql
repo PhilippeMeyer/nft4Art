@@ -54,3 +54,9 @@ create table voteQuestionnaire (
     checksum text,
     jsonData text,
     createdOn datetime default current_timestamp);
+
+create table invoices (
+    id integer primary key,
+    invoiceNumber text,
+    jsonData text,
+    createdOn datetime default current_timestamp);

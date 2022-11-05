@@ -160,6 +160,18 @@ const findSaleEventByAddress = function(address:string, amount:number) {
     else return result[0];
 }
 
+const findNextInvoiceId = function() {
+    const result = db.prepare('SELECT MAX(id) FROM invoices').all();
+    if (result[0]['MAX(id)'] == null) return(1);
+    else  return(result[0]['MAX(id)'] + 1);
+}
+
+const insertInvoice = function(invoice:any)  {
+    const stmt = db.prepare('INSERT INTO invoices(invoiceNumber,jsonData) VALUES (?, ?)');
+    const params = [invoice.invoiceNumber, JSON.stringify(invoice)];
+    const result = stmt.run(params);
+}
+
 
 export {    initDb, closeDb, 
             findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos, findAllRegisteredPos,
@@ -168,4 +180,5 @@ export {    initDb, closeDb,
             insertNewSmartContract, findAllSmartContracts,
             insertNewVote, findOneVote, findAllVote,
             insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire,
-            insertSaleEvent, findSaleEventByAddress };
+            insertSaleEvent, findSaleEventByAddress,
+            findNextInvoiceId, insertInvoice };

@@ -41,6 +41,7 @@ import { collectionImage, collectionMap } from "./endPoints/token/collectionImag
 import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/Questionnaire.js";
 import { sendVote, getVotes } from "./endPoints/vote/vote.js";
 import { transfer } from "./endPoints/sale/transfer.js"
+import { saleInvoice } from "./endPoints/sale/saleInvoice.js"
 import { addSmartContract } from "./endPoints/token/addSmartContract.js";
 import { listQuestionnaireForUser } from "./endPoints/vote/Questionnaire.js";
 import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
@@ -320,6 +321,7 @@ app.post('/apiV1/sale/createToken', verifyTokenManager, async function(req :Requ
 app.post("/apiV1/sale/transfer", verifyToken, transfer);
 app.post("/apiV1/sale/transferEth", verifyToken, transferEth);
 app.post("/apiV1/sale/transferBtc", verifyToken, transferBtc);
+app.post("/apiV1/sale/saleInvoice", verifyToken, saleInvoice);
 
 //
 // /apiV1/token/mintIpfsFolder
