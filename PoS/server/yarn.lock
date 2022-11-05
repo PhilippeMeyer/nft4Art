@@ -1608,6 +1608,13 @@
   "resolved" "https://registry.npmjs.org/blakejs/-/blakejs-1.2.1.tgz"
   "version" "1.2.1"
 
+"blob-stream@^0.1.3":
+  "integrity" "sha512-xXwyhgVmPsFVFFvtM5P0syI17/oae+MIjLn5jGhuD86mmSJ61EWMWmbPrV/0+bdcH9jQ2CzIhmTQKNUJL7IPog=="
+  "resolved" "https://registry.npmjs.org/blob-stream/-/blob-stream-0.1.3.tgz"
+  "version" "0.1.3"
+  dependencies:
+    "blob" "0.0.4"
+
 "blob-to-it@^1.0.1":
   "integrity" "sha512-iCmk0W4NdbrWgRRuxOriU8aM5ijeVLI61Zulsmg/lUHNr7pYjoj+U77opLefNagevtrrbMt3JQ5Qip7ar178kA=="
   "resolved" "https://registry.npmjs.org/blob-to-it/-/blob-to-it-1.0.4.tgz"
@@ -1619,6 +1626,11 @@
   "integrity" "sha512-T7JQa+zsXXEa6/8ZhHcQEW1UFfVM49Ts65uBkFL6fz2QmrElqmbajIDJvuA0tEhRe5eIjpV9ZF+0RfZR9voJFQ=="
   "resolved" "https://registry.npmjs.org/blob-util/-/blob-util-2.0.2.tgz"
   "version" "2.0.2"
+
+"blob@0.0.4":
+  "integrity" "sha512-YRc9zvVz4wNaxcXmiSgb9LAg7YYwqQ2xd0Sj6osfA7k/PKmIGVlnOYs3wOFdkRC9/JpQu8sGt/zHgJV7xzerfg=="
+  "resolved" "https://registry.npmjs.org/blob/-/blob-0.0.4.tgz"
+  "version" "0.0.4"
 
 "blockstore-core@^1.0.2":
   "integrity" "sha512-i/9CUMMvBALVbtSqUIuiWB3tk//a4Q2I2CEWiBuYNnhJvk/DWplXjLt8Sqc5VGkRVXVPSsEuH8fUtqJt5UFYcA=="
@@ -7486,6 +7498,16 @@
   "resolved" "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   "version" "1.0.0"
 
+"svg-engine@^0.2.3":
+  "integrity" "sha512-L7TFYQ9CyMclUmq9PNeHxcs2ajuq2tV7zCblj5bwPDqUBMryR9TsyrYMrV+nEFFMJgezxjb6mXfhKGNbZ/U14Q=="
+  "resolved" "https://registry.npmjs.org/svg-engine/-/svg-engine-0.2.3.tgz"
+  "version" "0.2.3"
+
+"svgpath@^2.5.0":
+  "integrity" "sha512-OIWR6bKzXvdXYyO4DK/UWa1VA1JeKq8E+0ug2DG98Y/vOmMpfZNj+TIG988HjfYSqtcy/hFOtZq/n/j5GSESNg=="
+  "resolved" "https://registry.npmjs.org/svgpath/-/svgpath-2.6.0.tgz"
+  "version" "2.6.0"
+
 "swarm-js@^0.1.40":
   "integrity" "sha512-BV7c/dVlA3R6ya1lMlSSNPLYrntt0LUq4YMgy3iwpCIc6rZnS5W2wUoctarZ5pXlpKtxDDf9hNziEkcfrxdhqQ=="
   "resolved" "https://registry.npmjs.org/swarm-js/-/swarm-js-0.1.42.tgz"
@@ -7502,6 +7524,17 @@
     "setimmediate" "^1.0.5"
     "tar" "^4.0.2"
     "xhr-request" "^1.0.1"
+
+"swissqrbill@^3.2.1":
+  "integrity" "sha512-YBKvu2ILON0/fkvEFHrDxufCUmDyibK1JVBOXfiGMWR8LSTqOp/5trg98OU2TVFPKVwBtWrMOzkkVQ7jCG6wyw=="
+  "resolved" "https://registry.npmjs.org/swissqrbill/-/swissqrbill-3.2.1.tgz"
+  "version" "3.2.1"
+  dependencies:
+    "@types/pdfkit" "^0.12.6"
+    "blob-stream" "^0.1.3"
+    "pdfkit" "^0.13.0"
+    "svg-engine" "^0.2.3"
+    "svgpath" "^2.5.0"
 
 "table-layout@^1.0.2":
   "integrity" "sha512-qd/R7n5rQTRFi+Zf2sk5XVVd9UQl6ZkduPFC3S7WEGJAmetDTjY3qPN50eSKzwuzEyQKy5TN2TiZdkIjos2L6A=="
