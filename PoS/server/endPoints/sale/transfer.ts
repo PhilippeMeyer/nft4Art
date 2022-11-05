@@ -22,7 +22,7 @@ async function transfer(req: RequestCustom, res: Response) {
     const tk = req.app.locals.metasMap.get(tokenId);
     if (tk == null) {
         logger.error("server.transfer.nonExitingToken");
-        res.send(500).json({error: "non exsting token"});
+        res.status(500).json({error: "non exsting token"});
         return;
     }
 
