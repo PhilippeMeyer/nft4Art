@@ -54,15 +54,14 @@ function TokenSaleInvoice() {
     console.log('data ', data)
     fetch(saleTokenInvoice, {method: 'POST', body: JSON.stringify(data), headers: jwtHeader});
 
-    enqueueSnackbar('Transfer token to :' );
-    //navigate('/sales/transfer/');
+    enqueueSnackbar('Invoice prepared' );
+    navigate('/sales/selectCollection/');
   };
 
   const cancel = () => {
     clearTimeout(timer.current);
 
     const params = new URLSearchParams({id: token.id, lock: false})
-    console.log('Cancel timeout tokenSaleFiat');
     fetch(lockUrl + params.toString(), {method: 'PUT'});
     navigate('/sales/selectCollection');
   };
@@ -85,7 +84,7 @@ function TokenSaleInvoice() {
         <Box className='saleMain' sx={{display: 'block'}} style={{backgroundImage:'url('+token.overviewUrl+')'}}>
           <Box className='boxTitleBlock'>
             <h1 className="title">Sale of token {token.description}</h1>
-            <TextField className='leftAligned' label="New Price" variant="standard" type="number" defaultValue={price} color='warning'
+            <TextField className='leftAligned' label="New Price" variant="standard" type="number" defaultValue={token.price} color='warning'
                 onChange={updatePriceField}
                 InputProps={{ startAdornment: <InputAdornment position="start">Chf</InputAdornment>, style: {fontSize: 40 } }}
                 InputLabelProps={{style: {fontSize: 35}}}
@@ -107,7 +106,7 @@ function TokenSaleInvoice() {
                         fullWidth
                         autoComplete="eMail"
                         variant="standard"
-                        onChange={(e) => {console.log(e.target.value); field.onChange(e?.target.value)}}
+                        onChange={(e) => { field.onChange(e?.target.value)}}
                       />
                     </Grid>}
                 />
@@ -122,7 +121,7 @@ function TokenSaleInvoice() {
                         fullWidth
                         autoComplete="given-name"
                         variant="standard"
-                        onChange={(e) => {console.log(e.target.value); field.onChange(e?.target.value)}}
+                        onChange={(e) => { field.onChange(e?.target.value)}}
                       />
                   </Grid>}
                 />
@@ -137,7 +136,7 @@ function TokenSaleInvoice() {
                         fullWidth
                         autoComplete="family-name"
                         variant="standard"
-                        onChange={(e) => {console.log(e.target.value); field.onChange(e?.target.value)}}
+                        onChange={(e) => { field.onChange(e?.target.value)}}
                     />
                   </Grid>}
                 />
@@ -152,7 +151,7 @@ function TokenSaleInvoice() {
                         fullWidth
                         autoComplete="shipping address-line1"
                         variant="standard"
-                        onChange={(e) => {console.log(e.target.value); field.onChange(e?.target.value)}}
+                        onChange={(e) => { field.onChange(e?.target.value)}}
                     />
                   </Grid>}
                 />
@@ -167,7 +166,7 @@ function TokenSaleInvoice() {
                         fullWidth
                         autoComplete="shipping address-line2"
                         variant="standard"
-                        onChange={(e) => {console.log(e.target.value); field.onChange(e?.target.value)}}
+                        onChange={(e) => { field.onChange(e?.target.value)}}
                     />
                   </Grid>}
                 />
@@ -182,7 +181,7 @@ function TokenSaleInvoice() {
                       fullWidth
                       autoComplete="shipping address-level2"
                       variant="standard"
-                      onChange={(e) => {console.log(e.target.value); field.onChange(e?.target.value)}}
+                      onChange={(e) => { field.onChange(e?.target.value)}}
                     />
                   </Grid>}
                 />
@@ -196,7 +195,7 @@ function TokenSaleInvoice() {
                       label="State/Province/Region"
                       fullWidth
                       variant="standard"
-                      onChange={(e) => {console.log(e.target.value); field.onChange(e?.target.value)}}
+                      onChange={(e) => {field.onChange(e?.target.value)}}
                     />
                   </Grid>}
                 />
@@ -211,7 +210,7 @@ function TokenSaleInvoice() {
                       fullWidth
                       autoComplete="shipping postal-code"
                       variant="standard"
-                      onChange={(e) => {console.log(e.target.value); field.onChange(e?.target.value)}}
+                      onChange={(e) => { field.onChange(e?.target.value)}}
                     />
                   </Grid>}
                 />
@@ -226,15 +225,15 @@ function TokenSaleInvoice() {
                       fullWidth
                       autoComplete="shipping country"
                       variant="standard"
-                      onChange={(e) => {console.log(e.target.value); field.onChange(e?.target.value)}}
+                      onChange={(e) => { field.onChange(e?.target.value)}}
                     />
                   </Grid>}
                 />
               </Grid>
 
               <Box sx={{m:5}}>
-                <Button sx={{mx:2}} type="submit" variant="contained" color="success">Submit</Button>
-                <Button sx={{mx:2}} variant="contained">Cancel</Button>
+                <Button sx={{mx:2}} type="submit" variant="contained">Submit</Button>
+                <Button sx={{mx:2}} variant="contained" onClick={cancel}>Cancel</Button>
               </Box>
             </form>
           </Box>

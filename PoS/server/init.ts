@@ -172,7 +172,6 @@ async function loadToken(token: Contract, exApp:any ) {
                 data.addr = token.address;
                 data.isLocked = false;
                 data.price = 0;
-                //tokens.insert(data);
                 dbPos.insertNewToken(data);
             } else {
                 data = JSON.parse(dataFromDb.jsonData);
