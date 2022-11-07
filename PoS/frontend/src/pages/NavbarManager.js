@@ -11,11 +11,12 @@ import PointOfSaleOutlinedIcon from '@mui/icons-material/PointOfSaleOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import HowToVoteOutlinedIcon from '@mui/icons-material/HowToVoteOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 
 import { useState } from "react";
 
 const NavbarManager = () => {
-  const navigateTo = [ '/manager/tokens', '/manager/wallets', '/manager/createVote','/manager/listQuestionnaire', '/manager/pointOfSale', '/manager/settings', '/login' ];
+  const navigateTo = [ '/manager/tokens', '/manager/wallets', '/manager/createVote','/manager/listQuestionnaire', '/manager/pointOfSale', '/manager/invoices', '/manager/settings', '/login' ];
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ const NavbarManager = () => {
         <BottomNavigationAction label="New Vote" icon={<AddCircleOutlinedIcon />} />
         <BottomNavigationAction label="Votes" icon={<HowToVoteOutlinedIcon />} />
         <BottomNavigationAction label="PoS" icon={<PointOfSaleOutlinedIcon />} />
+        <BottomNavigationAction label="Invoices" icon={<DescriptionOutlinedIcon />} />
         <BottomNavigationAction label="Settings" icon={<SettingsOutlinedIcon />} />
         <BottomNavigationAction label="Logout" icon={<LogoutOutlinedIcon />} />
 

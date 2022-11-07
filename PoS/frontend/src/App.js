@@ -26,6 +26,7 @@ import DisplayVote from "./pages/vote/DisplayVote";
 import ListQuesionnaire from "./pages/vote/ListQuestionnaire";
 import CreateVote  from './pages/vote/CreateVote';
 import Settings from './pages/PoS/Settings';
+import ListInvoices from './pages/sale/ListInvoices';
 
 import './App.css';
 
@@ -64,6 +65,7 @@ function App() {
             <Route path="/sales/transfer" element={<TokenTransfer />} />
             <Route path="/sales/transferETh" element={<TokenTransferEth />} />
             <Route path="/sales/transferBtc" element={<TokenTransferBtc />} />
+            <Route path="/manager/invoices" element={<ListInvoices />} />
           </Routes>
         </div>
       </ThemeProvider>  

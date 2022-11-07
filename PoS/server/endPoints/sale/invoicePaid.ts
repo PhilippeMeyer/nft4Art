@@ -28,26 +28,30 @@ async function invoicePaid(req: RequestCustom, res: Response) {
     const destinationAddr: string = req.body.destinationAddress;
     const invoiceNumber: string = req.body.invoiceNumber;
 
-    if (findInvoice(invoiceNumber) == null) {
+    const invoice = findInvoice(invoiceNumber);
+
+    if (invoice == null) {
         logger.error('server.invoicePaid.noSuchInvoice %s', invoiceNumber);
-        res.status(404).json({error: {'no such invoice'}});
+        res.status(404).json({error: 'no such invoice'});
         return;
     }
-    const tk:any = app.locals.metasMap.get(tokenId);
+    invoice.data = JSON.parse(invoice.jsonData);
+
+    const tk:any = req.app.locals.metasMap.get(tokenId);
     if (tk == null) {
         logger.error('server.invoicePaid.noSuchToken %s', invoiceNumber);
-        res.status(404).json({error: {'no such token'}});
+        res.status(404).json({error: 'no such token'});
         return;
     }
 
     logger.info("server.invoicePaid.requested - token: %s, destination: %s", tokenId, destinationAddr);
     try {
-        insertSaleEvent(cst.NFT4ART_PAID_STORED_MSG, req.body.tokenId as string, Number(finalPrice), 1, destinationAddr, 1, 1, 0, '', '');
+        insertSaleEvent(cst.NFT4ART_SALE_PAID_MSG, req.body.tokenId as string, Number(invoice.data.amount), 1, destinationAddr, 1, 1, 0, '', '');
         payInvoice(invoiceNumber, paymentReference);
-    } catch(e) {
+    } catch(error:any) {
         res.status(412).json( { Error: 'Error in transferring token: ' + error.toString() });
-        logger.error("server.store.sale.error %s", error);
-        insertSaleEvent(cst.NFT4ART_SALE_ERROR_MSG, req.body.tokenId as string, Number(finalPrice), 1, destinationAddr, 0, 0, 0, '', error.toString());
+        logger.error("server.store.sale.error %s", error.toString());
+        insertSaleEvent(cst.NFT4ART_SALE_ERROR_MSG, req.body.tokenId as string, Number(invoice.data.amount), 1, destinationAddr, 0, 0, 0, '', error.toString());
     }
     res.sendStatus(202);
 

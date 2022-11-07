@@ -31,10 +31,10 @@ async function transferEth(req: RequestCustom, res: Response) {
     logger.info("server.transfer.requested - token: %s, destination: %s, price: %s", tokenId, destinationAddr, finalPrice);
     try {
         insertSaleEvent(cst.NFT4ART_SALE_STORED_MSG, req.body.tokenId as string, Number(finalPrice), 1, destinationAddr, 1, 0, 0, '', '');
-    } catch(e) {
-        res.status(412).json( { Error: 'Error in transferring token: ' + error.toString() });
-        logger.error("server.store.sale.error %s", error);
-        insertSaleEvent(cst.NFT4ART_SALE_ERROR_MSG, req.body.tokenId as string, Number(finalPrice), 1, destinationAddr, 0, 0, 0, '', error.toString());
+    } catch(e:any) {
+        res.status(412).json( { Error: 'Error in transferring token: ' + e.toString() });
+        logger.error("server.store.sale.error %s", e.toString());
+        insertSaleEvent(cst.NFT4ART_SALE_ERROR_MSG, req.body.tokenId as string, Number(finalPrice), 1, destinationAddr, 0, 0, 0, '', e.toString());
     }
 }
 

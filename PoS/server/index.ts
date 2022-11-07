@@ -47,6 +47,7 @@ import { listQuestionnaireForUser } from "./endPoints/vote/Questionnaire.js";
 import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
 import { transferEth } from "./endPoints/sale/transferEth.js";
 import { transferBtc } from "./endPoints/sale/transferBtc.js"
+import { listInvoices, getPdfInvoice } from "./endPoints/sale/listInvoices.js";
 
 
 // TODO: Env var?
@@ -322,6 +323,8 @@ app.post("/apiV1/sale/transfer", verifyToken, transfer);
 app.post("/apiV1/sale/transferEth", verifyToken, transferEth);
 app.post("/apiV1/sale/transferBtc", verifyToken, transferBtc);
 app.post("/apiV1/sale/saleInvoice", verifyToken, saleInvoice);
+app.get("/apiV1/sale/listInvoices", verifyToken, listInvoices);
+app.get("/apiV1/sale/getInvoice", verifyToken, getPdfInvoice);
 
 //
 // /apiV1/token/mintIpfsFolder
