@@ -11,7 +11,7 @@ import { transferToken } from '../endPoints/sale/transfer.js';
 // When a customer is paying in ether, the coins are lending on the smart contract and this should trigger the transfer if the amount received
 // corresponds to the amount expected.
 // Internally this callback is triggered by an event which is emitted in the smart contract when receiving money (actually it is the only possible 
-// thing to do when receiveing ether)
+// thing to do when receiving ether)
 //
 // When the ether is received, the amount is verified against the transaction expected (stored in the smart contract)
 // As the smart contract is indexed by tokenId and we receive here only the destination address (which has paid for the token), we use the local database to 
@@ -28,8 +28,18 @@ function receivedEthCallback(from: any, amount: BigInteger, event: any, app:any)
     }       
 
     const tk:any = app.locals.metasMap.get(saleEvent.id);
+    if(tk == null) {
+      logger.error('server.receivedEth.cannotFindToken %s, %f', from, amountFloat);
+      return;
+    }
+    if (tk.isTransferred == 1) {
+        logger.error('server.receivedEth.tokenAlreadyTransferred %s, %f', from, amountFloat);
+        return;
+    }
 
-    transferToken(tk, from, app).then(() => {}).catch(() => {});
+    transferToken(tk, from, app).then(() => {}).catch(() => {
+        logger.error('server.receiving.ether.amountNotFound %s %s', from, amountFloat)
+    });
 }
     
 export { receivedEthCallback };

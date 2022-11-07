@@ -176,6 +176,17 @@ const findAllInvoices = function() {
     return db.prepare('SELECT invoiceNumber,jsonData FROM invoices').all([]);
 }
 
+const findInvoice(invoiceNumber:string) {
+    return findOne('invoices', 'invoiceNumber', invoiceNumber);
+}
+
+const payInvoice(invoiceNumber: string, paymentReference:string) {
+    const stmt = db.prepare('UPDATE invoices SET paid=1, paymentReference=? WHERE invoiceNumber=?').run([invoiceNumber, paymentReference]);
+}
+
+const settleInvoice(invoiceNumber: string) {
+    const stmt = db.prepare('UPDATE invoices SET settled=1 WHERE invoiceNumber=?').run([invoiceNumber]);
+}
 
 export {    initDb, closeDb, 
             findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos, findAllRegisteredPos,
@@ -185,4 +196,4 @@ export {    initDb, closeDb,
             insertNewVote, findOneVote, findAllVote,
             insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire,
             insertSaleEvent, findSaleEventByAddress,
-            findNextInvoiceId, insertInvoice, findAllInvoices };
+            findNextInvoiceId, insertInvoice, findAllInvoices, findInvoice, payInvoice, settleInvoice };

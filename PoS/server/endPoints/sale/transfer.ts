@@ -32,9 +32,9 @@ async function transfer(req: RequestCustom, res: Response) {
     transferToken(tk, destinationAddr, req.app)
         .then(() => {})
         .catch((error) => {
+            logger.error('server.transfer.error %s', error.toString());
             sendError(412, 'Error in transferring token: ' + error.toString());
         });
-
 }
 
 function transferToken(tk:any, destinationAddr:string, app:any): Promise<string> {

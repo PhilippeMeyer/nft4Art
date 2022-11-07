@@ -58,5 +58,8 @@ create table voteQuestionnaire (
 create table invoices (
     id integer primary key,
     invoiceNumber text,
+    paid integer,
+    settled integer,
+    paymentReference text,
     jsonData text,
     createdOn datetime default current_timestamp);

@@ -3,7 +3,9 @@ import { SaleEventRecord, RequestCustom } from "../../typings";
 import * as chqr from "swissqrbill";
 
 import { logger } from "../../loggerConfiguration.js";
-import { config } from "../../config.js"
+import { config } from "../../config.js";
+import * as cst from "../../constants.js";
+
 import { findNextInvoiceId, insertInvoice } from "../../services/db.js";
 
 const logo = config.galleryLogo;
@@ -23,11 +25,12 @@ async function saleInvoice(req: RequestCustom, res: Response) {
     const state: string = req.body.state;
     const zip: string = req.body.zip;
     const country: string = req.body.country;
+    const destinationAddr: string = req.body.destinationAddr;
 
     const token = req.app.locals.metasMap.get(tokenId);
     if (token == null) {
       logger.error("server.saleInvoice.nonExitingToken");
-      res.status(500).json({error: "non exsting token"});
+      res.status(500).json({error: "non existing token"});
       return;
     }
 
@@ -54,10 +57,12 @@ async function saleInvoice(req: RequestCustom, res: Response) {
           city: city,
           country: country
         },
-        invoiceNumber: invoiceNumber
+        invoiceNumber: invoiceNumber,
+        destinationAddr: destinationAddr
       };
 
       insertInvoice(data);
+      insertSaleEvent(cst.NFT4ART_SALE_STORED_MSG, token.tokenId as string, price, 1, destinationAddr, 1, 0, 0, '', '');
 
       const table = {
         width: chqr.utils.mm2pt(170),
@@ -67,7 +72,6 @@ async function saleInvoice(req: RequestCustom, res: Response) {
             fillColor: "#ECF0F1",
             columns: [
               {
-                text: "Position",
                 width: chqr.utils.mm2pt(20)
               }, {
                 text: "Anzahl",
