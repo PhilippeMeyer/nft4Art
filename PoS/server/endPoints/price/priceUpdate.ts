@@ -48,7 +48,7 @@ function priceUpdate(req: Request, res: Response) {
     if (tk != null) tk.price = prc;
     else logger.error('server.priceUpdate.inconsistentState %s', id);
     res.sendStatus(200);
-    sendPrice(token.id, token.price);
+    sendPrice(token.id, prc);
 }
 
 //
@@ -68,7 +68,6 @@ function priceUpdates(req: Request, res: Response) {
     }
 
     tokensUpdate.forEach((item: any) => {
-        //var token: any = tokens.findOne({ id: item.id });
         var token: any = dbPos.findToken(item.id as string);
         if (token == null) {
             res.status(404).json({
@@ -89,7 +88,7 @@ function priceUpdates(req: Request, res: Response) {
         else logger.error('server.priceUpdate.inconsistentState %s', id);
     
         dbPos.updatePriceToken(id, prc);
-        sendPrice(token.id, token.price);
+        sendPrice(token.id, prc);
     });
 
     res.sendStatus(200);

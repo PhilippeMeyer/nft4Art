@@ -91,7 +91,8 @@ export default function SelectCollection() {
     if (jwt === undefined) return;
 
     fetchData(tokenUrl, jwt) 
-    .then((tokensData) => { 
+    .then((tokensData) => {
+      tokensData.forEach((tk, index) => tk.index = index);
       dispatch(loadTokens(tokensData));
 
       fetchData(collectionUrl, jwt) 

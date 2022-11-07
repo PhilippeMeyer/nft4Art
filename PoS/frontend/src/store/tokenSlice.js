@@ -44,7 +44,7 @@ export const tokenSlice = createSlice({
     updatePrice: (state, action) => {
         let index;
         if (action.payload.index !== undefined) index = action.payload.index;                       // This is a user change 
-        else if (action.payload.id !== undefined) index = parseInt(action.payload.id);    // This is a server update
+        else if (action.payload.id !== undefined) index = parseInt(action.payload.id);              // This is a server update
         else return;
 
         const newTokens = [...state.data];
@@ -52,6 +52,8 @@ export const tokenSlice = createSlice({
 
         newTokens[realIndex].price = action.payload.price;
         state.data = newTokens;
+        
+        return state;
     },
 
     updateLock: (state, action) => {
@@ -65,6 +67,8 @@ export const tokenSlice = createSlice({
 
       newTokens[ind].isLocked = action.payload.isLocked;
       state.data = newTokens;
+
+      return state
     },
 
     updateError: (state, action) => {

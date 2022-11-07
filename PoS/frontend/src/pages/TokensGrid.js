@@ -40,7 +40,6 @@ function TokenGrid({ collectionId }) {
   // Local state for the screen and pict dimensions and the clickable regions 
   const [selected, setSelected] = React.useState();
   const [currency, setCurrency] = React.useState('fiat');
-  const [filteredTokens, setFilteredTokens] = React.useState([]);
   const [screenSize, setScreenSize] = useState({});
 
   // Redux state for the jwt and the tokens
@@ -62,13 +61,12 @@ function TokenGrid({ collectionId }) {
       .then((tks) => { 
           tks.forEach((tk, index) => tk.index = index);
           dispatch(loadTokens(tks)); 
-          setFilteredTokens(tks.filter(elt => elt.collectionId == collectionId))
       })
       .catch((error) => { enqueueSnackbar('Error loading the tokens'); console.error(error); });
   };
 
   const onclick = (event) => {
-    const sel = filteredTokens.find((elt) => elt.id == event.target.id);
+    const sel = tokens.find((elt) => elt.id == event.target.id);
     if(tokens[sel.index].isLocked) return;
 
     setSelected(sel);
@@ -96,6 +94,11 @@ function TokenGrid({ collectionId }) {
     return Math.floor(screenSize.screenWidth / imageSize);
   };
 
+  const price = (tk) => {
+    console.log('price: ', tk);
+    return 'Price: ' + tk.price + " CHF";
+  }
+
   const handleOpenDialog = () => {
     setOpen(true);
   };
@@ -111,7 +114,7 @@ function TokenGrid({ collectionId }) {
   return (
     <>
           <ImageList cols={defineColumns()}>
-            {filteredTokens.map((token) => (
+            {tokens.filter(elt => elt.collectionId == collectionId).map((token) => (
               <ImageListItem key={token.id} style={{cursor:tokens[token.index].isLocked ? "not-allowed" : "default"}}>
                 <img
                   src={token.iconUrl}
@@ -122,7 +125,7 @@ function TokenGrid({ collectionId }) {
                   style={{'background-color':'white'}}
                 />
                 <ImageListItemBar
-                  title={`Price: ${token.price}CHF`}
+                  title={price(token)}
                   subtitle={`Qty: ${token.availableTokens}`}
                   actionIcon={
                     <Tooltip title={`${token.description} - ${token.author}`}>
