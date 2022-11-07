@@ -122,38 +122,36 @@ function Login() {
     constructor();
 
     return (
-      <>
-        <main>
-            <img src={logo} className="App-logo" alt="logo" />
-            <Box display="flex" justifyContent="space-evenly" >        
-              <Button variant="contained" className="button" onClick={handleLogin}>Sales login</Button>
-              <Button variant="contained" className="button" onClick={handleOpenDialog}>Admin login</Button>
-            </Box>
+      <Box className="loginScreen">
+        <img src={logo} className="App-logo" alt="logo" />
+        <Box display="flex" justifyContent="space-evenly" >        
+          <Button variant="contained" className="button" onClick={handleLogin}>Sales login</Button>
+          <Button variant="contained" className="button" onClick={handleOpenDialog}>Admin login</Button>
+        </Box>
 
-            <Dialog open={open} onClose={handleClose}>
-              <DialogTitle>Login as Admin </DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  To connect as admin, please enter the wallet's password.
-                </DialogContentText>
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="password"
-                  label="Wallet's password"
-                  type="password"
-                  fullWidth
-                  variant="standard"
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button type="submit" onClick={handleLogin}>Login</Button>
-              </DialogActions>
-            </Dialog>
-        </main>
-      </>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Login as Admin </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              To connect as admin, please enter the wallet's password.
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="password"
+              label="Wallet's password"
+              type="password"
+              fullWidth
+              variant="standard"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit" onClick={handleLogin}>Login</Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     );
   }
   export default Login;

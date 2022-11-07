@@ -7,6 +7,7 @@ import { config } from "../../config.js";
 import { logger } from "../../loggerConfiguration.js";
 import * as dbPos from '../../services/db.js';
 import { connectToken, loadToken } from "../../init.js"
+import * as cst from '../../constants.js';
 
 //
 // /apiV1/auth/sigin
@@ -103,6 +104,7 @@ function signin(req: Request, res: Response) {
             // The wallet is loaded, the server can accept connections. We verify that this PoS has been registered
             logger.info("server.signin.registerPoS");
             registerPoS(device, req.body.password, res);
+            dbPos.insertSaleEvent(cst.NFT4ART_SALE_LOGIN_POS_MSG, response.device.deviceId as string, 0, 0, verification.ip, 0, 0, 0, '', '');            
         }
     }
 }
@@ -116,11 +118,12 @@ function signin(req: Request, res: Response) {
 //
 async function loadWallet(w: Wallet, pass: string, app: any) {
     app.locals.wallet = w.connect(app.locals.ethProvider);
+    app.locals.walletLoaded = true;
     logger.info("server.signin.loadedWallet");
     app.locals.passHash = utils.keccak256(utils.toUtf8Bytes(pass));
 
     if(app.locals.token === undefined) return;
-    else connectToken(w, app);
+    else await connectToken(w, app);
 }
 
 //

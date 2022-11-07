@@ -5,7 +5,7 @@ import { errors } from "ethers";
 import { SaleEventRecord, RequestCustom } from "../../typings";
 import { logger } from "../../loggerConfiguration.js";
 import { insertSaleEvent } from "../../services/db.js"
-import { sendLock } from "../../index.js"
+import { sendLock, sendError } from "../../index.js"
 
 //
 // /apiV1/sale/transfer, parameters: the token's id and the destination address
@@ -13,46 +13,61 @@ import { sendLock } from "../../index.js"
 // This end point transfers the specified token to the new owner.
 // It performs the Blockchain transaction
 //
-async function transfer (req: RequestCustom, res: Response) {
-    const tokenAddr: string = req.body.tokenAddr;
-    const tokenId: string = req.body.tokenId;
-    const destinationAddr: string = req.body.destinationAddress;
-    console.log("transfer tokenId: ", tokenAddr, tokenId, destinationAddr);
+async function transfer(req: RequestCustom, res: Response) {
+    const tokenAddr: string = req.body.tokenAddr;                                           // Token's address
+    const tokenId: string = req.body.tokenId;                                               // Token's id               
+    const destinationAddr: string = req.body.destinationAddress;                            // Buyer's address
 
     logger.info("server.transfer.requested - token: %s, destination: %s", tokenId, destinationAddr);
-    insertSaleEvent("transferRequest", req.body.tokenId as string, 1, destinationAddr, 0, 0, 0, '', '');
+    const tk = req.app.locals.metasMap.get(tokenId);
+    if (tk == null) {
+        logger.error("server.transfer.nonExitingToken");
+        res.status(500).json({error: "non exsting token"});
+        return;
+    }
 
-    let tokenWithSigner = req.app.locals.token.connect(req.app.locals.wallet);
+    insertSaleEvent("transferRequest", tokenId, tk.price, 1, destinationAddr, 0, 0, 0, '', '');
+    res.sendStatus(202);
 
-    tokenWithSigner
-        .safeTransferFrom(req.app.locals.wallet.address, destinationAddr, tokenId, 1, [])
-        .then((transferResult: TransactionResponse) => {
-            res.sendStatus(200);
-            insertSaleEvent("transferInitiated", req.body.tokenId as string, 1, destinationAddr, 1, 0, 0, '', '');
-            logger.info("server.transfer.initiated - token: %s, destination: %s", tokenId, destinationAddr);
-
-            transferResult.wait().then((transactionReceipt: TransactionReceipt) => {
-                insertSaleEvent("transferPerformed", req.body.tokenId as string, 1, destinationAddr, 1, 1, 0, transactionReceipt.transactionHash, '');
-                logger.info( "server.transfer.performed token %s destination %s - TxHash: %s", tokenId, destinationAddr, transactionReceipt.transactionHash );
-
-                // Update the balance once the transfer has been performed
-                req.app.locals.token.balanceOf(req.app.locals.wallet.address, tokenId).then((balance: any) => {
-                    const tk = req.app.locals.metasMap.get(tokenAddr + tokenId);
-                    if (tk != null) {
-                        tk.availableTokens = balance.toString();
-                        if (balance.isZero()) {
-                            tk.isLocked = true;
-                            sendLock(tokenId, true);
-                        }
-                    }
-                });
-            });
-        })
-        .catch((error: errors) => {
-            res.status(412).json(error);
-            logger.error("server.transfer.error %s", error);
-            insertSaleEvent("transferInitiated", req.body.tokenId as string, 1, destinationAddr, 0, 0, 0, '', error);
+    transferToken(tk, destinationAddr, req.app)
+        .then(() => {})
+        .catch((error) => {
+            sendError(412, 'Error in transferring token: ' + error.toString());
         });
+
 }
 
-export { transfer };
+function transferToken(tk:any, destinationAddr:string, app:any): Promise<string> {
+    const tokenWithSigner = app.locals.token.connect(app.locals.wallet);
+
+    return new Promise<string>((resolve, reject) => {
+        tokenWithSigner
+            .safeTransferFrom(app.locals.wallet.address, destinationAddr, tk.tokenId, 1, [])
+            .then((transferResult: TransactionResponse) => {
+                
+                insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 1, 0, 0, '', '');
+                logger.info("server.transfer.initiated - token: %s, destination: %s", tk.tokenId, destinationAddr);
+
+                transferResult.wait().then((transactionReceipt: TransactionReceipt) => {
+                    insertSaleEvent("transferPerformed", tk.id, tk.price, 1, destinationAddr, 1, 1, 0, transactionReceipt.transactionHash, '');
+                    logger.info( "server.transfer.performed token %s destination %s - TxHash: %s", tk.tokenIdStr, destinationAddr, transactionReceipt.transactionHash );
+
+                    // Update the balance once the transfer has been performed
+                    app.locals.token.balanceOf(app.locals.wallet.address, tk.tokenId).then((balance: any) => {
+                        logger.info('server.transfer.updatingBalance');
+                        tk.availableTokens = balance.toString();
+                        tk.isLocked = balance.isZero();
+                        sendLock(tk.id, true);
+                        resolve(transactionReceipt.transactionHash);
+                    });
+                });
+            })
+            .catch((error: errors) => {
+                logger.error("server.transfer.error %s", error);
+                insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 0, 0, 0, '', error.toString());
+                reject(error);
+            });
+    });
+}
+
+export { transfer, transferToken };

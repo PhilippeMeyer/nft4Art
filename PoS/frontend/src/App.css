@@ -49,10 +49,9 @@
   display: flex;
   align-items: center;
   text-align: center;
-  justify-content: center;
   flex-direction: column;
   gap: 20px;
-  height: 100vh;
+  min-height: 100vh;
   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
 }
 
@@ -128,4 +127,78 @@ input[type="submit"]:hover {
   align-items: right;
   text-align: right;
   justify-content: right;
+}
+.leftAligned {
+  align-items: left;
+  text-align: left;
+  justify-content: left;
+}
+
+.opaqueImg {
+  background-color: rgba(215, 209, 208, 0.9);
+  height: 100vh;
+}
+
+.saleMain {
+  height: 100vh;
+  width:100vw;
+  background-color: rgba(215, 209, 208, 0.9);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position:relative;
+}
+
+.qrCode {
+  position: absolute;
+  bottom: 1vh;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, 0%);
+}
+
+.boxTitle {
+  position: absolute;
+  top: 2vh;
+  text-align: left;
+  left: 2vw;
+}
+
+.boxTitleBlock {
+  margin-top: 5vh;
+  text-align: left;
+  margin-left: 5vw;
+  margin-right: 10vw;
+}
+
+@media screen and (min-height: 800px) {
+  .boxTitle {
+    top: 10vh;
+    bottom: 15vh;
+  }
+  .qrCode {
+    bottom: 5vh;
+  }
+}
+@media screen and (min-width: 500px) {
+  .boxTitle {
+    left: 10vw;
+  }
+}
+
+#html5qr-code-full-region__camera_permission_button {
+  background-color: #a1b7ff;
+  padding: 10px;
+  border: 0;
+  color: white;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.loginScreen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
 }

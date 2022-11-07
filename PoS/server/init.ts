@@ -4,6 +4,8 @@ import { logger } from "./loggerConfiguration.js";
 import { BigNumber, constants, Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
 import axios from "axios";
 import path from "path";
+// @ts-ignore
+import { convertSTLIntoGLTF } from 'asset-mgmt';
 
 import { receivedEthCallback } from "./services/receivedEthCallback.js"
 import * as dbPos from './services/db.js';
@@ -35,7 +37,7 @@ import { config } from "./config.js"
 //  app.locals.crypto           Contains the crypto library
 //
 
-async function init(exApp: any, config: any) {  
+async function init(exApp: any, config: any) {
     // Read the ABI of the GovernedNft contract
     let rawAbi = fs.readFileSync(config.gvdNftAbiFile);
     const gvdNftDef = JSON.parse(rawAbi.toString());
@@ -43,6 +45,7 @@ async function init(exApp: any, config: any) {
 
     exApp.locals.passHash = "";
     exApp.locals.wallet = null;
+    exApp.locals.walletLoaded = false;
     exApp.locals.ethProvider = await new providers.InfuraProvider(config.network, config.infuraKey);
 
 
@@ -53,7 +56,7 @@ async function init(exApp: any, config: any) {
     }
 
     let token: Contract;
-    
+
     token = await new Contract(tokenList[0].addressEth, exApp.locals.gvdNftDef.abi, exApp.locals.ethProvider);
     loadToken(token, exApp);
     loadQuestionnaire(exApp);
@@ -64,7 +67,7 @@ async function loadToken(token: Contract, exApp:any ) {
     exApp.locals.token = token;
 
     var receivedEth = token.filters.ReceivedEth();
-    token.on(receivedEth, receivedEthCallback)
+    token.on(receivedEth, (from:any, amount:any, event:any) => receivedEthCallback(from, amount, event, exApp));
     logger.info("server.init %s", token.address);
 
     let metas: Object[] = [];                   // list of the Nfts loaded from the smart contract
@@ -79,10 +82,13 @@ async function loadToken(token: Contract, exApp:any ) {
 
 
     if (!fs.existsSync(config.cacheFolder)) fs.mkdirSync(config.cacheFolder);
+    if (!fs.existsSync(config.invoiceFolder)) fs.mkdirSync(config.invoiceFolder);
 
     const QRaddr: string = path.join(config.cacheFolder, token.address + '.png');
     if(!fs.existsSync(QRaddr)) await QRCode.toFile(QRaddr, token.address);
-    
+    const QRaddrBtc: string = path.join(config.cacheFolder, config.bitcoinAddr + '.png');
+    if(!fs.existsSync(QRaddrBtc)) await QRCode.toFile(QRaddrBtc, token.address);
+
     let i: number = 0;
     let str: string, strToken: string;
     let data: any;
@@ -166,7 +172,6 @@ async function loadToken(token: Contract, exApp:any ) {
                 data.addr = token.address;
                 data.isLocked = false;
                 data.price = 0;
-                //tokens.insert(data);
                 dbPos.insertNewToken(data);
             } else {
                 data = JSON.parse(dataFromDb.jsonData);
@@ -194,7 +199,7 @@ async function loadToken(token: Contract, exApp:any ) {
         for (key in collections) {
             if(collections[key].tokenIds.find((eltId: string) => parseInt(eltId) == data.tokenIdStr) !== undefined) data.collectionId = key;
         }
-        
+
         metas.push(data);
         metasMap.set(data.id, data);
 
@@ -203,75 +208,102 @@ async function loadToken(token: Contract, exApp:any ) {
 
     if (exApp.locals.wallet !== null) connectToken(exApp.locals.wallet, exApp);
 
-    // TODO: store incrementally the transfers in the database so that the loading time does not increase over time
-    // This can be performed storing the last block id retrieved and re querying from there
-    //const transfersSingle = await token.queryFilter( token.filters.TransferSingle(null, null), 0, "latest");
-    //const transfersBatch = await token.queryFilter( token.filters.TransferBatch(null, null), 0, "latest");
-
-    //console.log('Single transfers', transfersSingle);
-    //console.log('Batch transfers', transfersBatch);
-
     //
-    // Retrieve the icons, looking at the cache in case the icon has been already retrieved
+    // Retrieve all the ipfs resources
     //
     let buf: Buffer;
 
     const getIcons = Promise.all(
         metas.map(async (meta: any) => {
-            let cid = config.cacheFolder + meta.image.replace("ipfs://", ""); // We remove the ipfs prefix to only keep the cid
-            let icon = meta.image.replace("ipfs", "https").concat(".ipfs.dweb.link"); // We form an url for dweb containing the ipfs cid
-            try {
-                if (fs.existsSync(cid)) {
-                    // We try to find this cid in the cache
-                    logger.info("server.init.loadIcons.cache %s", cid);
-                    buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
-                } else {
-                    // Not available in the cache, we get it from ipfs
-                    logger.info("server.init.loadIcons.ipfs %s", cid);
-                    const resp = await axios.get(icon, { responseType: "arraybuffer" });
-                    buf = Buffer.from(resp.data, "binary");
-                    fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache
+            let key:string;
+
+            for (key in meta) {
+                if (typeof meta[key] !== 'string' && !(meta[key] instanceof String)) continue;
+                if (meta[key].indexOf('ipfs://') == -1) continue;
+
+                let cid = config.cacheFolder + meta[key].replace("ipfs://", ""); // We remove the ipfs prefix to only keep the cid
+                let icon = meta[key].replace("ipfs", "https").concat(".ipfs.dweb.link"); // We form an url for dweb containing the ipfs cid
+                try {
+                    if (fs.existsSync(cid)) {
+                        // We try to find this cid in the cache
+                        logger.info("server.init.loadResource.cache %s, %s, cid %s", meta.tokenIdStr, key, cid);
+                        buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
+                    } else {
+                        // Not available in the cache, we get it from ipfs
+                        logger.info("server.init.loadResource.ipfs %s, %s, cid %s", meta.tokenIdStr, key, cid);
+                        const resp = await axios.get(icon, { responseType: "arraybuffer" });
+                        buf = Buffer.from(resp.data, "binary");
+                        if(key == 'model') {
+                            fs.writeFileSync(cid + '.stl', buf, { flag: "w", encoding: "binary" }); // Save the file in cache
+                            await convertSTLIntoGLTF(cid + '.stl', cid + '.gltf');
+                            fs.renameSync(cid + '.gltf', cid);
+                        } else
+                            fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache
+                    }
+
+                } catch (error) {
+                    logger.error("server.init.loadResource %s", error);
                 }
 
-                icons.set(meta.id, buf); // Store the icon in memory
-            } catch (error) {
-                logger.error("server.init.loadIcons %s", error);
-            }
+                icons.set(meta.id + key, buf);
 
-            meta.iconUrl = config.iconUrl + meta.id; // Reference the icon's url
+                meta[key + 'Url'] = config.resourceUrl + meta.id + '&type=' + key;      // Reference the resource's url
+
+                // Compatibility mode with previous versions and the rest of the code
+                if (key == 'image_raw') {
+                    meta.imgUrl = config.imgUrl + meta.id;                              // Reference the image's url
+                    images.set(meta.id, buf);
+                }
+                if (key == 'image') {
+                    meta.iconUrl = config.iconUrl + meta.id;                            // Reference the icon's url
+                    icons.set(meta.id, buf); // Store the icon in memory
+                }
+            }
         }),
     );
 
     //
     // Retrieve the images, looking at the cache in case the image has been already retrieved
     //
-    const getImages = Promise.all(
-        metas.map(async (meta: any) => {
-            const img = meta.image_raw;
-            let cid = config.cacheFolder + meta[img].replace("ipfs://", "");
-            try {
-                if (fs.existsSync(cid)) {
-                    logger.info("server.init.loadImages.cache %s", cid);
-                    buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
-                } else {
-                    logger.info("server.init.loadImages.ipfs %s", cid);
-                    let image = meta[img].replace("ipfs", "https").concat(".ipfs.dweb.link");
-                    const resp = await axios.get(image, { responseType: "arraybuffer" });
-                    buf = Buffer.from(resp.data, "binary");
-                    fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" });
-                }
+    // const getImages = Promise.all(
+    //     metas.map(async (meta: any) => {
+    //         let cid = config.cacheFolder + meta.image_raw.replace("ipfs://", "");
+    //         try {
+    //             if (fs.existsSync(cid)) {
+    //                 logger.info("server.init.loadImages.cache %s", cid);
+    //                 buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
+    //             } else {
+    //                 logger.info("server.init.loadImages.ipfs %s", cid);
+    //                 let image = meta.image_raw.replace("ipfs", "https").concat(".ipfs.dweb.link");
+    //                 const resp = await axios.get(image, { responseType: "arraybuffer" });
+    //                 buf = Buffer.from(resp.data, "binary");
+    //                 fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" });
+    //             }
 
-                images.set(meta.id, buf);
-            } catch (error) {
-                logger.error("server.init.loadIcons %s", error);
-            }
+    //             images.set(meta.id, buf);
+    //         } catch (error) {
+    //             logger.error("server.init.loadIcons %s", error);
+    //         }
 
-            meta.imgUrl = config.imgUrl + meta.id;
-        }),
-    );
+    //         meta.imgUrl = config.imgUrl + meta.id;
+    //     }),
+    // );
 
-    await Promise.all([getIcons, getImages]);
-    
+    await Promise.all([getIcons]);
+
+    const imageProperties = ['iso1', 'bottom', 'iso2', 'right', 'front', 'left', 'iso3', 'top', 'iso4'];
+
+    metas.map((meta:any) => {
+        let key: string;
+        meta.images = new Array<string>(imageProperties.length);
+
+        for(key in meta) {
+            const index = imageProperties.indexOf(key);                                              // Is this resource an image?
+            if (index != -1) meta.images[index] = config.resourceUrl + meta.id + '&type=' + key;
+        }
+    });
+
+
     logger.info('server.init.loadTerminated');
 }
 
@@ -308,7 +340,7 @@ const loadQuestionnaire = async (exApp: any) => {
 
             if (dbPos.findOneQuestionnaire(voteId) == null) {
                 logger.info('server.loadQuestionnaire %s', voteId);
-            
+
                 loadFromIpfs(vote[1].cid).then((file) => {
                     if (file != '') {
                         const jsonData = fs.readFileSync(config.cacheFolder + file);
@@ -325,17 +357,17 @@ const loadQuestionnaire = async (exApp: any) => {
 const connectToken = async (wallet:Wallet, app:any) => {
 
     app.locals.token = app.locals.token.connect(app.locals.wallet);
+    logger.info('server.connectedToken.withWallet');
 
-    app.locals.metas.forEach(async (nft: any) => {
+    await Promise.all(app.locals.metas.map(async (nft: any, index: number) => {
         let balance = await app.locals.token.balanceOf(app.locals.wallet.address, nft.tokenId);
-        nft.availableTokens = balance.toString();
-        if (balance.isZero()) nft.isLocked = true;
-    });
+        app.locals.metas[index].availableTokens = balance.toString();
+        app.locals.metas[index].isLocked = balance.isZero();
+    }));
 }
 
 const loadVotes = async (exApp: any, voteId : BigNumber) => {
     const ballots = await exApp.locals.token.getBallots(voteId);
-    console.log(ballots);
 
     for(var i = 0 ; i < ballots.length ; i++) {
         const voteFullId:string = exApp.locals.token.address + voteId.toHexString();

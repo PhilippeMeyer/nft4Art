@@ -38,6 +38,10 @@ const findRegisteredPosByIp = function(ip: string) {
     return findOne('registeredPoS', 'ip', ip);
 };
 
+const findAllRegisteredPos = function() {
+    return db.prepare('SELECT * from registeredPoS').all();
+}
+
 const insertNewPos = function(posObj: any) {
     posObj.namePoS = "undefined";
     const {deviceId, authorized, namePoS, browser, browserVersion, ip} = posObj;
@@ -61,6 +65,9 @@ const updateIpRegisteredPos = function(id: string, ip: string) {
 
 const findToken = function(tokenId: string) {
     return findOne('tokens', 'tokenId', tokenId);
+}
+const findAllTokens = function() {
+    return db.prepare('SELECT * FROM tokens').all();
 }
 
 const insertNewToken = function(token: any) {
@@ -140,17 +147,42 @@ const findAllQuestionnaire = function() {
     return db.prepare('SELECT voteId,voteFullId,cid,checksum,jsonData FROM voteQuestionnaire').all([]);
 }
 
-const insertSaleEvent = function( typeMsg:string, id:string, isLocked:number, destinationAddr:string, isStored:number, isTransferred:number, isFinalized:number, txId:string, error:string ) {
-    const stmt = db.prepare('INSERT INTO salesEvents (typeMsg, id, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    const params = [typeMsg, id, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error];
+const insertSaleEvent = function( typeMsg:string, id:string, price:number, isLocked:number, destinationAddr:string, isStored:number, isTransferred:number, isFinalized:number, txId:string, error:string ) {
+    const stmt = db.prepare('INSERT INTO salesEvents (typeMsg, id, price, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const params = [typeMsg, id, price, isLocked, destinationAddr, isStored, isTransferred, isFinalized, txId, error];
     const result = stmt.run(params);
 }
 
+const findSaleEventByAddress = function(address:string, amount:number) {
+    const stmt = db.prepare('SELECT typeMsg,id,price,isLocked,destinationAddr,isStored,isTransferred,isFinalized,txId,error FROM salesEvents where destinationAddr=? and price=? and isTransferred=0 and isFinalized=0')
+    const result = stmt.all([address, amount]);
+    if (result.length == 0) return null;
+    else return result[0];
+}
+
+const findNextInvoiceId = function() {
+    const result = db.prepare('SELECT MAX(id) FROM invoices').all();
+    if (result[0]['MAX(id)'] == null) return(1);
+    else  return(result[0]['MAX(id)'] + 1);
+}
+
+const insertInvoice = function(invoice:any)  {
+    const stmt = db.prepare('INSERT INTO invoices(invoiceNumber,jsonData) VALUES (?, ?)');
+    const params = [invoice.invoiceNumber, JSON.stringify(invoice)];
+    const result = stmt.run(params);
+}
+
+const findAllInvoices = function() {
+    return db.prepare('SELECT invoiceNumber,jsonData FROM invoices').all([]);
+}
+
+
 export {    initDb, closeDb, 
-            findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos,
-            findToken, insertNewToken, updatePriceToken, updateLockToken,
+            findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos, findAllRegisteredPos,
+            findToken, insertNewToken, updatePriceToken, updateLockToken, findAllTokens,
             findAppId, insertNewAppId, updateNonceAppId, removeAppId,
             insertNewSmartContract, findAllSmartContracts,
             insertNewVote, findOneVote, findAllVote,
             insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire,
-            insertSaleEvent };
+            insertSaleEvent, findSaleEventByAddress,
+            findNextInvoiceId, insertInvoice, findAllInvoices };

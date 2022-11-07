@@ -33,8 +33,10 @@ function priceInCrypto(req :Request, res :Response) {
 		return;
 	}
 
-    var token: any = dbPos.findToken(req.query.tokenId as string);
-	if (token == null) {
+    var tokenData: any = dbPos.findToken(req.query.tokenId as string);
+    console.log('token Id:', tokenData);
+
+	if (tokenData == null) {
 		res.status(404).json({error: {name: 'tokenNotFound', message: 'The specified token is not in the database'}});
 		return;
 	}
@@ -47,8 +49,8 @@ function priceInCrypto(req :Request, res :Response) {
         let rate: number = response[1].data.data.rateUsd * response[0].data.data.rateUsd;
         res.status(200).json({  tokenId: req.query.tokenId, 
                                 crypto: req.query.crypto, 
-                                price: token.price / rate,
-                                priceFiat: token.price,
+                                price: tokenData.price / rate,
+                                priceFiat: tokenData.price,
                                 rate:  rate})
     });
 }

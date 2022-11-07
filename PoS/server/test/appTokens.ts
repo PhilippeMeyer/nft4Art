@@ -2,6 +2,7 @@ import { utils, Wallet } from "ethers";
 import fetch from 'node-fetch';
 import { expect } from "chai";
 import { v4 as uuidv4 } from 'uuid';
+import { Description } from "@ethersproject/properties";
 
 
 const server = 'http://localhost:8999';
@@ -12,8 +13,11 @@ const appId = uuidv4();
 
 const url = server + '/apiV1/auth/appLogin';
 const urlTokens = server + '/apiV1/information/tokensOwned';
+const urlModel = server + '/apiV1/information/3Dmodel';
+
 //const wallet: Wallet = Wallet.createRandom();
-const wallet: Wallet = Wallet.fromMnemonic('ski ring tiny nephew beauty develop diesel gadget defense discover border cactus');
+//const wallet: Wallet = Wallet.fromMnemonic('ski ring tiny nephew beauty develop diesel gadget defense discover border cactus');
+const wallet: Wallet = Wallet.fromMnemonic('romance sniff swing side fresh dish easy vast evolve obey wrap pioneer');
 var jwt: string = "";
 
 type AppLogin = {
@@ -37,6 +41,7 @@ let msg: AppLogin = {
 };
 
 describe('Testing logging in as a mobile app', function() {
+    var tokens:any;
 
     it('Attempt to connect and register to the server with address: ' + wallet.address , async function() {
 
@@ -69,6 +74,23 @@ describe('Testing logging in as a mobile app', function() {
 
         expect(res.status).to.equal(200);
         const ret = await res.json();
-        ret.tokens.forEach((t:any) => console.log(t.description))
+        tokens = ret.tokens;
     });
+
+    it('Attempt to retrieve the models' , async function() {
+        console.log('token: ', tokens[0]);
+        console.log('tokenId: ', tokens[0].description.id);
+        const res = await fetch(urlModel+"?tokenId=" + tokens[0].description.id, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + jwt
+            },
+        }); 
+
+        expect(res.status).to.equal(200);
+        console.log(res.body);
+    });
+
 });

@@ -1,0 +1,8 @@
+sudo docker run -p 3001:8999 \
+-v /home/philippe/Desktop/nft4Art/PoS/server/nft4Art.db:/app/nft4art.db \
+-v /home/philippe/Desktop/nft4Art/PoS/server/.env:/app/.env \
+-v /home/philippe/Desktop/nft4Art/PoS/server/bin:/app/bin \
+-v /home/philippe/Desktop/nft4Art/PoS/server/cache:/app/cache localtunnel
+
+
+npx localtunnel -p 8999

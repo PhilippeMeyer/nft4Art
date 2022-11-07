@@ -41,9 +41,12 @@ import { collectionImage, collectionMap } from "./endPoints/token/collectionImag
 import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/Questionnaire.js";
 import { sendVote, getVotes } from "./endPoints/vote/vote.js";
 import { transfer } from "./endPoints/sale/transfer.js"
+import { saleInvoice } from "./endPoints/sale/saleInvoice.js"
 import { addSmartContract } from "./endPoints/token/addSmartContract.js";
 import { listQuestionnaireForUser } from "./endPoints/vote/Questionnaire.js";
 import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
+import { transferEth } from "./endPoints/sale/transferEth.js";
+import { transferBtc } from "./endPoints/sale/transferBtc.js"
 
 
 // TODO: Env var?
@@ -66,20 +69,20 @@ const SALES_EVENTS_COLLECTION_NAME = "saleEvents";
 const APP_ID_COLLECTION_NAME = "appIds";
 
 const storage = multer.memoryStorage()
-const upload = multer({ storage: storage })
-//const upload = multer({dest: 'uploads/'});
+//const upload = multer({ storage: storage })
+const upload = multer({dest: 'uploads/', limits: { fileSize: 1024 * 1024 * 500 }});
 
 // Global variables
 
-var databaseInitialized = false;            // Is the database initialized? Used to wait for the database init before starting the server
+var databaseInitialized = false;                    // Is the database initialized? Used to wait for the database init before starting the server
 
 //TODO: have a look if it is possible to type the loki collection
-var registeredPoS: any;                     // Database collection of registered point of sale
-var tokens: any;                            // Database collection of tokens
-var saleEvents: any;                        // Database collection of events (lock/unlock/transfer/completedTransfer)
-//var appIds: Collection<AppLoginMessage>;    // Database collection of companion app Ids
-//var wallet: Wallet;                         // Wallet
-//let ethProvider: providers.JsonRpcProvider; // Connection provider to Ethereum
+var registeredPoS: any;                             // Database collection of registered point of sale
+var tokens: any;                                    // Database collection of tokens
+var saleEvents: any;                                // Database collection of events (lock/unlock/transfer/completedTransfer)
+//var appIds: Collection<AppLoginMessage>;          // Database collection of companion app Ids
+//var wallet: Wallet;                               // Wallet
+//let ethProvider: providers.JsonRpcProvider;       // Connection provider to Ethereum
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -188,7 +191,6 @@ app.use(expressWinston.logger(logConf));
 app.set('views', path.join(config.__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-
 waitFor(() => databaseInitialized).then(() =>
     server.listen(process.env.PORT || 8999, () => {
         //console.log(`Server started on port ${server.address().port} :)`);
@@ -221,7 +223,7 @@ app.put("/apiV1/auth/authorizePoS", verifyTokenManager, authorizePoS);
 
 app.get('/apiV1/information/video', verifyTokenApp, video);
 app.get('/apiV1/information/tokensOwned', verifyTokenApp, tokensOwned);
-app.get('/apiV1/information/3Dmodel', verifyTokenApp, threeDmodel);
+app.get('/apiV1/information/3Dmodel', threeDmodel);
 app.get("/apiV1/information/generateWallets", verifyTokenManager, generateWallets);
 
 app.get('/apiV1/price/priceInCrypto', priceInCrypto);
@@ -234,7 +236,7 @@ app.post('/apiV1/token/batchMintFinalize', upload.any(), batchMintFinalize);
 app.post('/apiV1/token/addSmartContract', verifyTokenManager, addSmartContract);
 app.get('/apiV1/token/collectionImg', collectionImage);
 app.get('/apiV1/token/collectionMap', collectionMap);
-app.get(['/apiV1/token/list', '/tokens'], verifyToken, (req: Request, res: Response) => {
+app.get(['/apiV1/token/list', '/tokens'], (req: Request, res: Response) => {
     res.status(200).json(app.locals.metas);
 });
 app.get(['/apiV1/token/token', '/token'], verifyToken, (req: Request, res: Response) => {
@@ -248,6 +250,11 @@ app.get(['/apiV1/token/icon', '/icon'], function (req: Request, res: Response) {
 app.get(['/apiV1/token/image', '/image'], function (req: Request, res: Response) {
     res.type("jpeg");
     res.status(200).send(app.locals.images.get(req.query.id));
+});
+app.get('/apiV1/token/resource', function (req: Request, res: Response) {
+    res.type("jpeg");
+    const resourceId:string = req.query.id as string + req.query.type as string;
+    res.status(200).send(app.locals.icons.get(resourceId));
 });
 app.get('/apiV1/token/collections', function (req: Request, res: Response) {
     res.status(200).json(app.locals.collections);
@@ -266,7 +273,11 @@ app.get("/map", function (req: Request, res: Response) {
 });
 app.get("/QRCode", function (req: Request, res: Response) {
     res.type("png");
-    res.status(200).sendFile(path.join(config.cache, config.addressToken + '.png'));
+    res.status(200).sendFile(path.join(__dirname, config.cacheFolder, req.app.locals.token.address + '.png'));
+});
+app.get("/QRCodeBtc", function (req: Request, res: Response) {
+    res.type("png");
+    res.status(200).sendFile(path.join(__dirname, config.cacheFolder, config.bitcoinAddr + '.png'));
 });
 
 
@@ -276,7 +287,7 @@ app.get("/QRCode", function (req: Request, res: Response) {
 // This end point sends back all the registered PoS
 //
 app.get("/apiV1/auth/registeredPoS", verifyTokenManager, function (req: Request, res: Response) {
-    res.status(200).json(registeredPoS.find());
+    res.status(200).json(dbPos.findAllRegisteredPos());
 });
 
 //
@@ -302,113 +313,15 @@ app.get("/apiV1/log/allEvents", verifyTokenManager, function (req: Request, res:
 //
 // This end point deploys on the blockchain a new token
 //
-app.post('/apiV1/sale/createToken', verifyToken, async function(req :RequestCustom, res :Response) {
+app.post('/apiV1/sale/createToken', verifyTokenManager, async function(req :RequestCustom, res :Response) {
     let contract:any = await createSmartContract(app);
     res.status(200).json({contractAddress: contract.address});
   });
 
 app.post("/apiV1/sale/transfer", verifyToken, transfer);
-
-//
-// /apiV1/sale/transferEth
-// parameters:
-//  - the token's id
-//  - the token's address
-//  - destination address (which the address from which the token is going to be paid)
-//  - the final token's price
-//
-// This end point records the sale of the specified token to the new owner when paid in Ether
-// The effective transfer is performed whan the ethers have been received
-// When ethers are reaching the smart contract, it is triggering an event which is received by the server and triggers the transfer
-//
-app.post("/apiV1/sale/transferEth", verifyToken, async function (req: RequestCustom, res: Response) {
-    const tokenAddr: string = req.body.tokenAddr;
-    const tokenId: string = req.body.tokenId;
-    const finalPrice: string = req.body.finalPrice;
-    const destinationAddr: string = req.body.destinationAddress;
-    const decimalsEth = 18;
-    console.log("transfer tokenId: ", tokenAddr, tokenId, destinationAddr);
-
-    logger.info("server.transfer.requested - token: %s, destination: %s, price: %s", tokenId, destinationAddr, finalPrice);
-    const saleEvent: SaleEventRecord = {
-        typeMsg: "transferRequest",
-        id: req.body.id as string,
-        isLocked: true,
-        destinationAddr,
-    };
-    saleEvents.insert(saleEvent);
-
-    /*
-
-    The NFT Smart contract is able to store sales records in the following format:
-
-    struct SaleRecord {
-        bytes32 buyer;                  // Buyer's address (can also be a bitcoin address)
-        uint128 price;                  // Price as an integer
-        uint8   decimals;               // Decimals applied to the price
-        bytes3  currency;               // Currency 3 letters Iso country code + ETH and BTC
-        bytes1  network;                // Network on which the payment is performed
-        bytes1  status;                 // Sale's status: initiated, payed, completed, ....
-    }
-    */
-
-    const saleRecord = {
-        buyer: utils.formatBytes32String(destinationAddr),
-        decimals: decimalsEth,
-        price: parseFloat(finalPrice) * 10 ** decimalsEth,
-        currency: 'eth',
-        network: NFT4ART_ETH_NETWORK,
-        status: NFT4ART_SALE_INITIATED
-    };
-
-    let tokenWithSigner = app.locals.token.connect(app.locals.wallet);
-    tokenWithSigner
-        .saleRecord(tokenId, saleRecord)
-        .then((transferResult: TransactionResponse) => {
-            res.sendStatus(200);
-            const saleEvent: SaleEventRecord = {
-                typeMsg: NFT4ART_SALE_INITIATED_MSG,
-                id: tokenId,
-                isLocked: true,
-                destinationAddr: destinationAddr,
-                isTransferred: false,
-                isStored: false
-            };
-            saleEvents.insert(saleEvent);
-            logger.info("server.store.sale.init - token: %s, destination: %s", tokenId, destinationAddr);
-            transferResult.wait().then((transactionReceipt: TransactionReceipt) => {
-                const saleEvent: SaleEventRecord = {
-                    typeMsg: NFT4ART_SALE_STORED_MSG,
-                    id: tokenId,
-                    isLocked: true,
-                    destinationAddr: destinationAddr,
-                    isTransferred: false,
-                    isFinalized: false,
-                    isStored: true,
-                    txId: transactionReceipt.transactionHash,
-                };
-
-                saleEvents.insert(saleEvent);
-                logger.info("server.store.sale.performed token %s destination %s - TxHash: %s", tokenId, destinationAddr, transactionReceipt.transactionHash );
-            });
-        })
-        .catch((error: errors) => {
-            res.status(412).json(error);
-            logger.error("server.store.sale.error %s", error);
-            const saleEvent: SaleEventRecord = {
-                typeMsg: NFT4ART_SALE_INITIATED_MSG,
-                id: tokenId,
-                isLocked: true,
-                destinationAddr: destinationAddr,
-                isTransferred: false,
-                isFinalized: false,
-                isStored: false,
-                txId: undefined,
-                error,
-            };
-            saleEvents.insert(saleEvent);
-        });
-});
+app.post("/apiV1/sale/transferEth", verifyToken, transferEth);
+app.post("/apiV1/sale/transferBtc", verifyToken, transferBtc);
+app.post("/apiV1/sale/saleInvoice", verifyToken, saleInvoice);
 
 //
 // /apiV1/token/mintIpfsFolder
@@ -452,6 +365,9 @@ interface ExtWebSocket extends WebSocket {
 function sendLock(id: string, isLocked: boolean) {
     sendMessage(JSON.stringify(new LockMessage(id, isLocked)));
 }
+function sendError(status: number, message: string) {
+    sendMessage(JSON.stringify(new ErrorMessage(status, message)));
+}
 
 function sendMessage(msg: string) {
     setTimeout(() => {
@@ -462,12 +378,17 @@ function sendMessage(msg: string) {
     }, 1000);
 }
 
-export { sendMessage, sendLock };
+export { sendMessage, sendLock, sendError };
 
 export class LockMessage {
     public typeMsg: string = "lock";
 
     constructor(public id: string, public isLocked: boolean = true) {}
+}
+export class ErrorMessage {
+    public typeMsg: string = "error";
+
+    constructor(public status: number, public message: string) {}
 }
 
 wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {

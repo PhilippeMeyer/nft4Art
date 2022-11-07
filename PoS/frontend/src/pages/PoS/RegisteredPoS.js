@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useSnackbar } from 'notistack';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
+import Box from '@mui/material/Box';
+
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 
 import NavbarManager from "../NavbarManager";
@@ -33,16 +35,16 @@ function RegisteredPoS() {
     }
 
     const columns = [
-        { field: 'deviceId', headerName: 'id', width: 300 },
-        { field: 'browser', headerName: 'Browser', width: 100 },
-        { field: 'browserVersion', headerName: 'Version', width: 70 },
-        { field: 'ip', headerName: 'IP address', width: 150},
-        { field: 'authorized', headerName: 'Authorized', width: 100, 
+        { field: 'deviceId', headerName: 'id', minWidth: 300, flex: 2 },
+        { field: 'browser', headerName: 'Browser', minWidth: 100, flex: 1 },
+        { field: 'browserVersion', headerName: 'Version', minWidth: 70, flex: 0.5 },
+        { field: 'ip', headerName: 'IP address', minWidth: 150, flex: 1},
+        { field: 'authorized', headerName: 'Authorized', minWidth: 100, flex: 1, 
             renderCell: (params) => {
                 let disabled = (params.id == device.device.deviceId);
                 return (
                 <Checkbox
-                    checked={params.value || false}
+                    checked={params.value == 1 ? true : false}
                     disableRipple
                     disableFocusRipple
                     onClick={() => handleToggleCompleted(params)}
@@ -50,18 +52,17 @@ function RegisteredPoS() {
                 /> );
             }, 
         },
-        { field: 'isConnected', headerName: 'Connected', width: 100,
+        { field: 'isConnected', headerName: 'Connected', minWidth: 100, flex: 1,
             renderCell: (params) => (
                 <Checkbox
-                    checked={params.value || false}
+                    checked={params.value == 1 ? true : false}
                     disableRipple
                     disableFocusRipple
                     disabled={true}
                 />
             )
         }, 
-        { field: 'meta', headerName: 'Date', width: 250,
-            valueFormatter: (params) => { return new Date(params.value.created).toISOString();} },
+        { field: 'createdOn', headerName: 'Date', minWidth: 200, flex: 2}
     ];
 
     useEffect(() => { 
@@ -71,26 +72,29 @@ function RegisteredPoS() {
     const loadData = () => {
         fetch(posUrl, { method: 'GET',  headers: {"Content-type": "application/json;charset=UTF-8", "authorization": 'Bearer ' + jwt }})
         .then(response => response.json())
-        .then(data => { setData(data.map((row, index) => { row.key=index; return row; } )); })
+        .then(data => {
+            setData(data.map((row, index) => { 
+                row.key=index;
+                return row; 
+            } )); })
         .catch((error) => enqueueSnackbar("Error receiving data - " + error));
     };
 
 
-    if (data === undefined || data.length == 0) return (<><main></main></>);
+    if (data === undefined || data.length == 0) return (<></>);
   
     return (
-        <>
-            <div style={{ height: 500, width: 1100 }}>
-                <DataGrid
-                    rows={data}
-                    columns={columns}
-                    pageSize={5}
-                    rowsPerPageOptions={[5]}
-                    getRowId={(row) => row.deviceId || row.id}
-                />
-            </div>
+        <Box sx={{ height: 600, width: '100%', p:3}}>
+            <h1 className='title'>List of registered Point Of Sale</h1>
+            <DataGrid sx={{mx:5}}
+                rows={data}
+                columns={columns}
+                pageSize={5}
+                rowsPerPageOptions={[5,10]}
+                getRowId={(row) => row.deviceId || row.id}
+            />
             <NavbarManager />
-        </>
+        </Box>
     );
 }
 

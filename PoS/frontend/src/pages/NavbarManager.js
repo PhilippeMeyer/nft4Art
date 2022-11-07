@@ -29,7 +29,7 @@ const NavbarManager = () => {
         showLabels
         value={selected}
         onChange={(value, newValue) => { setSelected(newValue); navigate(navigateTo[newValue]); }}
-        style = {{ width: '100%', position: 'fixed', bottom: 10}} >
+        style = {{ width: '100%', position: 'fixed', bottom: 0}} >
 
         <BottomNavigationAction label="Tokens"  icon={<TokenOutlinedIcon />} />
         <BottomNavigationAction label="Wallets" icon={<AccountBalanceWalletOutlinedIcon />} />

@@ -74,6 +74,8 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
 
     try {
         logger.info('server.mintFromFiles.createFolder: %s', req.app.locals.batchMintFolder);
+        console.log('img raw', req.body.image_raw);
+
 
         // Find among the fileds a field named image_raw which should point to the file containing the image
         if (req.body.image_raw === undefined) {
@@ -83,7 +85,7 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
         }
 
         const files: any[] = req.files as any[];
-        const image_raw: any = files.find((file) =>  file.fieldname == req.body.image_raw);
+        const image_raw: any = files.find((file) =>  file.originalname == req.body.image_raw);
 
         if( image_raw === undefined) {
             logger.info('server.batchMintTokenFromFiles.noImageProvided');
@@ -97,6 +99,7 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
         var metadata: any = {};
 
         for (const file of files) {
+            console.log('storing ', file);
             var cid = await client.storeBlob(new Blob([file.buffer]));
             logger.info('server.mintFromFiles.createIpfsFile %s', cid);
             metadata[file.fieldname] = "ipfs://" + cid;
@@ -108,7 +111,11 @@ async function batchMintTokenFromFiles(req: Request, res: Response) {
         metadata.image = "ipfs://" + cid;  
 
         let key;
-        for (key in req.body)  metadata[key] = req.body[key];
+        for (key in req.body)  
+            metadata[key] = req.body[key];
+
+        metadata['image_raw'] = metadata[image_raw.fieldname];
+
         
         if(req.body.tokenId === undefined) {
             tokenId = req.app.locals.batchMintTokenId.toString();

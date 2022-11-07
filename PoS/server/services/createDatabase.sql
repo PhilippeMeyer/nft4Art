@@ -17,7 +17,7 @@ create table tokens (
     createdOn datetime default current_timestamp);
 
 create table appIds (
-    appId text primary key,
+    appId text,
     addressEth text,
     nonce integer
     createdOn datetime default current_timestamp);
@@ -25,6 +25,7 @@ create table appIds (
 create table salesEvents (
     typeMsg text,
     id text,
+    price real,
     isLocked integer,
     destinationAddr text,
     isStored integer,
@@ -51,5 +52,11 @@ create table voteQuestionnaire (
     voteId text,
     cid text,
     checksum text,
+    jsonData text,
+    createdOn datetime default current_timestamp);
+
+create table invoices (
+    id integer primary key,
+    invoiceNumber text,
     jsonData text,
     createdOn datetime default current_timestamp);

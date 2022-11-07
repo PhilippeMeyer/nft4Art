@@ -14,6 +14,9 @@ import { config } from "../../config.js"
 // a biometric check
 //
 const verifyToken = (req: RequestCustom, res: Response, next: NextFunction) => {
+
+    if(!req.app.locals.walletLoaded) return res.status(403).json({ error: "The server is not ready - wallet not loaded" });
+    
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
     if (!token) {

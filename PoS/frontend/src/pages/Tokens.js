@@ -123,7 +123,9 @@ function Tokens() {
   };
 
   useEffect(() => { 
-    loadData(); }, [location]);
+    loadData(); 
+    setRowsPerPage(Math.floor((window.innerHeight - 300)/120));
+  }, [location]);
 
   
   const loadData = () => {
@@ -136,6 +138,7 @@ function Tokens() {
   const updatePriceField = (e) => {
     if (e.target === undefined) return;
 
+    console.log('target: ', e.target.id, e.target.value);
     let i = parseInt(e.target.id);
     let value = Number(e.target.value);
 
@@ -146,9 +149,13 @@ function Tokens() {
   const save = async () => {
     let tokensUpdate = [];
     console.log(priceUpdate);
-    priceUpdate.map((index) => { 
-        let t = { id: tokens[index].id, price: tokens[index].price };
-        tokensUpdate.push(t); 
+    priceUpdate.map((index) => {
+        let tk = tokens.find((elt) => elt.tokenIdStr == index)
+        console.log(tk);
+        if (tk != null)  {
+          let t = { id: tk.id, price: tk.price };
+          tokensUpdate.push(t); 
+        }
     });
     console.log(tokensUpdate);
     const cancel = () => { loadData(); };
@@ -166,16 +173,16 @@ function Tokens() {
   if (tokens.length == 0 || tokens.length === undefined) return (<><main><NavbarManager /></main></>);
 
   return (
-      <Box sx={{width: 4/5, m:5, p:5}}>
+      <Box sx={{width: {sm: 4/5}, m: {sm:5}, p:{sm:5}}}>
         <h1 className="title">Tokens available for sale</h1><br></br>
         <Table aria-label="tokens table">
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
               <TableCell>Id</TableCell>
-              <TableCell>Collection</TableCell>
+              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }}}>Collection</TableCell>
               <TableCell>Qty</TableCell>
-              <TableCell>Name</TableCell>
+              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }}}>Name</TableCell>
               <TableCell>Price</TableCell>
             </TableRow>
           </TableHead>
@@ -188,11 +195,11 @@ function Tokens() {
                   <Avatar src={token.iconUrl} sx={{ width: 70, height: 70 }}/>
                 </TableCell>
                 <TableCell align="left" component="th" scope="row">{token.tokenIdStr}</TableCell>
-                <TableCell align="left" component="th" scope="row">{token.collectionId}</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }}} align="left" component="th" scope="row">{token.collectionId}</TableCell>
                 <TableCell align="left" component="th" scope="row">{token.availableTokens}</TableCell>
-                <TableCell align="left" component="th" scope="row">{token.description}</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }}} align="left" component="th" scope="row">{token.description}</TableCell>
                 <TableCell align="left" component="th" scope="row">
-                  <TextField id={index.toString()} label="New Price" variant="standard" type="number" defaultValue={token.price} 
+                  <TextField id={token.tokenIdStr} label="New Price" variant="standard" type="number" defaultValue={token.price} 
                     onChange={updatePriceField}
                     InputProps={{
                       startAdornment: <InputAdornment position="start">Chf</InputAdornment>,
@@ -202,11 +209,11 @@ function Tokens() {
               </TableRow>
             )}
           </TableBody>
-          <TableFooter className="rightAligned">
-            <TableRow className="rightAligned">
-              <TablePagination className="rightAligned"
+          <TableFooter>
+            <TableRow>
+              <TablePagination
                 rowsPerPageOptions={[5, 10, 20, { label: 'All', value: -1 }]}
-                colSpan={3}
+                colSpan={5}
                 count={tokens.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
@@ -224,9 +231,9 @@ function Tokens() {
           </TableFooter>
 
         </Table>
-        <Box>
-          <Button sx={{p:10}} onClick={cancel}>Cancel</Button>
-          <Button sx={{p:10}} onClick={save}>Save</Button>
+        <Box sx={{mt:5}}>
+          <Button sx={{p:1}} onClick={cancel}>Cancel</Button>
+          <Button sx={{p:1}} onClick={save}>Save</Button>
         </Box>
         <NavbarManager />
       </Box>

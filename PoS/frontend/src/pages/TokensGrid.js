@@ -40,7 +40,6 @@ function TokenGrid({ collectionId }) {
   // Local state for the screen and pict dimensions and the clickable regions 
   const [selected, setSelected] = React.useState();
   const [currency, setCurrency] = React.useState('fiat');
-  const [filteredTokens, setFilteredTokens] = React.useState([]);
   const [screenSize, setScreenSize] = useState({});
 
   // Redux state for the jwt and the tokens
@@ -62,13 +61,12 @@ function TokenGrid({ collectionId }) {
       .then((tks) => { 
           tks.forEach((tk, index) => tk.index = index);
           dispatch(loadTokens(tks)); 
-          setFilteredTokens(tks.filter(elt => elt.collectionId == collectionId))
       })
       .catch((error) => { enqueueSnackbar('Error loading the tokens'); console.error(error); });
   };
 
   const onclick = (event) => {
-    const sel = filteredTokens.find((elt) => elt.id == event.target.id);
+    const sel = tokens.find((elt) => elt.id == event.target.id);
     if(tokens[sel.index].isLocked) return;
 
     setSelected(sel);
@@ -111,7 +109,7 @@ function TokenGrid({ collectionId }) {
   return (
     <>
           <ImageList cols={defineColumns()}>
-            {filteredTokens.map((token) => (
+            {tokens.filter(elt => elt.collectionId == collectionId).map((token) => (
               <ImageListItem key={token.id} style={{cursor:tokens[token.index].isLocked ? "not-allowed" : "default"}}>
                 <img
                   src={token.iconUrl}
@@ -119,12 +117,13 @@ function TokenGrid({ collectionId }) {
                   id={token.id}
                   loading="lazy"
                   onClick={onclick}
+                  style={{backgroundColor:'white', opacity:token.isLocked ? 0.5 : 1}}
                 />
                 <ImageListItemBar
-                  title={token.description}
-                  subtitle={token.author}
+                  title={`Price: ${token.price} CHF`}
+                  subtitle={`Qty: ${token.availableTokens}`}
                   actionIcon={
-                    <Tooltip title={`${token.description} - Price: ${token.price}CHF - Qty: ${token.availableTokens}`}>
+                    <Tooltip title={`${token.description} - ${token.author}`}>
                       <IconButton
                         sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
                         aria-label={`info about ${token.description}`}
@@ -145,7 +144,8 @@ function TokenGrid({ collectionId }) {
                 Which currency is the customer requesting?
               </DialogContentText>
               <RadioGroup name="use-radio-group" defaultValue="fiat" onChange={changeCurrency}>
-                <FormControlLabel value="fiat" label="Chf" control={<Radio />} />
+              <FormControlLabel value="invoice" label="Invoice" control={<Radio />} />
+              <FormControlLabel value="fiat" label="Cash - Chf" control={<Radio />} />
                 <FormControlLabel value="btc" label="Bitcoin" control={<Radio />} />
                 <FormControlLabel value="eth" label="Ether" control={<Radio />} />
               </RadioGroup>

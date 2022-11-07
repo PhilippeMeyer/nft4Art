@@ -12,9 +12,12 @@ PoS/server/nft4Art.json*
 PoS/server/nft4art.db
 PoS/server/package-lock.json
 PoS/server/*.keys
+PoS/server/*.log
+PoS/server/invoices/**
 PoS/server/cids-created.txt
 PoS/server/public/sample-mp4-file.mp4
 PoS/server/utils/**.js
+PoS/server/utils/.env*
 PoS/server/utils/transfer.json
 /client/.pnp
 /client/.pnp.js

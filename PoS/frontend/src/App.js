@@ -14,11 +14,13 @@ import Contracts from './pages/Contracts';
 import TokensMap from "./pages/TokensMap";
 import TokensGrid from "./pages/TokensGrid";
 import SelectCollection from "./pages/SelectCollection";
-import TokenSaleFiat from "./pages/TokenSaleFiat";
-import TokenSaleEth from "./pages/TokenSaleEth";
-import TokenSaleBtc from "./pages/TokenSaleBtc";
+import TokenSaleFiat from "./pages/sale/TokenSaleFiat";
+import TokenSaleEth from "./pages/sale/TokenSaleEth";
+import TokenSaleBtc from "./pages/sale/TokenSaleBtc";
+import TokenSaleInvoice from "./pages/sale/TokenSaleInvoice";
 import TokenTransfer from "./pages/TokenTransfer";
 import TokenTransferEth from "./pages/TokenTransferEth";
+import TokenTransferBtc from "./pages/TokenTransferBtc";
 import RegisteredPoS from './pages/PoS/RegisteredPoS';
 import DisplayVote from "./pages/vote/DisplayVote";
 import ListQuesionnaire from "./pages/vote/ListQuestionnaire";
@@ -58,8 +60,10 @@ function App() {
             <Route path="/sales/token/fiat/:id" element={<TokenSaleFiat />} />
             <Route path="/sales/token/eth/:id" element={<TokenSaleEth />} />
             <Route path="/sales/token/btc/:id" element={<TokenSaleBtc />} />
+            <Route path="/sales/token/invoice/:id" element={<TokenSaleInvoice />} />
             <Route path="/sales/transfer" element={<TokenTransfer />} />
             <Route path="/sales/transferETh" element={<TokenTransferEth />} />
+            <Route path="/sales/transferBtc" element={<TokenTransferBtc />} />
           </Routes>
         </div>
       </ThemeProvider>  

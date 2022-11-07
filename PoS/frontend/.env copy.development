@@ -1,0 +1,4 @@
+REACT_APP_SERVER = "https://curly-meals-lick-51-154-33-234.loca.lt/"
+REACT_APP_WS_SERVER = "wss://curly-meals-lick-51-154-33-234.loca.lt/"
+REACT_APP_ENV = "dev"
+REACT_APP_SALES_TIMEOUT = 8000
