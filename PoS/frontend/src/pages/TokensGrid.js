@@ -94,11 +94,6 @@ function TokenGrid({ collectionId }) {
     return Math.floor(screenSize.screenWidth / imageSize);
   };
 
-  const price = (tk) => {
-    console.log('price: ', tk);
-    return 'Price: ' + tk.price + " CHF";
-  }
-
   const handleOpenDialog = () => {
     setOpen(true);
   };
@@ -122,10 +117,10 @@ function TokenGrid({ collectionId }) {
                   id={token.id}
                   loading="lazy"
                   onClick={onclick}
-                  style={{'background-color':'white'}}
+                  style={{backgroundColor:'white', opacity:token.isLocked ? 0.5 : 1}}
                 />
                 <ImageListItemBar
-                  title={price(token)}
+                  title={`Price: ${token.price} CHF`}
                   subtitle={`Qty: ${token.availableTokens}`}
                   actionIcon={
                     <Tooltip title={`${token.description} - ${token.author}`}>

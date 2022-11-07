@@ -172,6 +172,10 @@ const insertInvoice = function(invoice:any)  {
     const result = stmt.run(params);
 }
 
+const findAllInvoices = function() {
+    return db.prepare('SELECT invoiceNumber,jsonData FROM invoices').all([]);
+}
+
 
 export {    initDb, closeDb, 
             findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos, findAllRegisteredPos,
@@ -181,4 +185,4 @@ export {    initDb, closeDb,
             insertNewVote, findOneVote, findAllVote,
             insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire,
             insertSaleEvent, findSaleEventByAddress,
-            findNextInvoiceId, insertInvoice };
+            findNextInvoiceId, insertInvoice, findAllInvoices };
