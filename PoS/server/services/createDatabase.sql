@@ -58,6 +58,7 @@ create table voteQuestionnaire (
 create table invoices (
     id integer primary key,
     invoiceNumber text,
+    tokenId text,
     paid integer,
     settled integer,
     paymentReference text,

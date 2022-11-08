@@ -60,7 +60,8 @@ async function saleInvoice(req: RequestCustom, res: Response) {
           country: country
         },
         invoiceNumber: invoiceNumber,
-        destinationAddr: destinationAddr
+        destinationAddr: destinationAddr,
+        tokenId: token.id
       };
 
       insertInvoice(data);
