@@ -2,7 +2,6 @@ PoS/server/node_modules/**
 PoS/server/cache/**
 PoS/server/build/**
 PoS/server/uploads/**
-PoS/server/bin/**
 PoS/server/.env*
 PoS/server/*.js
 PoS/server/test/**.js
