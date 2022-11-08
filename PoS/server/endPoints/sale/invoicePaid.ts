@@ -23,10 +23,7 @@ import { transferToken } from "./transfer.js";
 // It records the transfer of the specified token to the new owner
 //
 async function invoicePaid(req: RequestCustom, res: Response) {
-    const tokenId: string = req.body.tokenId;
-    const paymentReference: string = req.body.paymentReference;
-    const destinationAddr: string = req.body.destinationAddress;
-    const invoiceNumber: string = req.body.invoiceNumber;
+    const { tokenId, paymentReference, destinationAddr, invoiceNumber } = req.body;
 
     const invoice = findInvoice(invoiceNumber);
 
@@ -46,12 +43,12 @@ async function invoicePaid(req: RequestCustom, res: Response) {
 
     logger.info("server.invoicePaid.requested - token: %s, destination: %s", tokenId, destinationAddr);
     try {
-        insertSaleEvent(cst.NFT4ART_SALE_PAID_MSG, req.body.tokenId as string, Number(invoice.data.amount), 1, destinationAddr, 1, 1, 0, '', '');
+        insertSaleEvent(cst.NFT4ART_SALE_PAID_MSG, tokenId as string, Number(invoice.data.amount), 1, destinationAddr, 1, 1, 0, '', '');
         payInvoice(invoiceNumber, paymentReference);
     } catch(error:any) {
         res.status(412).json( { Error: 'Error in transferring token: ' + error.toString() });
         logger.error("server.store.sale.error %s", error.toString());
-        insertSaleEvent(cst.NFT4ART_SALE_ERROR_MSG, req.body.tokenId as string, Number(invoice.data.amount), 1, destinationAddr, 0, 0, 0, '', error.toString());
+        insertSaleEvent(cst.NFT4ART_SALE_ERROR_MSG, tokenId as string, Number(invoice.data.amount), 1, destinationAddr, 0, 0, 0, '', error.toString());
     }
     res.sendStatus(202);
 

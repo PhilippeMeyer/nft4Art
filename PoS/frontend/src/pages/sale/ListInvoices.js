@@ -48,6 +48,7 @@ import NavbarManager from "../NavbarManager";
 const httpServer = process.env.REACT_APP_SERVER;
 const listInvoicesUrl = httpServer + 'apiV1/sale/listInvoices';
 const getInvoiceUrl = httpServer + 'apiV1/sale/getInvoice?invoice=';
+const invoicePaidUrl = httpServer + 'apiV1/sale/invoicePaid';
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -123,6 +124,11 @@ function ListInvoices() {
   const [confirmationDialog, setConfirmationDialog] = useState(false);
   const [iban, setIban] = useState();
   const [destAddr, setDestAddr] = useState();
+  const [currentInvoice, setCurrentInvoice] = useState({});
+  const [currentToken, setCurrentToken] = useState({});
+
+  const tokens = useSelector((state) => state.token.data);
+
 
   const jwt = useSelector((state) => state.token.jwt);
   const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt };
@@ -168,12 +174,13 @@ function ListInvoices() {
       .then((invoices) => {
         invoices.forEach((invoice) => { invoice.data = JSON.parse(invoice.jsonData )})
         setInvoices(invoices);
-        console.log(invoices); 
       })
       .catch((error) => { enqueueSnackbar('Error loading the invoices'); console.error(error); });
   };
   
   const cancel = () => {
+    setDialog(false);
+    setConfirmationDialog(false);
   };
 
   useEffect( () => {
@@ -181,6 +188,18 @@ function ListInvoices() {
     setRowsPerPage(Math.floor((window.innerHeight - 300)/120));
   }, []);
 
+  const transferDialog = (invoice) => {
+      console.log('tokens: ',tokens, 'invoice: ', invoice);
+      setCurrentToken(tokens.find((elt) => elt.id == invoice.data.tokenId));
+      setCurrentInvoice(invoice);
+      setDialog(true);
+  }
+
+  const transferConfirmed = () => {
+    let obj = { tokenId: currentToken.id, paymentReference: iban, destinationAddr: destAddr, invoiceNumber: currentInvoice.invoiceNumber };
+    console.log(obj);
+    fetch(invoicePaidUrl, { method: 'POST', headers: jwtHeader, body: JSON.stringify(obj) })
+  }
  
   if (invoices === undefined)
     return (
@@ -191,6 +210,7 @@ function ListInvoices() {
       <>
         <Box sx={{width: {sm: 4/5}, m: {sm:5}, p:{sm:5}}}>
           <h1 className="title">Invoices</h1><br></br>
+          
           <Table aria-label="invoices table">
             <TableHead>
               <TableRow>
@@ -212,7 +232,7 @@ function ListInvoices() {
                   <TableCell align="left" component="th" scope="row">{invoice.data.amount} CHF</TableCell>
                   <TableCell align="left" component="th" scope="row">
                     <IconButton onClick={() => { viewInvoice(invoice); }}><PageviewOutlinedIcon/></IconButton>
-                    <IconButton onClick={() => { setDialog(true); }}><SyncAltOutlinedIcon/></IconButton>
+                    <IconButton onClick={() => { transferDialog(invoice); }}><SyncAltOutlinedIcon/></IconButton>
                   </TableCell>
                 </TableRow>
               )}
@@ -237,46 +257,40 @@ function ListInvoices() {
                 />
               </TableRow>
             </TableFooter>
-
           </Table>
-          <Box sx={{mt:5}}>
-            <Button sx={{p:1}} onClick={cancel}>Cancel</Button>
-          </Box>
+
           <NavbarManager />
         </Box>
 
         <Dialog open={dialog} onClose={handleClose}>
-          <DialogTitle>Invoice Paid - Token Transfer</DialogTitle>
+          <DialogTitle>Invoice Paid and Token Transfer</DialogTitle>
           <DialogContent>
             <Box sx={{display: 'block'}}>
-            <TextField sx={{mb:2, display:'block'}} className='leftAligned' autoFocus id="iban" label="Payment reference" type="text" variant="standard" color="warning"
-                  onChange={(e) => setIban(e.target.value)}
-            />
-            <TextField sx={{mb:2, display:'block'}} className='leftAligned' autoFocus id="destAddr" label="Destination Address" type="text" variant="standard" color="warning"
-                  onChange={(e) => setDestAddr(e.target.value)}
-            />
+              <DialogContentText>{`The customer has paid the invoice ${currentInvoice.invoiceNumber} for the token ${currentToken.decription}\nPlease enter the payment details and verify or enter the destination address`}</DialogContentText>
+
+              <TextField sx={{mb:2, display:'block'}} className='leftAligned' autoFocus id="iban" label="Payment reference" type="text" variant="standard" 
+              color="warning" onChange={(e) => setIban(e.target.value)} />
+
+              <TextField sx={{mb:2, display:'block'}} className='leftAligned' autoFocus id="destAddr" label="Destination Address" type="text" variant="standard" 
+              color="warning" defaultValue={currentInvoice.destinationAddress} onChange={(e) => setDestAddr(e.target.value)}/>
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={cancel}>Cancel</Button>
             <Button onClick={handleTransfer}>Transfer Token</Button>
           </DialogActions>
         </Dialog>
+
         <Dialog open={confirmationDialog} onClose={handleClose}>
           <DialogTitle>Token Transfer Confirmation</DialogTitle>
           <DialogContent>
-            <Box sx={{display: 'block'}}>
-            <TextField sx={{mb:2, display:'block'}} className='leftAligned' autoFocus id="iban" label="Payment reference" type="text" variant="standard" color="warning"
-                  onChange={(e) => setIban(e.target.value)}
-            />
-            <TextField sx={{mb:2, display:'block'}} className='leftAligned' autoFocus id="destAddr" label="Destination Address" type="text" variant="standard" color="warning"
-                  onChange={(e) => setDestAddr(e.target.value)}
-            />
-            </Box>
+            <DialogContentText>
+              {`Please confirm the transfer of the token ${currentToken.decription} to the destination address ${destAddr}`}
+            </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleTransfer}>Transfer Token</Button>
+            <Button onClick={cancel}>Cancel</Button>
+            <Button onClick={transferConfirmed}>Confirm Transfer</Button>
           </DialogActions>
         </Dialog>
       </>

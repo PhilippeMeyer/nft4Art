@@ -167,7 +167,7 @@ const findNextInvoiceId = function() {
 }
 
 const insertInvoice = function(invoice:any)  {
-    const stmt = db.prepare('INSERT INTO invoices(invoiceNumber,tokenId,paid,settled,paymentReference,jsonData) VALUES (?, ?, 0, 0, "", ?)');
+    const stmt = db.prepare('INSERT INTO invoices(invoiceNumber,tokenId,jsonData) VALUES (?, ?, ?)');
     const params = [invoice.invoiceNumber, invoice.tokenId, JSON.stringify(invoice)];
     const result = stmt.run(params);
 }

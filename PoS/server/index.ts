@@ -48,6 +48,7 @@ import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMess
 import { transferEth } from "./endPoints/sale/transferEth.js";
 import { transferBtc } from "./endPoints/sale/transferBtc.js"
 import { listInvoices, getPdfInvoice } from "./endPoints/sale/listInvoices.js";
+import { invoicePaid } from "./endPoints/sale/invoicePaid.js";
 
 
 // TODO: Env var?
@@ -226,6 +227,10 @@ app.get('/apiV1/information/video', verifyTokenApp, video);
 app.get('/apiV1/information/tokensOwned', verifyTokenApp, tokensOwned);
 app.get('/apiV1/information/3Dmodel', threeDmodel);
 app.get("/apiV1/information/generateWallets", verifyTokenManager, generateWallets);
+app.get("/apiV1/information/installApp", function(req: Request, res: Response) {
+    res.set('location', config.redirectTo);
+    res.status(301).send();
+});
 
 app.get('/apiV1/price/priceInCrypto', priceInCrypto);
 app.put("/apiV1/price/update", verifyTokenManager, priceUpdate);
@@ -325,6 +330,7 @@ app.post("/apiV1/sale/transferBtc", verifyToken, transferBtc);
 app.post("/apiV1/sale/saleInvoice", verifyToken, saleInvoice);
 app.get("/apiV1/sale/listInvoices", verifyToken, listInvoices);
 app.get("/apiV1/sale/getInvoice", verifyToken, getPdfInvoice);
+app.post("/apiV1/sale/invoicePaid", verifyToken, invoicePaid);
 
 //
 // /apiV1/token/mintIpfsFolder
