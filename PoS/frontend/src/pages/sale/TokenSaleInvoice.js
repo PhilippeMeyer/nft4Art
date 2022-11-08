@@ -34,12 +34,7 @@ function TokenSaleInvoice() {
   const jwt = useSelector((state) => state.token.jwt);
   const timer = useRef(null);
   
-  const { handleSubmit, control, reset } = useForm({
-    defaultValues: {
-      checkbox: false,
-      email: '',
-    }
-  });
+  const { handleSubmit, control, reset } = useForm({  });
 
   
   const token = location.state.token;
