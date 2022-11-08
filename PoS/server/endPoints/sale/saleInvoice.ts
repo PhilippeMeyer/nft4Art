@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { SaleEventRecord, RequestCustom } from "../../typings";
-import * as chqr from "swissqrbill";
+import { PDF } from "swissqrbill/lib/node/esm/node/pdf.js";
+import { mm2pt, formatAmount } from "swissqrbill/lib/node/esm/shared/utils.js";
 
 import { logger } from "../../loggerConfiguration.js";
 import { config } from "../../config.js";
@@ -10,7 +11,7 @@ import { findNextInvoiceId, insertInvoice, insertSaleEvent } from "../../service
 
 const logo = config.galleryLogo;
 const imageWidth = 120;
-const w = [chqr.utils.mm2pt(15), chqr.utils.mm2pt(80), chqr.utils.mm2pt(30)] as const;
+const w = [mm2pt(15), mm2pt(80), mm2pt(30)] as const;
 
 
 async function saleInvoice(req: RequestCustom, res: Response) {
@@ -69,7 +70,7 @@ async function saleInvoice(req: RequestCustom, res: Response) {
 
 
       const table = {
-        width: chqr.utils.mm2pt(170),
+        width: mm2pt(170),
         x: 175,
         rows: [
           {
@@ -83,7 +84,7 @@ async function saleInvoice(req: RequestCustom, res: Response) {
               }, {
                 text: token.author + ' - ' + token.description,
               }, {
-                text: "CHF " + chqr.utils.formatAmount(price),
+                text: "CHF " + formatAmount(price),
               }
             ]
           }, {
@@ -95,7 +96,7 @@ async function saleInvoice(req: RequestCustom, res: Response) {
                 text: "Summe",
                 font: "Helvetica-Bold",
               }, {
-                text: "CHF " + chqr.utils.formatAmount(price),
+                text: "CHF " + formatAmount(price),
                 font: "Helvetica-Bold",
               }
             ]
@@ -116,7 +117,7 @@ async function saleInvoice(req: RequestCustom, res: Response) {
               }, {
                 text: "MwSt. Betrag",
               }, {
-                text: "CHF " + chqr.utils.formatAmount(vat),
+                text: "CHF " + formatAmount(vat),
               }
             ]
           }, {
@@ -128,7 +129,7 @@ async function saleInvoice(req: RequestCustom, res: Response) {
                 text: "Rechnungstotal",
                 font: "Helvetica-Bold",
               }, {
-                text: "CHF " + chqr.utils.formatAmount(totalPrice),
+                text: "CHF " + formatAmount(totalPrice),
                 font: "Helvetica-Bold"
               }
             ]
@@ -137,8 +138,8 @@ async function saleInvoice(req: RequestCustom, res: Response) {
       };
 
       table.rows.forEach((row:any) => row.columns.forEach((col:any, index:any) => col.width = w[index]));
-      
-      const pdf = new chqr.PDF(data as any, config.invoiceFolder + data.invoiceNumber + ".pdf", { "autoGenerate": false, "size": "A4" });
+
+      const pdf = new PDF(data as any, config.invoiceFolder + data.invoiceNumber + ".pdf", { "autoGenerate": false, "size": "A4" });
       pdf.image(logo, 20, 20, { width: 120 });
       pdf.font("Helvetica");
       pdf.fontSize(12);
