@@ -110,6 +110,7 @@ const removeAppId = function(appId: string) {
 }
 
 const insertNewSmartContract = function(address: string) {
+    db.prepare('UPDATE smartContracts set activeFlag = 0').run([]);
     const stmt = db.prepare('INSERT INTO smartContracts(addressEth, activeFlag) VALUES (?, ?)');
     const params = [address, 1];
     const result = stmt.run(params);

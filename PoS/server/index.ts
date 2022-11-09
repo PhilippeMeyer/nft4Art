@@ -21,7 +21,6 @@ import { init } from "./init.js";
 import { logConf, logger } from "./loggerConfiguration.js";
 
 import * as dbPos from './services/db.js';
-import { createSmartContract } from './services/createSmartContract.js';
 import { config } from "./config.js";
 
 import { generateWallets } from "./endPoints/information/generateWallets.js";
@@ -37,6 +36,7 @@ import { priceInCrypto } from "./endPoints/price/priceInCrypto.js";
 import { priceUpdate, priceUpdates } from "./endPoints/price/priceUpdate.js";
 import { authorizePoS } from "./endPoints/auth/authorizePoS.js";
 import { batchMintTokenFromFiles, batchMintStart, batchMintFinalize } from "./endPoints/token/mintTokenFromFiles.js";
+import { createNewToken } from './endPoints/token/createNewToken.js'
 import { collectionImage, collectionMap } from "./endPoints/token/collectionImage.js";
 import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/Questionnaire.js";
 import { sendVote, getVotes } from "./endPoints/vote/vote.js";
@@ -243,9 +243,11 @@ app.post('/apiV1/token/batchMintFinalize', upload.any(), batchMintFinalize);
 app.post('/apiV1/token/addSmartContract', verifyTokenManager, addSmartContract);
 app.get('/apiV1/token/collectionImg', collectionImage);
 app.get('/apiV1/token/collectionMap', collectionMap);
-app.get(['/apiV1/token/list', '/tokens'], (req: Request, res: Response) => {
+app.get(['/apiV1/token/list', '/tokens', '/apiV1/token/listFilteredToken'], listFilteredTokens);
+app.get(['/apiV1/token/token', '/token'], verifyToken, (req: Request, res: Response) => {
+    const id = parseInt(req.query.id as string);
+    res.status(200).json(app.locals.metas[id]);
 });
-app.get(['/apiV1/token/listFilteredToken', '/token'], verifyToken, listFilteredTokens);
 app.get('/apiV1/token/listAllToken', verifyToken, listAllTokens);
 app.get(['/apiV1/token/icon', '/icon'], function (req: Request, res: Response) {
     res.type("png");
@@ -312,15 +314,7 @@ app.get("/apiV1/log/allEvents", verifyTokenManager, function (req: Request, res:
 });
 
 
-//
-// /apiV1/sale/createToken, parameters: the token's Uri
-//
-// This end point deploys on the blockchain a new token
-//
-app.post('/apiV1/sale/createToken', verifyTokenManager, async function(req :RequestCustom, res :Response) {
-    let contract:any = await createSmartContract(app);
-    res.status(200).json({contractAddress: contract.address});
-  });
+app.post('/apiV1/token/createToken', verifyTokenManager, createNewToken);
 
 app.post("/apiV1/sale/transfer", verifyToken, transfer);
 app.post("/apiV1/sale/transferEth", verifyToken, transferEth);
