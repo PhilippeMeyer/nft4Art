@@ -169,6 +169,7 @@ async function loadToken(token: Contract, exApp:any ) {
                 data.id = token.address + id;
                 data.tokenIdStr = id?.toString();
                 data.tokenId = id;
+                data.tokenIdNum = id.toNumber();
                 data.addr = token.address;
                 data.isLocked = false;
                 data.price = 0;

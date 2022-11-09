@@ -31,7 +31,7 @@ import { loadTokens, updatePrice } from '../store/tokenSlice'
 
 
 const httpServer = process.env.REACT_APP_SERVER;
-
+const allTokensUrl = httpServer + 'apiV1/token/listAllToken';
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -241,7 +241,7 @@ function Tokens() {
 }
 
 function fetchData(jwt) {
-  return fetch(httpServer + 'tokens', {
+  return fetch(allTokensUrl, {
       method: 'get',
       headers: {
           'Accept': 'application/json',

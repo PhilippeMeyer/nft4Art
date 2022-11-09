@@ -43,6 +43,7 @@ import { sendVote, getVotes } from "./endPoints/vote/vote.js";
 import { transfer } from "./endPoints/sale/transfer.js"
 import { saleInvoice } from "./endPoints/sale/saleInvoice.js"
 import { addSmartContract } from "./endPoints/token/addSmartContract.js";
+import { listAllTokens, listFilteredTokens } from "./endPoints/token/listTokens.js";
 import { listQuestionnaireForUser } from "./endPoints/vote/Questionnaire.js";
 import { RequestCustom, DeviceResponse, DeviceFromClient, AppLogin, AppLoginMessage, Vote, SaleEventRecord, registeredPosRecord } from './typings'
 import { transferEth } from "./endPoints/sale/transferEth.js";
@@ -243,12 +244,9 @@ app.post('/apiV1/token/addSmartContract', verifyTokenManager, addSmartContract);
 app.get('/apiV1/token/collectionImg', collectionImage);
 app.get('/apiV1/token/collectionMap', collectionMap);
 app.get(['/apiV1/token/list', '/tokens'], (req: Request, res: Response) => {
-    res.status(200).json(app.locals.metas);
 });
-app.get(['/apiV1/token/token', '/token'], verifyToken, (req: Request, res: Response) => {
-    const id = parseInt(req.query.id as string);
-    res.status(200).json(app.locals.metas[id]);
-});
+app.get(['/apiV1/token/listFilteredToken', '/token'], verifyToken, listFilteredTokens);
+app.get('/apiV1/token/listAllToken', verifyToken, listAllTokens);
 app.get(['/apiV1/token/icon', '/icon'], function (req: Request, res: Response) {
     res.type("png");
     res.status(200).send(app.locals.icons.get(req.query.id));

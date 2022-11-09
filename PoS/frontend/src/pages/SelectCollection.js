@@ -31,7 +31,7 @@ import './Map.css';
 
 const httpServer = process.env.REACT_APP_SERVER;
 const collectionUrl = httpServer + 'apiV1/token/collections';
-const tokenUrl = httpServer + 'apiV1/token/list';
+const tokenUrl = httpServer + 'apiV1/token/listAllToken';
 const mapUrlMap = httpServer + 'apiV1/token/collectionMap?collectionId=01';
 
 const lockUrl = httpServer + 'lockUnlock?';
