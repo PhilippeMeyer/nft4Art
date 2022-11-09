@@ -4,6 +4,8 @@ import { Response } from "express";
 import { SaleEventRecord, RequestCustom } from "../../typings";
 import { insertNewSmartContract } from '../../services/db.js';
 import { logger } from "../../loggerConfiguration.js";
+import { init } from '../../init.js';
+import { config } from '../../config.js';
 
 
 async function createNewToken(req :RequestCustom, res :Response) {
@@ -17,6 +19,7 @@ async function createNewToken(req :RequestCustom, res :Response) {
     res.status(200).json({contractAddress: contract.address});
 
     logger.info('server.createSmartContract.restartingServer');
+    init(req.app, config);
 };
 
 
