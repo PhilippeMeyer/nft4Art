@@ -51,13 +51,12 @@ async function saleInvoice(req: RequestCustom, res: Response) {
         currency: "CHF",
         amount: totalPrice,
         creditor: {
-          name: "The Lighthouse",
+          name: "Orlando Werffeli",
           message: token.author + ' - ' + token.description,
-          address: "Raemistrasse",
-          buildingNumber: "5",
-          zip: 8001,
+          address: "UBS Switzerland AG",
+          zip: 8098,
           city: "Zürich",
-          account: "CH7309000000150914342",
+          account: "CH860023023067175340 D",
           country: "CH"
         },
         debtor: {
@@ -154,14 +153,20 @@ async function saleInvoice(req: RequestCustom, res: Response) {
       pdf.image(logo, 20, 20, { width: 120 });
       pdf.font("Helvetica");
       pdf.fontSize(12);
-      pdf.text('The Lighthouse', {align: 'right'}).moveDown(0.3);
-      pdf.text('Raemistrasse 5', {align: 'right'}).moveDown(0.3);
-      pdf.text('8001 Zürich', {align: 'right'}).moveDown(0.3);
-      pdf.text('mail@lighthouse.com', {align: 'right'}).moveDown(0.3);
+      pdf.text('The Lighthouse', {align: 'right'});
+      pdf.text('Raemistrasse 3', {align: 'right'});
+      pdf.text('8001 Zürich', {align: 'right'});
+      pdf.text('mail@lighthouse.com', {align: 'right'});
+      pdf.moveDown(1);
+      pdf.text(firstName + ' ' + lastName);
+      pdf.text(address);
+      pdf.text(zip + ' ' + city);
+
       pdf.moveDown(4);
       pdf.fontSize(18).text('Invoice #' + data.invoiceNumber);
       pdf.moveDown(1);
-      pdf.fontSize(14).text(token.name);
+      pdf.fontSize(14).text("We sell in the name of the artist " + token.author);
+      pdf.text(token.name);
       pdf.moveDown(4);
       let x = pdf.x;
       let y = pdf.y;

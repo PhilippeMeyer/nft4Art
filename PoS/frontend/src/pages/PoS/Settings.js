@@ -10,7 +10,7 @@ import NavbarManager from "../NavbarManager";
 
 const httpServer = process.env.REACT_APP_SERVER;
 const addSCUrl = httpServer + 'apiV1/token/addSmartContract?scAddress=';
-const deploySCUrl = httpServer + 'apiV1/sale/createToken';
+const deploySCUrl = httpServer + 'apiV1/token/createNewToken';
 
 
 function Settings() {
