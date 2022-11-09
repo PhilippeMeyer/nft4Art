@@ -272,7 +272,7 @@ function ListInvoices() {
               color="warning" onChange={(e) => setIban(e.target.value)} />
 
               <TextField sx={{mb:2, display:'block'}} className='leftAligned' autoFocus id="destAddr" label="Destination Address" type="text" variant="standard" 
-              color="warning" defaultValue={currentInvoice.destinationAddress} onChange={(e) => setDestAddr(e.target.value)}/>
+              color="warning" defaultValue={currentInvoice.data.destinationAddr} onChange={(e) => setDestAddr(e.target.value)}/>
             </Box>
           </DialogContent>
           <DialogActions>
