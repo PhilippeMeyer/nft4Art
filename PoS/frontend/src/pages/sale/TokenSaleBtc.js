@@ -25,7 +25,7 @@ function TokenSaleBtc() {
   const [finalPrice, setFinalPrice] = useState();
   const timer = useRef(null);
 
-  const token = location.state.token;
+  const token = useSelector((state) => state.token.currentToken);
   console.log(token);
 
   const constructor = () => {

@@ -24,7 +24,7 @@ function TokenSaleFiat() {
   const navigate = useNavigate();
   const timer = useRef(null);
 
-  const token = location.state.token;
+  const token = useSelector((state) => state.token.currentToken);
 
   const onNewScanResult = (decodedText, decodedResult) => {
     clearTimeout(timer.current);

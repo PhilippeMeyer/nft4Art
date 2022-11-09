@@ -24,7 +24,7 @@ import { loadCollections } from '../store/tokenSlice'
 import './Map.css';
 
 import NavbarManager from "./NavbarManager";
-import { storeJwt, loadTokens } from '../store/tokenSlice'
+import { loadTokens, setCurrentToken } from '../store/tokenSlice'
 import { toBeEnabled } from "@testing-library/jest-dom/dist/matchers";
 
 const httpServer = process.env.REACT_APP_SERVER;
@@ -76,6 +76,7 @@ function TokenGrid({ collectionId }) {
   const handleSale = () => { 
     const params = new URLSearchParams({id: selected.id, lock: true})
     fetch(lockUrl + params.toString(), { method: 'PUT', headers: jwtHeader });
+    dispatch(setCurrentToken(selected));
     navigate('/sales/token/' + currency + '/' + selected.id, { state: { token: selected  }});
   };
 
