@@ -36,7 +36,6 @@ import { priceInCrypto } from "./endPoints/price/priceInCrypto.js";
 import { priceUpdate, priceUpdates } from "./endPoints/price/priceUpdate.js";
 import { authorizePoS } from "./endPoints/auth/authorizePoS.js";
 import { batchMintTokenFromFiles, batchMintStart, batchMintFinalize } from "./endPoints/token/mintTokenFromFiles.js";
-import { createNewToken } from './endPoints/token/createNewToken.js'
 import { collectionImage, collectionMap } from "./endPoints/token/collectionImage.js";
 import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endPoints/vote/Questionnaire.js";
 import { sendVote, getVotes } from "./endPoints/vote/vote.js";
@@ -50,6 +49,7 @@ import { transferEth } from "./endPoints/sale/transferEth.js";
 import { transferBtc } from "./endPoints/sale/transferBtc.js"
 import { listInvoices, getPdfInvoice } from "./endPoints/sale/listInvoices.js";
 import { invoicePaid } from "./endPoints/sale/invoicePaid.js";
+import { createNewToken } from "./endPoints/token/createNewToken.js";
 
 
 // TODO: Env var?
