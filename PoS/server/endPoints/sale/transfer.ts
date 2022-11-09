@@ -40,34 +40,67 @@ async function transfer(req: RequestCustom, res: Response) {
 function transferToken(tk:any, destinationAddr:string, app:any): Promise<string> {
     const tokenWithSigner = app.locals.token.connect(app.locals.wallet);
 
-    return new Promise<string>((resolve, reject) => {
-        tokenWithSigner
-            .safeTransferFrom(app.locals.wallet.address, destinationAddr, tk.tokenId, 1, [])
-            .then((transferResult: TransactionResponse) => {
-                
-                insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 1, 0, 0, '', '');
-                logger.info("server.transfer.initiated - token: %s, destination: %s", tk.tokenId, destinationAddr);
+    if(tk.tokenIdNum == 1) {                                                    // Transfer of the video, only one token tranferred
+        return new Promise<string>((resolve, reject) => {
+            tokenWithSigner
+                .safeTransferFrom(app.locals.wallet.address, destinationAddr, tk.tokenId, 1, [])
+                .then((transferResult: TransactionResponse) => {
+                    
+                    insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 1, 0, 0, '', '');
+                    logger.info("server.transfer.initiated - token: %s, destination: %s", tk.tokenId, destinationAddr);
 
-                transferResult.wait().then((transactionReceipt: TransactionReceipt) => {
-                    insertSaleEvent("transferPerformed", tk.id, tk.price, 1, destinationAddr, 1, 1, 0, transactionReceipt.transactionHash, '');
-                    logger.info( "server.transfer.performed token %s destination %s - TxHash: %s", tk.tokenIdStr, destinationAddr, transactionReceipt.transactionHash );
+                    transferResult.wait().then((transactionReceipt: TransactionReceipt) => {
+                        insertSaleEvent("transferPerformed", tk.id, tk.price, 1, destinationAddr, 1, 1, 0, transactionReceipt.transactionHash, '');
+                        logger.info( "server.transfer.performed token %s destination %s - TxHash: %s", tk.tokenIdStr, destinationAddr, transactionReceipt.transactionHash );
 
-                    // Update the balance once the transfer has been performed
-                    app.locals.token.balanceOf(app.locals.wallet.address, tk.tokenId).then((balance: any) => {
-                        logger.info('server.transfer.updatingBalance');
-                        tk.availableTokens = balance.toString();
-                        tk.isLocked = balance.isZero();
-                        sendLock(tk.id, true);
-                        resolve(transactionReceipt.transactionHash);
+                        // Update the balance once the transfer has been performed
+                        app.locals.token.balanceOf(app.locals.wallet.address, tk.tokenId).then((balance: any) => {
+                            logger.info('server.transfer.updatingBalance');
+                            tk.availableTokens = balance.toString();
+                            tk.isLocked = balance.isZero();
+                            sendLock(tk.id, true);
+                            resolve(transactionReceipt.transactionHash);
+                        });
                     });
+                })
+                .catch((error: errors) => {
+                    logger.error("server.transfer.error %s", error);
+                    insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 0, 0, 0, '', error.toString());
+                    reject(error);
                 });
-            })
-            .catch((error: errors) => {
-                logger.error("server.transfer.error %s", error);
-                insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 0, 0, 0, '', error.toString());
-                reject(error);
-            });
-    });
+        });
+    }
+    else {                                                                          // We distribute a video token (#1) for free
+        return new Promise<string>((resolve, reject) => {
+            tokenWithSigner
+                .safeBatchTransferFrom(app.locals.wallet.address, destinationAddr, [tk.tokenIdNum, 1], [1, 1], [])
+                .then((transferResult: TransactionResponse) => {
+                    
+                    insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 1, 0, 0, '', '');
+                    logger.info("server.transfer.initiated - token: %s, destination: %s", tk.tokenId, destinationAddr);
+
+                    transferResult.wait().then((transactionReceipt: TransactionReceipt) => {
+                        insertSaleEvent("transferPerformed", tk.id, tk.price, 1, destinationAddr, 1, 1, 0, transactionReceipt.transactionHash, '');
+                        logger.info( "server.transfer.performed token %s destination %s - TxHash: %s", tk.tokenIdStr, destinationAddr, transactionReceipt.transactionHash );
+
+                        // Update the balance once the transfer has been performed
+                        app.locals.token.balanceOf(app.locals.wallet.address, tk.tokenId).then((balance: any) => {
+                            logger.info('server.transfer.updatingBalance');
+                            tk.availableTokens = balance.toString();
+                            tk.isLocked = balance.isZero();
+                            sendLock(tk.id, true);
+                            resolve(transactionReceipt.transactionHash);
+                        });
+                    });
+                })
+                .catch((error: errors) => {
+                    logger.error("server.transfer.error %s", error);
+                    insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 0, 0, 0, '', error.toString());
+                    reject(error);
+                });
+        });
+
+    }
 }
 
 export { transfer, transferToken };

@@ -46,7 +46,7 @@ async function saleInvoice(req: RequestCustom, res: Response) {
     const invoiceId = findNextInvoiceId();
     const invoiceNumber = 'TJ' + invoiceId.toString();
     const address = address1 + (address2 === 'undefined') ? '' : ' ' + address2;
-    
+
     const data = {
         currency: "CHF",
         amount: totalPrice,
@@ -74,13 +74,11 @@ async function saleInvoice(req: RequestCustom, res: Response) {
 
       insertInvoice(data);
       insertSaleEvent(cst.NFT4ART_SALE_STORED_MSG, token.id as string, price, 1, destinationAddr, 1, 0, 0, '', '');
-      token.availableTokens--;
-      updateQuantityToken(token.id, token.availableTokens);
-      sendQuantity(token.id, token.availableTokens);
-      if(token.availableTokens == 0)  {
-        token.isLocked = true;
-        sendLock(token.id, true);
-      }
+      decreaseAvailableTokens(token);
+
+      // Every customer gets a free token for the video and model (id = 1)
+      const video:any = req.app.locals.metasMap.get(token.addr + '1');
+      decreaseAvailableTokens(video);
 
       const table = {
         width: mm2pt(170),
@@ -174,6 +172,16 @@ async function saleInvoice(req: RequestCustom, res: Response) {
 
       pdf.addQRBill();
       pdf.end();
+}
+
+function decreaseAvailableTokens(token:any) {
+  token.availableTokens--;
+  updateQuantityToken(token.id, token.availableTokens);
+  sendQuantity(token.id, token.availableTokens);
+  if(token.availableTokens == 0)  {
+    token.isLocked = true;
+    sendLock(token.id, true);
+  }
 }
 
 export { saleInvoice }

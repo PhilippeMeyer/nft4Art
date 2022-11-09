@@ -177,7 +177,7 @@ const insertInvoice = function(invoice:any)  {
 }
 
 const findAllInvoices = function() {
-    return db.prepare('SELECT invoiceNumber,jsonData FROM invoices').all([]);
+    return db.prepare('SELECT invoiceNumber,paid,settled,jsonData FROM invoices').all([]);
 }
 
 const findInvoice = function(invoiceNumber:string) {

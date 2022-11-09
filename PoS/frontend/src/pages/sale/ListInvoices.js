@@ -192,6 +192,7 @@ function ListInvoices() {
       console.log('tokens: ',tokens, 'invoice: ', invoice);
       setCurrentToken(tokens.find((elt) => elt.id == invoice.data.tokenId));
       setCurrentInvoice(invoice);
+      setDestAddr(invoice.data.destinationAddr)
       setDialog(true);
   }
 
@@ -232,7 +233,7 @@ function ListInvoices() {
                   <TableCell align="left" component="th" scope="row">{invoice.data.amount} CHF</TableCell>
                   <TableCell align="left" component="th" scope="row">
                     <IconButton onClick={() => { viewInvoice(invoice); }}><PageviewOutlinedIcon/></IconButton>
-                    <IconButton onClick={() => { transferDialog(invoice); }}><SyncAltOutlinedIcon/></IconButton>
+                    <IconButton onClick={() => { transferDialog(invoice); }} disabled={invoice.settled == 1}><SyncAltOutlinedIcon/></IconButton>
                   </TableCell>
                 </TableRow>
               )}
@@ -261,7 +262,6 @@ function ListInvoices() {
 
           <NavbarManager />
         </Box>
-
         <Dialog open={dialog} onClose={handleClose}>
           <DialogTitle>Invoice Paid and Token Transfer</DialogTitle>
           <DialogContent>
@@ -269,10 +269,10 @@ function ListInvoices() {
               <DialogContentText>{`The customer has paid the invoice ${currentInvoice.invoiceNumber} for the token ${currentToken.decription}\nPlease enter the payment details and verify or enter the destination address`}</DialogContentText>
 
               <TextField sx={{mb:2, display:'block'}} className='leftAligned' autoFocus id="iban" label="Payment reference" type="text" variant="standard" 
-              color="warning" onChange={(e) => setIban(e.target.value)} />
+              color="warning" onChange={(e) => setIban(e.target.value)} fullWidth/>
 
               <TextField sx={{mb:2, display:'block'}} className='leftAligned' autoFocus id="destAddr" label="Destination Address" type="text" variant="standard" 
-              color="warning" defaultValue={currentInvoice.data.destinationAddr} onChange={(e) => setDestAddr(e.target.value)}/>
+              color="warning" defaultValue={destAddr} onChange={(e) => setDestAddr(e.target.value)} fullWidth/>
             </Box>
           </DialogContent>
           <DialogActions>
@@ -285,7 +285,7 @@ function ListInvoices() {
           <DialogTitle>Token Transfer Confirmation</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              {`Please confirm the transfer of the token ${currentToken.decription} to the destination address ${destAddr}`}
+              {`Please confirm the transfer of the token ${currentToken.description} to the destination address ${destAddr}`}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -298,9 +298,10 @@ function ListInvoices() {
 }
 
 function fetchData(jwt) {
+  console.log('fetchdata ', jwt);
   return fetch(listInvoicesUrl, { method: 'get', headers: jwt})
     .then((response) =>  response.json())
-    .then((responseJson) => {
+    .then((responseJson) => { 
       return (responseJson);
   });
 }

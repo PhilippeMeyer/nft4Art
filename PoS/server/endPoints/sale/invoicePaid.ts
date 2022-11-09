@@ -45,7 +45,8 @@ async function invoicePaid(req: RequestCustom, res: Response) {
     try {
         insertSaleEvent(cst.NFT4ART_SALE_PAID_MSG, tokenId as string, Number(invoice.data.amount), 1, destinationAddr, 1, 1, 0, '', '');
         payInvoice(invoiceNumber, paymentReference);
-    } catch(error:any) {
+    } 
+    catch(error:any) {
         res.status(412).json( { Error: 'Error in transferring token: ' + error.toString() });
         logger.error("server.store.sale.error %s", error.toString());
         insertSaleEvent(cst.NFT4ART_SALE_ERROR_MSG, tokenId as string, Number(invoice.data.amount), 1, destinationAddr, 0, 0, 0, '', error.toString());
