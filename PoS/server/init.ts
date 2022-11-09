@@ -295,12 +295,18 @@ async function loadToken(token: Contract, exApp:any ) {
 
     metas.map((meta:any) => {
         let key: string;
-        meta.images = new Array<string>(imageProperties.length);
+        let i:number = 0;
+        let images = new Array<string>(imageProperties.length);
 
         for(key in meta) {
             const index = imageProperties.indexOf(key);                                              // Is this resource an image?
-            if (index != -1) meta.images[index] = config.resourceUrl + meta.id + '&type=' + key;
+            if (index != -1) { 
+                images[index] = config.resourceUrl + meta.id + '&type=' + key;
+                i++;
+            }
         }
+
+        if(i != 0) meta.images = images;
     });
 
 
