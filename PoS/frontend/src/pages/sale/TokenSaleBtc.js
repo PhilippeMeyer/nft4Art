@@ -1,11 +1,13 @@
 import React, {useEffect, useState, useRef} from "react";
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack';
+import { useSelector, useDispatch } from 'react-redux'
 import Button from '@mui/material/Button';
-import QRcodeScanner from '../../QRcodeScanner';
+import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import { Box } from '@mui/system';
-import InputAdornment from '@mui/material/InputAdornment';
+
+import QRcodeScanner from '../../QRcodeScanner';
 
 const timeout = process.env.REACT_APP_SALES_TIMEOUT;
 
