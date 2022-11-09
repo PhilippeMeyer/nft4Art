@@ -129,13 +129,13 @@ function Login() {
           <Button variant="contained" className="button" onClick={handleOpenDialog}>Admin login</Button>
         </Box>
 
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open} onClose={handleClose} onKeyUp={(e) => { if(e.key =='Enter') handleLogin();}}>
           <DialogTitle>Login as Admin </DialogTitle>
           <DialogContent>
             <DialogContentText>
               To connect as admin, please enter the wallet's password.
             </DialogContentText>
-            <TextField
+            <TextField focused
               autoFocus
               margin="dense"
               id="password"
