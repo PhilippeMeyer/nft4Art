@@ -243,10 +243,12 @@ app.post('/apiV1/token/batchMintFinalize', upload.any(), batchMintFinalize);
 app.post('/apiV1/token/addSmartContract', verifyTokenManager, addSmartContract);
 app.get('/apiV1/token/collectionImg', collectionImage);
 app.get('/apiV1/token/collectionMap', collectionMap);
-app.get(['/apiV1/token/list', '/tokens'], (req: Request, res: Response) => {
-});
-app.get(['/apiV1/token/listFilteredToken', '/token'], verifyToken, listFilteredTokens);
+app.get(['/apiV1/token/list', '/tokens'], listFilteredTokens);
 app.get('/apiV1/token/listAllToken', verifyToken, listAllTokens);
+app.get(['/apiV1/token/token', '/token'], verifyToken, (req: Request, res: Response) => {
+    const id = parseInt(req.query.id as string);
+    res.status(200).json(app.locals.metas[id]);
+});
 app.get(['/apiV1/token/icon', '/icon'], function (req: Request, res: Response) {
     res.type("png");
     res.status(200).send(app.locals.icons.get(req.query.id));
