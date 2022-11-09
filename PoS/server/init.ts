@@ -58,6 +58,7 @@ async function init(exApp: any, config: any) {
     let token: Contract;
 
     token = await new Contract(tokenList[0].addressEth, exApp.locals.gvdNftDef.abi, exApp.locals.ethProvider);
+    exApp.locals.authorEthAddr = await token.owner();
     loadToken(token, exApp);
     loadQuestionnaire(exApp);
 }
@@ -368,7 +369,7 @@ const connectToken = async (wallet:Wallet, app:any) => {
     logger.info('server.connectedToken.withWallet');
 
     await Promise.all(app.locals.metas.map(async (nft: any, index: number) => {
-        let balanceBN = await app.locals.token.balanceOf(app.locals.wallet.address, nft.tokenId);
+        let balanceBN = await app.locals.token.balanceOf(app.locals.authorEthAddr, nft.tokenId);
         let balance:number = balanceBN.toNumber();
         if (nft.quantity == -1) {
             nft.quantity = balance;

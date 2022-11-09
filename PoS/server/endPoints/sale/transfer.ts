@@ -54,7 +54,7 @@ function transferToken(tk:any, destinationAddr:string, app:any): Promise<string>
                         logger.info( "server.transfer.performed token %s destination %s - TxHash: %s", tk.tokenIdStr, destinationAddr, transactionReceipt.transactionHash );
 
                         // Update the balance once the transfer has been performed
-                        app.locals.token.balanceOf(app.locals.wallet.address, tk.tokenId).then((balance: any) => {
+                        app.locals.token.balanceOf(app.locals.authorEthAddr, tk.tokenId).then((balance: any) => {
                             logger.info('server.transfer.updatingBalance');
                             tk.availableTokens = balance.toString();
                             tk.isLocked = balance.isZero();
@@ -84,7 +84,7 @@ function transferToken(tk:any, destinationAddr:string, app:any): Promise<string>
                         logger.info( "server.transfer.performed token %s destination %s - TxHash: %s", tk.tokenIdStr, destinationAddr, transactionReceipt.transactionHash );
 
                         // Update the balance once the transfer has been performed
-                        app.locals.token.balanceOf(app.locals.wallet.address, tk.tokenId).then((balance: any) => {
+                        app.locals.token.balanceOf(app.locals.authorEthAddr, tk.tokenId).then((balance: any) => {
                             logger.info('server.transfer.updatingBalance');
                             tk.availableTokens = balance.toString();
                             tk.isLocked = balance.isZero();
