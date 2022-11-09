@@ -9,6 +9,7 @@ export const tokenSlice = createSlice({
     jwt: "",
     data: [],
     collections: {},
+    currentToken: {},
     device: {},
     isEstablishingConnection: false,
     isConnected: false,
@@ -28,6 +29,10 @@ export const tokenSlice = createSlice({
       state.collections = action.payload;
     },
 
+    setCurrentToken: (state, action) => {
+      state.currentToken = action.payload;
+    },
+
     storeDevice: (state, action) => {
         state.device = action.payload;
     },
@@ -41,6 +46,24 @@ export const tokenSlice = createSlice({
         state.isConnected = true;
     },
 
+    updateQty: (state, action) => {
+      let index;
+      if (action.payload.id === undefined) return;
+
+      const ind = state.data.findIndex((elt) => elt.id === action.payload.id )
+      if (ind == -1) {
+        console.error('No such token %s', action.payload.id)
+        return;
+      }
+
+      const newTokens = [...state.data];
+
+      newTokens[ind].availableTokens = action.payload.qty;
+      state.data = newTokens;
+
+      return state
+    },
+
     updatePrice: (state, action) => {
         let index;
         if (action.payload.index !== undefined) index = action.payload.index;                       // This is a user change 
@@ -49,7 +72,11 @@ export const tokenSlice = createSlice({
 
         const newTokens = [...state.data];
         let realIndex = newTokens.findIndex((elt) => elt.tokenIdStr == index);
-
+        if (realIndex == -1) {
+          console.error('No such token %s', action.payload.id)
+          return;
+        }
+  
         newTokens[realIndex].price = action.payload.price;
         state.data = newTokens;
         
@@ -63,6 +90,11 @@ export const tokenSlice = createSlice({
 
       //index = parseInt(action.payload.id.slice(42));    // This is a server update
       const ind = state.data.findIndex((elt) => elt.id === action.payload.id )
+      if (ind == -1) {
+        console.error('No such token %s', action.payload.id)
+        return;
+      }
+
       const newTokens = [...state.data];
 
       newTokens[ind].isLocked = action.payload.isLocked;
@@ -79,6 +111,6 @@ export const tokenSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { storeJwt, loadTokens, loadCollections, storeDevice, startConnecting, connectionEstalished, updatePrice, updateLock, updateError } = tokenSlice.actions;
+export const { storeJwt, loadTokens, loadCollections, setCurrentToken, storeDevice, startConnecting, connectionEstalished, updatePrice, updateQty, updateLock, updateError } = tokenSlice.actions;
 
 export default tokenSlice.reducer;

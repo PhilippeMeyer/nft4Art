@@ -5,9 +5,10 @@ import { mm2pt, formatAmount } from "swissqrbill/lib/node/esm/shared/utils.js";
 
 import { logger } from "../../loggerConfiguration.js";
 import { config } from "../../config.js";
+import { sendQuantity, sendLock } from "../../index.js";
 import * as cst from "../../constants.js";
 
-import { findNextInvoiceId, insertInvoice, insertSaleEvent } from "../../services/db.js";
+import { findNextInvoiceId, insertInvoice, insertSaleEvent, updateQuantityToken } from "../../services/db.js";
 
 const logo = config.galleryLogo;
 const imageWidth = 120;
@@ -32,14 +33,20 @@ async function saleInvoice(req: RequestCustom, res: Response) {
 
     const token = req.app.locals.metasMap.get(tokenId);
     if (token == null) {
-      logger.error("server.saleInvoice.nonExitingToken");
+      logger.error("server.saleInvoice.nonExitingToken %s", tokenId);
       res.status(500).json({error: "non existing token"});
+      return;
+    }
+    if (token.availableTokens < 1) {
+      logger.error("server.saleInvoice.notSufficientBalance %s %d", tokenId, token.availableTokens);
+      res.status(500).json({error: "not enough balance"});
       return;
     }
 
     const invoiceId = findNextInvoiceId();
     const invoiceNumber = 'TJ' + invoiceId.toString();
-
+    const address = address1 + (address2 === 'undefined') ? '' : ' ' + address2;
+    
     const data = {
         currency: "CHF",
         amount: totalPrice,
@@ -55,7 +62,7 @@ async function saleInvoice(req: RequestCustom, res: Response) {
         },
         debtor: {
           name: firstName + ' ' + lastName,
-          address: address1 + ' ' + (address2 === 'undefined') ? '' : address2,
+          address: address,
           zip: zip,
           city: city,
           country: country
@@ -67,7 +74,13 @@ async function saleInvoice(req: RequestCustom, res: Response) {
 
       insertInvoice(data);
       insertSaleEvent(cst.NFT4ART_SALE_STORED_MSG, token.id as string, price, 1, destinationAddr, 1, 0, 0, '', '');
-
+      token.availableTokens--;
+      updateQuantityToken(token.id, token.availableTokens);
+      sendQuantity(token.id, token.availableTokens);
+      if(token.availableTokens == 0)  {
+        token.isLocked = true;
+        sendLock(token.id, true);
+      }
 
       const table = {
         width: mm2pt(170),

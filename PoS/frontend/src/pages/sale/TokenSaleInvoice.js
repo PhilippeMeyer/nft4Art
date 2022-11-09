@@ -10,9 +10,9 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-
-
 import Button from '@mui/material/Button';
+
+import QRcodeScanner from '../../QRcodeScanner';
 
 const httpServer = process.env.REACT_APP_SERVER;
 const saleTokenInvoice = httpServer + 'apiV1/sale/saleInvoice';
@@ -29,22 +29,26 @@ function TokenSaleInvoice() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Local variables which qre not part of the form
   const [price, setPrice] = useState(0);
+  const [destinationAddr, setDestinationAddr] = useState();
 
   const jwt = useSelector((state) => state.token.jwt);
+  const token = useSelector((state) => state.token.currentToken);
   const timer = useRef(null);
   
-  const { handleSubmit, control, reset } = useForm({  });
+  const { handleSubmit, control, reset } = useForm({});
 
   
-  const token = location.state.token;
+  //const token = location.state.token;
   const jwtHeader = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'authorization': 'Bearer ' + jwt };
 
-  const onSubmit= data => {
-      clearTimeout(timer.current);
+  const onSubmit = data => {
+    clearTimeout(timer.current);
 
     data.price = price;
     data.tokenId = token.id;
+    data.destinationAddr = destinationAddr;
     console.log('jwt ', jwtHeader);
     console.log('data ', data)
     fetch(saleTokenInvoice, {method: 'POST', body: JSON.stringify(data), headers: jwtHeader});
@@ -69,6 +73,16 @@ function TokenSaleInvoice() {
   }, []);
 
   const updatePriceField = (e) => { setPrice(e.target.value); }
+
+  const onNewScanResult = (decodedText, decodedResult) => {
+    clearTimeout(timer.current);
+
+    if (decodedText.length != 42) return;
+    if (!decodedText.startsWith('0x')) return;
+  
+    setDestinationAddr(decodedText);
+  };
+
 
   if (token === undefined)
     return (
@@ -226,9 +240,17 @@ function TokenSaleInvoice() {
                 />
               </Grid>
 
-              <Box sx={{m:5}}>
-                <Button sx={{mx:2}} type="submit" variant="contained">Submit</Button>
-                <Button sx={{mx:2}} variant="contained" onClick={cancel}>Cancel</Button>
+              <Box className='qrCode'>
+                <QRcodeScanner
+                      fps={10}
+                      qrbox={250}
+                      disableFlip={false}
+                      qrCodeSuccessCallback={onNewScanResult}
+                />
+                <Box sx={{m:5}}>
+                  <Button sx={{mx:2}} type="submit" variant="contained">Submit</Button>
+                  <Button sx={{mx:2}} variant="contained" onClick={cancel}>Cancel</Button>
+                </Box>
               </Box>
             </form>
           </Box>

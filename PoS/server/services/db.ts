@@ -71,14 +71,18 @@ const findAllTokens = function() {
 }
 
 const insertNewToken = function(token: any) {
-    const {id, tokenIdStr, isLocked, price} = token;
-    const stmt = db.prepare('INSERT INTO tokens(tokenId, id, isLocked, price, jsonData) VALUES (?, ?, ?, ?, ?)');
-    const params = [id, tokenIdStr, isLocked ? 1 : 0, price, JSON.stringify(token)];
+    const {id, tokenIdStr, isLocked, price, quantity} = token;
+    const stmt = db.prepare('INSERT INTO tokens(tokenId, id, isLocked, price, quantity, jsonData) VALUES (?, ?, ?, ?, ?, ?)');
+    const params = [id, tokenIdStr, isLocked ? 1 : 0, price, quantity, JSON.stringify(token)];
     const result = stmt.run(params);
 }
 
 const updatePriceToken = function(tokenId: string, price: number) {
     db.prepare('UPDATE tokens SET price=? WHERE tokenId=?').run([price, tokenId]);
+}
+
+const updateQuantityToken = function(tokenId: string, quantity: number) {
+    db.prepare('UPDATE tokens SET quantity=? WHERE tokenId=?').run([quantity, tokenId]);
 }
 
 const updateLockToken = function(tokenId: string, lock: number) {
@@ -190,7 +194,7 @@ const settleInvoice = function(invoiceNumber: string) {
 
 export {    initDb, closeDb, 
             findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos, findAllRegisteredPos,
-            findToken, insertNewToken, updatePriceToken, updateLockToken, findAllTokens,
+            findToken, insertNewToken, updatePriceToken, updateLockToken, findAllTokens, updateQuantityToken,
             findAppId, insertNewAppId, updateNonceAppId, removeAppId,
             insertNewSmartContract, findAllSmartContracts,
             insertNewVote, findOneVote, findAllVote,

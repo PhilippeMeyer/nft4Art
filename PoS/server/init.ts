@@ -172,6 +172,7 @@ async function loadToken(token: Contract, exApp:any ) {
                 data.addr = token.address;
                 data.isLocked = false;
                 data.price = 0;
+                data.quantity = -1;
                 dbPos.insertNewToken(data);
             } else {
                 data = JSON.parse(dataFromDb.jsonData);
@@ -284,7 +285,6 @@ async function loadToken(token: Contract, exApp:any ) {
     //         } catch (error) {
     //             logger.error("server.init.loadIcons %s", error);
     //         }
-
     //         meta.imgUrl = config.imgUrl + meta.id;
     //     }),
     // );
@@ -307,6 +307,7 @@ async function loadToken(token: Contract, exApp:any ) {
         }
 
         if(i != 0) meta.images = images;
+        else meta.images = [];
     });
 
 
@@ -366,9 +367,20 @@ const connectToken = async (wallet:Wallet, app:any) => {
     logger.info('server.connectedToken.withWallet');
 
     await Promise.all(app.locals.metas.map(async (nft: any, index: number) => {
-        let balance = await app.locals.token.balanceOf(app.locals.wallet.address, nft.tokenId);
-        app.locals.metas[index].availableTokens = balance.toString();
-        app.locals.metas[index].isLocked = balance.isZero();
+        let balanceBN = await app.locals.token.balanceOf(app.locals.wallet.address, nft.tokenId);
+        let balance:number = balanceBN.toNumber();
+        if (nft.quantity == -1) {
+            nft.quantity = balance;
+            nft.availableTokens = balance;
+            dbPos.updateQuantityToken(nft.id, balance);
+        }
+        else {
+            if(nft.quantity < balance) {                        // some pending transfers on sold items
+                nft.availableTokens = nft.quantity;
+            }
+            else logger.error('server.init.inconsistentBalance %s', nft.id);
+        }
+        nft.isLocked = (nft.quantity == 0);
     }));
 }
 

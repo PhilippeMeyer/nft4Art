@@ -13,6 +13,7 @@ create table tokens (
     id text,
     isLocked integer,
     price real,
+    quantity integer,
     jsonData text,
     createdOn datetime default current_timestamp);
 

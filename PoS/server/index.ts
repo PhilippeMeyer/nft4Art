@@ -374,6 +374,9 @@ interface ExtWebSocket extends WebSocket {
 function sendLock(id: string, isLocked: boolean) {
     sendMessage(JSON.stringify(new LockMessage(id, isLocked)));
 }
+function sendQuantity(id: string, quantity: number) {
+    sendMessage(JSON.stringify(new QuantityMessage(id, quantity)));
+}
 function sendError(status: number, message: string) {
     sendMessage(JSON.stringify(new ErrorMessage(status, message)));
 }
@@ -387,7 +390,7 @@ function sendMessage(msg: string) {
     }, 1000);
 }
 
-export { sendMessage, sendLock, sendError };
+export { sendMessage, sendLock, sendError, sendQuantity };
 
 export class LockMessage {
     public typeMsg: string = "lock";
@@ -398,6 +401,12 @@ export class ErrorMessage {
     public typeMsg: string = "error";
 
     constructor(public status: number, public message: string) {}
+}
+
+export class QuantityMessage {
+    public typeMsg: string = "qty";
+
+    constructor(public id: string, public qty: number) {}
 }
 
 wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
@@ -460,8 +469,13 @@ app.put("/lockUnlock", async (req: Request, res: Response) => {
     let lock: any = req.query.lock;
 
     if (typeof token === null) {
-        console.log("error: non existing token " + req.query.id);
-        res.status(404).send();
+        logger.error('server.lockUnlock.nonExistingToken %s', req.query.id);
+        res.sendStatus(404);
+        return;
+    }
+
+    if (token.availableTokens > 1) {
+        res.sendStatus(200);
         return;
     }
 

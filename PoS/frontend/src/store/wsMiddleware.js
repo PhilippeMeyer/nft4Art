@@ -1,5 +1,5 @@
 import { StateManagerFactory } from 'html5-qrcode/esm/state-manager';
-import { startConnecting, connectionEstalished, updatePrice, updateLock, updateError } from './tokenSlice'
+import { startConnecting, connectionEstalished, updatePrice, updateLock, updateQty, updateError } from './tokenSlice'
 
 const wsServer = process.env.REACT_APP_WS_SERVER || "wss://" + window.location.host;
 
@@ -28,6 +28,9 @@ const wsMiddleware = store => next => action => {
                     break;
                 case 'lock':
                     store.dispatch(updateLock(msg));
+                    break;
+                case 'qty':
+                    store.dispatch(updateQty(msg));
                     break;
                 case 'error':
                     store.dispatch(updateError(msg));
