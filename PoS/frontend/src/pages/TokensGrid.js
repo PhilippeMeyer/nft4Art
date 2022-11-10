@@ -55,16 +55,6 @@ function TokenGrid({ collectionId }) {
     setScreenSize({screenWidth: window.innerWidth, screenHeight: window.innerHeight});
   }
 
-  const loadData = () => {
-    if (jwt !== undefined)
-      fetchData(jwt) 
-      .then((tks) => { 
-          tks.forEach((tk, index) => tk.index = index);
-          dispatch(loadTokens(tks)); 
-      })
-      .catch((error) => { enqueueSnackbar('Error loading the tokens'); console.error(error); });
-  };
-
   const onclick = (event) => {
     const sel = tokens.find((elt) => elt.id == event.target.id);
     if(tokens[sel.index].isLocked) return;
@@ -83,8 +73,6 @@ function TokenGrid({ collectionId }) {
   useEffect( () => {
       updateDimensions();
       window.addEventListener("resize", updateDimensions);
-
-      loadData();
 
       return () => {
         window.removeEventListener('resize', updateDimensions);
@@ -158,20 +146,6 @@ function TokenGrid({ collectionId }) {
           </Dialog>
     </>
   );
-}
-
-function fetchData(jwt) {
-  return fetch(tokenUrl, {
-      method: 'get',
-      headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'authorization': 'Bearer ' + jwt
-      }})
-    .then((response) =>  response.json())
-    .then((responseJson) => {
-      return (responseJson);
-  });
 }
 
 export default TokenGrid;
