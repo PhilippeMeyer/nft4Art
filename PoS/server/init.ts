@@ -107,7 +107,7 @@ async function loadToken(token: Contract, exApp:any ) {
         let cols:any;
         logger.info('server.init.loadingCollections from %s', exApp.locals.ipfsFolder);
 
-        str = exApp.locals.ipfsFolder.replace('ipfs:', 'https:').replace('/{id}.json', '.ipfs.dweb.link/' + 'collections.json'); //TODO parametrize the ipfs gateway
+        str = exApp.locals.ipfsFolder.replace('ipfs:', 'https:').replace('/{id}.json', '.ipfs.nftstorage.link/' + 'collections.json'); //TODO parametrize the ipfs gateway
         let resp = await axios.get(str); //We retrieve the collections from ipfs
         if (resp.status == 200) {
             cols = resp.data;
@@ -157,7 +157,7 @@ async function loadToken(token: Contract, exApp:any ) {
             exApp.locals.collections = collections;
         }
 
-        str = strToken.replace('ipfs:', 'https:').replace('/{id}', '.ipfs.dweb.link/' + id); //TODO parametrize the ipfs gateway
+        str = strToken.replace('ipfs:', 'https:').replace('/{id}', '.ipfs.nftstorage.link/' + id); //TODO parametrize the ipfs gateway
 
         if (errTimeout == 2) break; // If we face a timeout we retry twice
 
@@ -225,7 +225,7 @@ async function loadToken(token: Contract, exApp:any ) {
                 if (meta[key].indexOf('ipfs://') == -1) continue;
 
                 let cid = config.cacheFolder + meta[key].replace("ipfs://", ""); // We remove the ipfs prefix to only keep the cid
-                let icon = meta[key].replace("ipfs", "https").concat(".ipfs.dweb.link"); // We form an url for dweb containing the ipfs cid
+                let icon = meta[key].replace("ipfs", "https").concat(".ipfs.nftstorage.link"); // We form an url for nftstorage containing the ipfs cid
                 try {
                     if (fs.existsSync(cid)) {
                         // We try to find this cid in the cache
@@ -236,7 +236,7 @@ async function loadToken(token: Contract, exApp:any ) {
                         logger.info("server.init.loadResource.ipfs %s, %s, cid %s", meta.tokenIdStr, key, cid);
                         const resp = await axios.get(icon, { responseType: "arraybuffer" });
                         buf = Buffer.from(resp.data, "binary");
-                        if(key == 'model') {
+                        if((key == 'model') && (meta.tokenIdNum !=1)) {
                             fs.writeFileSync(cid + '.stl', buf, { flag: "w", encoding: "binary" }); // Save the file in cache
                             await convertSTLIntoGLTF(cid + '.stl', cid + '.gltf');
                             fs.renameSync(cid + '.gltf', cid);
@@ -324,7 +324,7 @@ async function loadFromIpfs(cidUrl:string) :Promise<string> {
     }
 
     logger.info('server.loadFromIpfs.fromIpfs %s', cid);
-    const resp = await axios.get('https://' + cid + '.ipfs.dweb.link', { responseType: "arraybuffer" });
+    const resp = await axios.get('https://' + cid + '.ipfs.nftstorage.link', { responseType: "arraybuffer" });
     if (resp.status == 200) {
         let buf:Buffer = Buffer.from(resp.data, "binary");
         fs.writeFileSync(config.cacheFolder + cid, buf, { flag: "w", encoding: "binary" });
