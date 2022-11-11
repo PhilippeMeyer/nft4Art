@@ -110,6 +110,7 @@ contract GovernedNFT is Ownable, Pausable, ContextMixin, EIP712, ERC1155, ERC298
     uint256[] private _tokensId;                                            // List of tokens that have been issued
     address exclusiveOperator;                                              // address of an exclusive operator who acts on the behalf of the token owner
     uint256 exclusivityPeriod;                                              // date until when the exclusivity is granted
+    mapping(uint256 => address) private _pledges;                           // table storing the pledges per token
 
 
     constructor() Ownable() ERC1155("") EIP712("GovernedNFT", "1.0.0") {
@@ -451,6 +452,7 @@ contract GovernedNFT is Ownable, Pausable, ContextMixin, EIP712, ERC1155, ERC298
     //    bytes memory data : opaque data
     //
     // As the token is pausable, this function manages the pause flag for transfers
+    // It also performs a check on who is transferring to respect the consign period and verifies that the token is not pledged
     //
     function _beforeTokenTransfer(
         address operator,
@@ -463,6 +465,9 @@ contract GovernedNFT is Ownable, Pausable, ContextMixin, EIP712, ERC1155, ERC298
 
         require(!paused(), "GovernedNFT: token transfer while paused");
         require((operator != owner()) || (block.timestamp > exclusivityPeriod) || (from == address(0)), "GovernedNFT: token transfer not allowed during the exclusivity period");
+        for (uint i = 0 ; i < ids.length ; i++) {
+            require(_pledges[ids[i]] == address(0), "GovernedNFT: token transfer not allowed when pledged");
+        }
     }
 
     //
@@ -529,7 +534,8 @@ contract GovernedNFT is Ownable, Pausable, ContextMixin, EIP712, ERC1155, ERC298
     //  - tokenId: the id of token
     //  - sale: a sales record
     //
-    function saleRecord(uint256 tokenId_, SaleRecord calldata sale_)  public onlyOwner {
+    function saleRecord(uint256 tokenId_, SaleRecord calldata sale_)  public {
+        require((msg.sender == owner() || msg.sender == exclusiveOperator), "GovernedNFT: unauthorized operation");
         _sales[tokenId_] = sale_;
         emit Sale(tokenId_, sale_.buyer, sale_.price, sale_.decimals, sale_.currency, sale_.network, sale_.status);
     }
@@ -542,7 +548,8 @@ contract GovernedNFT is Ownable, Pausable, ContextMixin, EIP712, ERC1155, ERC298
     //  - tokenId: the id of token
     //  - status: updated status 
     //
-   function saleUpdate(uint256 tokenId_, bytes1 status_)  public onlyOwner {
+   function saleUpdate(uint256 tokenId_, bytes1 status_)  public {
+        require((msg.sender == owner() || msg.sender == exclusiveOperator), "GovernedNFT: unauthorized operation");
         _sales[tokenId_].status = status_;
         emit SaleUpdate(tokenId_, _sales[tokenId_].buyer, status_);
     }
@@ -554,7 +561,49 @@ contract GovernedNFT is Ownable, Pausable, ContextMixin, EIP712, ERC1155, ERC298
     // Parameters: 
     //  - tokenId: the id of token
     //
-    function getSale(uint256 tokenId_) public view onlyOwner returns(SaleRecord memory) {
+    function getSale(uint256 tokenId_) public view returns(SaleRecord memory) {
+        require((msg.sender == owner() || msg.sender == exclusiveOperator), "GovernedNFT: unauthorized operation");
         return _sales[tokenId_];
+    }
+
+
+    //
+    // setPlege
+    // register a plege on a token
+    //
+    // Parameters:
+    //  - tokenId: token to be pledged
+    //  - address: address of the creditor
+    //
+    // This function records a pledge on a token. The caller must be the token's owner and the token must not be pledged already
+    //
+    function setPlege(uint256 tokenId_, address creditor)  public {
+        require(balanceOf(msg.sender, tokenId_) != 0, "GovernedNFT: this individual is not owning that token");
+        require(_pledges[tokenId_] == address(0), "GovernedNFT: this token has already been pledged");
+        _pledges[tokenId_] = creditor;
+    }
+
+    //
+    // isPledged
+    // checks whether a token is pledged
+    //
+    function isPledged(uint256 tokenId_) public view returns(bool) {
+        return _pledges[tokenId_] != address(0);
+    }
+
+    //
+    // removePledge
+    // removes a pledge
+    //
+    // Parameters:
+    //  - tokenId: id of the token for which the pledge will be removed
+    //
+    // Removes the pledge for a token. This has to be performed by the pledge owner
+    //
+    function removePledge(uint256 tokenId_) public {
+        address creditor = _pledges[tokenId_];
+        require( creditor != address(0), "GovernedNFT: this token has not been pledged");
+        require(msg.sender == creditor, "GovernedNFT: this individual is not the creditor");
+        _pledges[tokenId_] = address(0);
     }
 }
