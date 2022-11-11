@@ -10,6 +10,9 @@ import { NFTStorage, File, Blob } from 'nft.storage';
 import { config } from "../config.js";
 import sharp from 'sharp';
 import { filesFromPath } from 'files-from-path';
+import * as ji from 'join-images';
+//const joinImages = require('join-images').default;
+
 
 const server = 'http://localhost:8999';
 const urlMint = server + '/apiV1/token/batchMintTokenFromFiles';
@@ -62,9 +65,9 @@ const urlMintFinalize = server + '/apiV1/token/batchMintFinalize';
 const dirFolder = '/home/philippe/Desktop/nft4ArtImages/toBeLoaded';
 
 // Token 1 : Video and model
-const videoFile =  '/2022_Morphogenesis_Outside.mp4';
-const modelFile =  '/2022_Morphogenesis_Outside_2022-09-08.fbx';
-const imageFile =  '2022_Morphogenesis_Outside_VisibleOnly.png';
+const videoFile =  '/2022_Morphogenesis_Exterior_Camera01.mp4';
+const modelFile =  '/2022_Morphogenesis_Exterior_Assembly.fbx';
+const imageFile =  '2022_Morphogenesis_Exterior_Camera01_Frame0001.jpg';
 const videoModelTokenId = '1';
 
 // Token 101 - 131: shards
@@ -73,10 +76,12 @@ const videoModelTokenId = '1';
 // - The model of the shard
 // - The global 9 views picture
 // - An individual image of each view of the shard
-const modelRegex: RegExp = /Shard_(\d+).STL/g;
+const modelRegex: RegExp = /2022_Morphogenesis_Exterior_Shard(\d+).STL/g;
 const globalImageRegex: RegExp = /Shard_(\d+).AI.png/;
-const imageRegex: RegExp = /2022_Morphogenesis_Outside_Shard(\d+)-(\d+).jpg/;
+const imageRegex: RegExp = /2022_Morphogenesis_Exterior_Shard(\d+)-(\d+).jpg/;
+const vectorRegex: RegExp = /2022_Morphogenesis_Exterior_Shard(\d+)-(\d+).svg/;
 const properties = ['','iso1', 'bottom', 'iso2', 'right', 'front', 'left', 'iso3', 'top', 'iso4'];
+const propertiesVector = ['','iso1V', 'bottomV', 'iso2V', 'rightV', 'frontV', 'leftV', 'iso3V', 'topV', 'iso4V'];
 
 // Token 201 - 231: drawings of the shards
 //
@@ -87,7 +92,7 @@ const properties = ['','iso1', 'bottom', 'iso2', 'right', 'front', 'left', 'iso3
 //
 // The metadata contains:
 // - the svg of that view of the sphere
-const spherePictRegex: RegExp = /2022_Morphogenesis_Outside_VisibleOnly_(\d+).svg/;
+const spherePictRegex: RegExp = /2022_Morphogenesis_Exterior_VisibleOnly_(\d+).svg/;
 
 
 async function fileFromPath(filePath:string) {
@@ -110,12 +115,13 @@ async function mintSpheresFinal() {
     function readFiles(json:any, collection:any) {
 
         fs.readdirSync(dirFolder).forEach(element => {
-            let infoModel, infoImage, infoGlobal, infoSphere, nbTokens, id;
+            let infoModel, infoImage, infoGlobal, infoSphere, infoVector, nbTokens, id;
             
             infoModel = modelRegex.exec(element);
             infoImage = imageRegex.exec(element);
             infoGlobal = globalImageRegex.exec(element);
             infoSphere = spherePictRegex.exec(element);
+            infoVector = vectorRegex.exec(element);
             shardId = '';
 
             if (infoModel != null) {
@@ -146,11 +152,19 @@ async function mintSpheresFinal() {
             if (infoSphere != null) {
                 if (infoSphere[1] == null || infoSphere[1] === undefined) { console.log('Error loading ', element); process.exit(-1); }
                 shardId = '2' + infoSphere[1];
-                console.log(shardId, element);
                 property = 'sphere';
                 colstr = 'Drawings';
                 nbTokens = 23;
                 id = infoSphere[1];
+            }
+
+            if (infoVector != null) {
+                if (infoVector[1] == null || infoVector[1] === undefined) { console.log('Error loading ', element); process.exit(-1); }
+                shardId = '1' + infoVector[1];
+                property = propertiesVector[Number(infoVector[2])];;
+                colstr = 'Shards';
+                nbTokens = 1;
+                id = infoVector[1];
             }
 
             if (shardId != '') {
@@ -189,7 +203,40 @@ async function mintSpheresFinal() {
     }
 
     readFiles(json, collection);
+
+    let it:any;
     
+    for(it in json) {
+        const k = json[it];
+
+        if(k._type != "Shards") continue;
+
+        for (let i:number = 1 ; i < properties.length ; i++) 
+            if (k[properties[i]] === undefined) console.log('property ', properties[i], ' undefined for ', it );
+    }
+
+    console.log(collection);
+    console.log(json);
+
+/*
+    for(it in json) {
+        const k = json[it];
+        let one, two, all, three:any;
+
+        if(k._type != "Shards") continue;
+        console.log('combining ', it);
+
+        one = await ji.joinImages([dirFolder + '/' + k.iso1, dirFolder + '/' + k.bottom, dirFolder + '/' + k.iso2], {direction: 'horizontal', color:{ alpha: 1.0, b: 255, g: 255, r: 225 }, offset: 5, align: 'center'});
+        await one.toFile(dirFolder+ '/' + it + '1.png');
+        two = await ji.joinImages([dirFolder + '/' + k.right, dirFolder + '/' + k.front, dirFolder + '/' + k.left], {direction: 'horizontal', color:{ alpha: 1.0, b: 255, g: 255, r: 225 }, offset: 5, align: 'center'})
+        await two.toFile(dirFolder+ '/' + it + '2.png');
+        three = await ji.joinImages([dirFolder + '/' + k.iso3, dirFolder + '/' + k.top, dirFolder + '/' + k.iso4], {direction: 'horizontal', color:{ alpha: 1.0, b: 255, g: 255, r: 225 }, offset: 5, align: 'center'})
+        await three.toFile(dirFolder+ '/' + it + '3.png');
+        all = await ji.joinImages([dirFolder+ '/' + it + '1.png', dirFolder+ '/' + it + '2.png', dirFolder+ '/' + it + '3.png']);
+        await all.toFile(dirFolder+ '/' + it + '_overview.png');
+    }
+*/    
+
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mint'));
     console.log('Temp dir created: ', tmpDir);
     const client = new NFTStorage({ token: config.nftSorageToken });
@@ -225,17 +272,17 @@ async function mintSpheresFinal() {
         if (token._type == 'Shards') {
             imageVignette = json[key].front;
             metadata['description'] = 'Shard #' + token._id;
-            metadata['name'] = 'Puzzle of a maze (external morphogenesis) - Shard #' + token._id;
+            metadata['name'] = 'Puzzle of a maze - Shard #' + token._id;
         } 
         else if(token._type == 'Drawings') {
             imageVignette = json[key].sphere;
             metadata['description'] = 'Sphere #' + token._id;
-            metadata['name'] = 'Puzzle of a maze (external morphogenesis) - Drawing #' + token._id;
+            metadata['name'] = 'Puzzle of a maze - Drawing #' + token._id;
         }
         else if(token._type == 'Video') {
             imageVignette = json[key].sphere;
             metadata['description'] = 'Video and Model';
-            metadata['name'] = 'Puzzle of a maze (external morphogenesis) - Video and Model';
+            metadata['name'] = 'Puzzle of a maze - Video and Model';
         }
 
         const vignette = await sharp(dirFolder + "/" + imageVignette).resize({width:350}).png().toBuffer();
