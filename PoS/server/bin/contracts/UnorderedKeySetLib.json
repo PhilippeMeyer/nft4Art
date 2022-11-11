@@ -15,15 +15,15 @@
         "absolutePath": "/home/philippe/Desktop/nft4Art/PoS/server/contracts/UnorderedKeySetLib.sol",
         "exportedSymbols": {
             "UnorderedKeySetLib": [
-                1287
+                1450
             ]
         },
-        "id": 1288,
+        "id": 1451,
         "license": "MIT",
         "nodeType": "SourceUnit",
         "nodes": [
             {
-                "id": 1084,
+                "id": 1247,
                 "literals": [
                     "solidity",
                     "^",
@@ -40,9 +40,9 @@
                 "contractDependencies": [],
                 "contractKind": "library",
                 "fullyImplemented": true,
-                "id": 1287,
+                "id": 1450,
                 "linearizedBaseContracts": [
-                    1287
+                    1450
                 ],
                 "name": "UnorderedKeySetLib",
                 "nameLocation": "361:18:2",
@@ -50,16 +50,16 @@
                 "nodes": [
                     {
                         "canonicalName": "UnorderedKeySetLib.Set",
-                        "id": 1092,
+                        "id": 1255,
                         "members": [
                             {
                                 "constant": false,
-                                "id": 1088,
+                                "id": 1251,
                                 "mutability": "mutable",
                                 "name": "keyPointers",
                                 "nameLocation": "433:11:2",
                                 "nodeType": "VariableDeclaration",
-                                "scope": 1092,
+                                "scope": 1255,
                                 "src": "408:36:2",
                                 "stateVariable": false,
                                 "storageLocation": "default",
@@ -68,9 +68,9 @@
                                     "typeString": "mapping(uint256 => uint256)"
                                 },
                                 "typeName": {
-                                    "id": 1087,
+                                    "id": 1250,
                                     "keyType": {
-                                        "id": 1085,
+                                        "id": 1248,
                                         "name": "uint256",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "416:7:2",
@@ -86,7 +86,7 @@
                                         "typeString": "mapping(uint256 => uint256)"
                                     },
                                     "valueType": {
-                                        "id": 1086,
+                                        "id": 1249,
                                         "name": "uint",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "427:4:2",
@@ -100,12 +100,12 @@
                             },
                             {
                                 "constant": false,
-                                "id": 1091,
+                                "id": 1254,
                                 "mutability": "mutable",
                                 "name": "keyList",
                                 "nameLocation": "464:7:2",
                                 "nodeType": "VariableDeclaration",
-                                "scope": 1092,
+                                "scope": 1255,
                                 "src": "454:17:2",
                                 "stateVariable": false,
                                 "storageLocation": "default",
@@ -115,7 +115,7 @@
                                 },
                                 "typeName": {
                                     "baseType": {
-                                        "id": 1089,
+                                        "id": 1252,
                                         "name": "uint256",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "454:7:2",
@@ -124,7 +124,7 @@
                                             "typeString": "uint256"
                                         }
                                     },
-                                    "id": 1090,
+                                    "id": 1253,
                                     "nodeType": "ArrayTypeName",
                                     "src": "454:9:2",
                                     "typeDescriptions": {
@@ -138,13 +138,13 @@
                         "name": "Set",
                         "nameLocation": "394:3:2",
                         "nodeType": "StructDefinition",
-                        "scope": 1287,
+                        "scope": 1450,
                         "src": "387:91:2",
                         "visibility": "public"
                     },
                     {
                         "body": {
-                            "id": 1138,
+                            "id": 1301,
                             "nodeType": "Block",
                             "src": "555:229:2",
                             "statements": [
@@ -156,17 +156,17 @@
                                                     "typeIdentifier": "t_uint256",
                                                     "typeString": "uint256"
                                                 },
-                                                "id": 1105,
+                                                "id": 1268,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
                                                 "lValueRequested": false,
                                                 "leftExpression": {
-                                                    "id": 1103,
+                                                    "id": 1266,
                                                     "name": "key",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1097,
+                                                    "referencedDeclaration": 1260,
                                                     "src": "573:3:2",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_uint256",
@@ -177,7 +177,7 @@
                                                 "operator": "!=",
                                                 "rightExpression": {
                                                     "hexValue": "307830",
-                                                    "id": 1104,
+                                                    "id": 1267,
                                                     "isConstant": false,
                                                     "isLValue": false,
                                                     "isPure": true,
@@ -199,7 +199,7 @@
                                             },
                                             {
                                                 "hexValue": "556e6f7264657265644b6579536574202d204b65792063616e6e6f7420626520307830",
-                                                "id": 1106,
+                                                "id": 1269,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": true,
@@ -225,7 +225,7 @@
                                                     "typeString": "literal_string \"UnorderedKeySet - Key cannot be 0x0\""
                                                 }
                                             ],
-                                            "id": 1102,
+                                            "id": 1265,
                                             "name": "require",
                                             "nodeType": "Identifier",
                                             "overloadedDeclarations": [
@@ -239,7 +239,7 @@
                                                 "typeString": "function (bool,string memory) pure"
                                             }
                                         },
-                                        "id": 1107,
+                                        "id": 1270,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -255,7 +255,7 @@
                                             "typeString": "tuple()"
                                         }
                                     },
-                                    "id": 1108,
+                                    "id": 1271,
                                     "nodeType": "ExpressionStatement",
                                     "src": "565:58:2"
                                 },
@@ -263,23 +263,23 @@
                                     "condition": {
                                         "arguments": [
                                             {
-                                                "id": 1110,
+                                                "id": 1273,
                                                 "name": "self",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1095,
+                                                "referencedDeclaration": 1258,
                                                 "src": "643:4:2",
                                                 "typeDescriptions": {
-                                                    "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                    "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                     "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                 }
                                             },
                                             {
-                                                "id": 1111,
+                                                "id": 1274,
                                                 "name": "key",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1097,
+                                                "referencedDeclaration": 1260,
                                                 "src": "649:3:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
@@ -290,7 +290,7 @@
                                         "expression": {
                                             "argumentTypes": [
                                                 {
-                                                    "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                    "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                     "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                 },
                                                 {
@@ -298,18 +298,18 @@
                                                     "typeString": "uint256"
                                                 }
                                             ],
-                                            "id": 1109,
+                                            "id": 1272,
                                             "name": "exists",
                                             "nodeType": "Identifier",
                                             "overloadedDeclarations": [],
-                                            "referencedDeclaration": 1246,
+                                            "referencedDeclaration": 1409,
                                             "src": "636:6:2",
                                             "typeDescriptions": {
-                                                "typeIdentifier": "t_function_internal_view$_t_struct$_Set_$1092_storage_ptr_$_t_uint256_$returns$_t_bool_$",
+                                                "typeIdentifier": "t_function_internal_view$_t_struct$_Set_$1255_storage_ptr_$_t_uint256_$returns$_t_bool_$",
                                                 "typeString": "function (struct UnorderedKeySetLib.Set storage pointer,uint256) view returns (bool)"
                                             }
                                         },
-                                        "id": 1112,
+                                        "id": 1275,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -325,13 +325,13 @@
                                             "typeString": "bool"
                                         }
                                     },
-                                    "id": 1115,
+                                    "id": 1278,
                                     "nodeType": "IfStatement",
                                     "src": "633:34:2",
                                     "trueBody": {
                                         "expression": {
                                             "hexValue": "66616c7365",
-                                            "id": 1113,
+                                            "id": 1276,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": true,
@@ -345,8 +345,8 @@
                                             },
                                             "value": "false"
                                         },
-                                        "functionReturnParameters": 1101,
-                                        "id": 1114,
+                                        "functionReturnParameters": 1264,
+                                        "id": 1277,
                                         "nodeType": "Return",
                                         "src": "655:12:2"
                                     }
@@ -355,11 +355,11 @@
                                     "expression": {
                                         "arguments": [
                                             {
-                                                "id": 1121,
+                                                "id": 1284,
                                                 "name": "key",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1097,
+                                                "referencedDeclaration": 1260,
                                                 "src": "695:3:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
@@ -376,18 +376,18 @@
                                             ],
                                             "expression": {
                                                 "expression": {
-                                                    "id": 1116,
+                                                    "id": 1279,
                                                     "name": "self",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1095,
+                                                    "referencedDeclaration": 1258,
                                                     "src": "677:4:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                         "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                     }
                                                 },
-                                                "id": 1119,
+                                                "id": 1282,
                                                 "isConstant": false,
                                                 "isLValue": true,
                                                 "isPure": false,
@@ -395,14 +395,14 @@
                                                 "memberLocation": "682:7:2",
                                                 "memberName": "keyList",
                                                 "nodeType": "MemberAccess",
-                                                "referencedDeclaration": 1091,
+                                                "referencedDeclaration": 1254,
                                                 "src": "677:12:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                                     "typeString": "uint256[] storage ref"
                                                 }
                                             },
-                                            "id": 1120,
+                                            "id": 1283,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": false,
@@ -416,7 +416,7 @@
                                                 "typeString": "function (uint256[] storage pointer,uint256)"
                                             }
                                         },
-                                        "id": 1122,
+                                        "id": 1285,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -432,13 +432,13 @@
                                             "typeString": "tuple()"
                                         }
                                     },
-                                    "id": 1123,
+                                    "id": 1286,
                                     "nodeType": "ExpressionStatement",
                                     "src": "677:22:2"
                                 },
                                 {
                                     "expression": {
-                                        "id": 1134,
+                                        "id": 1297,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -446,18 +446,18 @@
                                         "leftHandSide": {
                                             "baseExpression": {
                                                 "expression": {
-                                                    "id": 1124,
+                                                    "id": 1287,
                                                     "name": "self",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1095,
+                                                    "referencedDeclaration": 1258,
                                                     "src": "709:4:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                         "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                     }
                                                 },
-                                                "id": 1127,
+                                                "id": 1290,
                                                 "isConstant": false,
                                                 "isLValue": true,
                                                 "isPure": false,
@@ -465,20 +465,20 @@
                                                 "memberLocation": "714:11:2",
                                                 "memberName": "keyPointers",
                                                 "nodeType": "MemberAccess",
-                                                "referencedDeclaration": 1088,
+                                                "referencedDeclaration": 1251,
                                                 "src": "709:16:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
                                                     "typeString": "mapping(uint256 => uint256)"
                                                 }
                                             },
-                                            "id": 1128,
+                                            "id": 1291,
                                             "indexExpression": {
-                                                "id": 1126,
+                                                "id": 1289,
                                                 "name": "key",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1097,
+                                                "referencedDeclaration": 1260,
                                                 "src": "726:3:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
@@ -503,7 +503,7 @@
                                                 "typeIdentifier": "t_uint256",
                                                 "typeString": "uint256"
                                             },
-                                            "id": 1133,
+                                            "id": 1296,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": false,
@@ -511,18 +511,18 @@
                                             "leftExpression": {
                                                 "expression": {
                                                     "expression": {
-                                                        "id": 1129,
+                                                        "id": 1292,
                                                         "name": "self",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
-                                                        "referencedDeclaration": 1095,
+                                                        "referencedDeclaration": 1258,
                                                         "src": "733:4:2",
                                                         "typeDescriptions": {
-                                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                             "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                         }
                                                     },
-                                                    "id": 1130,
+                                                    "id": 1293,
                                                     "isConstant": false,
                                                     "isLValue": true,
                                                     "isPure": false,
@@ -530,14 +530,14 @@
                                                     "memberLocation": "738:7:2",
                                                     "memberName": "keyList",
                                                     "nodeType": "MemberAccess",
-                                                    "referencedDeclaration": 1091,
+                                                    "referencedDeclaration": 1254,
                                                     "src": "733:12:2",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                                         "typeString": "uint256[] storage ref"
                                                     }
                                                 },
-                                                "id": 1131,
+                                                "id": 1294,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -555,7 +555,7 @@
                                             "operator": "-",
                                             "rightExpression": {
                                                 "hexValue": "31",
-                                                "id": 1132,
+                                                "id": 1295,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": true,
@@ -581,14 +581,14 @@
                                             "typeString": "uint256"
                                         }
                                     },
-                                    "id": 1135,
+                                    "id": 1298,
                                     "nodeType": "ExpressionStatement",
                                     "src": "709:47:2"
                                 },
                                 {
                                     "expression": {
                                         "hexValue": "74727565",
-                                        "id": 1136,
+                                        "id": 1299,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": true,
@@ -602,14 +602,14 @@
                                         },
                                         "value": "true"
                                     },
-                                    "functionReturnParameters": 1101,
-                                    "id": 1137,
+                                    "functionReturnParameters": 1264,
+                                    "id": 1300,
                                     "nodeType": "Return",
                                     "src": "766:11:2"
                                 }
                             ]
                         },
-                        "id": 1139,
+                        "id": 1302,
                         "implemented": true,
                         "kind": "function",
                         "modifiers": [],
@@ -617,41 +617,41 @@
                         "nameLocation": "493:6:2",
                         "nodeType": "FunctionDefinition",
                         "parameters": {
-                            "id": 1098,
+                            "id": 1261,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1095,
+                                    "id": 1258,
                                     "mutability": "mutable",
                                     "name": "self",
                                     "nameLocation": "512:4:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1139,
+                                    "scope": 1302,
                                     "src": "500:16:2",
                                     "stateVariable": false,
                                     "storageLocation": "storage",
                                     "typeDescriptions": {
-                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                         "typeString": "struct UnorderedKeySetLib.Set"
                                     },
                                     "typeName": {
-                                        "id": 1094,
+                                        "id": 1257,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
-                                            "id": 1093,
+                                            "id": 1256,
                                             "name": "Set",
                                             "nameLocations": [
                                                 "500:3:2"
                                             ],
                                             "nodeType": "IdentifierPath",
-                                            "referencedDeclaration": 1092,
+                                            "referencedDeclaration": 1255,
                                             "src": "500:3:2"
                                         },
-                                        "referencedDeclaration": 1092,
+                                        "referencedDeclaration": 1255,
                                         "src": "500:3:2",
                                         "typeDescriptions": {
-                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                             "typeString": "struct UnorderedKeySetLib.Set"
                                         }
                                     },
@@ -659,12 +659,12 @@
                                 },
                                 {
                                     "constant": false,
-                                    "id": 1097,
+                                    "id": 1260,
                                     "mutability": "mutable",
                                     "name": "key",
                                     "nameLocation": "526:3:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1139,
+                                    "scope": 1302,
                                     "src": "518:11:2",
                                     "stateVariable": false,
                                     "storageLocation": "default",
@@ -673,7 +673,7 @@
                                         "typeString": "uint256"
                                     },
                                     "typeName": {
-                                        "id": 1096,
+                                        "id": 1259,
                                         "name": "uint256",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "518:7:2",
@@ -688,17 +688,17 @@
                             "src": "499:31:2"
                         },
                         "returnParameters": {
-                            "id": 1101,
+                            "id": 1264,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1100,
+                                    "id": 1263,
                                     "mutability": "mutable",
                                     "name": "",
                                     "nameLocation": "-1:-1:-1",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1139,
+                                    "scope": 1302,
                                     "src": "549:4:2",
                                     "stateVariable": false,
                                     "storageLocation": "default",
@@ -707,7 +707,7 @@
                                         "typeString": "bool"
                                     },
                                     "typeName": {
-                                        "id": 1099,
+                                        "id": 1262,
                                         "name": "bool",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "549:4:2",
@@ -721,7 +721,7 @@
                             ],
                             "src": "548:6:2"
                         },
-                        "scope": 1287,
+                        "scope": 1450,
                         "src": "484:300:2",
                         "stateMutability": "nonpayable",
                         "virtual": false,
@@ -729,7 +729,7 @@
                     },
                     {
                         "body": {
-                            "id": 1202,
+                            "id": 1365,
                             "nodeType": "Block",
                             "src": "846:369:2",
                             "statements": [
@@ -739,23 +739,23 @@
                                             {
                                                 "arguments": [
                                                     {
-                                                        "id": 1149,
+                                                        "id": 1312,
                                                         "name": "self",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
-                                                        "referencedDeclaration": 1142,
+                                                        "referencedDeclaration": 1305,
                                                         "src": "871:4:2",
                                                         "typeDescriptions": {
-                                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                             "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                         }
                                                     },
                                                     {
-                                                        "id": 1150,
+                                                        "id": 1313,
                                                         "name": "key",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
-                                                        "referencedDeclaration": 1144,
+                                                        "referencedDeclaration": 1307,
                                                         "src": "877:3:2",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_uint256",
@@ -766,7 +766,7 @@
                                                 "expression": {
                                                     "argumentTypes": [
                                                         {
-                                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                             "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                         },
                                                         {
@@ -774,18 +774,18 @@
                                                             "typeString": "uint256"
                                                         }
                                                     ],
-                                                    "id": 1148,
+                                                    "id": 1311,
                                                     "name": "exists",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1246,
+                                                    "referencedDeclaration": 1409,
                                                     "src": "864:6:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_function_internal_view$_t_struct$_Set_$1092_storage_ptr_$_t_uint256_$returns$_t_bool_$",
+                                                        "typeIdentifier": "t_function_internal_view$_t_struct$_Set_$1255_storage_ptr_$_t_uint256_$returns$_t_bool_$",
                                                         "typeString": "function (struct UnorderedKeySetLib.Set storage pointer,uint256) view returns (bool)"
                                                     }
                                                 },
-                                                "id": 1151,
+                                                "id": 1314,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -803,7 +803,7 @@
                                             },
                                             {
                                                 "hexValue": "556e6f7264657265644b6579536574202d204b657920646f6573206e6f7420657869737420696e20746865207365742e",
-                                                "id": 1152,
+                                                "id": 1315,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": true,
@@ -829,7 +829,7 @@
                                                     "typeString": "literal_string \"UnorderedKeySet - Key does not exist in the set.\""
                                                 }
                                             ],
-                                            "id": 1147,
+                                            "id": 1310,
                                             "name": "require",
                                             "nodeType": "Identifier",
                                             "overloadedDeclarations": [
@@ -843,7 +843,7 @@
                                                 "typeString": "function (bool,string memory) pure"
                                             }
                                         },
-                                        "id": 1153,
+                                        "id": 1316,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -859,23 +859,23 @@
                                             "typeString": "tuple()"
                                         }
                                     },
-                                    "id": 1154,
+                                    "id": 1317,
                                     "nodeType": "ExpressionStatement",
                                     "src": "856:78:2"
                                 },
                                 {
                                     "assignments": [
-                                        1156
+                                        1319
                                     ],
                                     "declarations": [
                                         {
                                             "constant": false,
-                                            "id": 1156,
+                                            "id": 1319,
                                             "mutability": "mutable",
                                             "name": "keyToMove",
                                             "nameLocation": "952:9:2",
                                             "nodeType": "VariableDeclaration",
-                                            "scope": 1202,
+                                            "scope": 1365,
                                             "src": "944:17:2",
                                             "stateVariable": false,
                                             "storageLocation": "default",
@@ -884,7 +884,7 @@
                                                 "typeString": "uint256"
                                             },
                                             "typeName": {
-                                                "id": 1155,
+                                                "id": 1318,
                                                 "name": "uint256",
                                                 "nodeType": "ElementaryTypeName",
                                                 "src": "944:7:2",
@@ -896,22 +896,22 @@
                                             "visibility": "internal"
                                         }
                                     ],
-                                    "id": 1165,
+                                    "id": 1328,
                                     "initialValue": {
                                         "baseExpression": {
                                             "expression": {
-                                                "id": 1157,
+                                                "id": 1320,
                                                 "name": "self",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1142,
+                                                "referencedDeclaration": 1305,
                                                 "src": "964:4:2",
                                                 "typeDescriptions": {
-                                                    "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                    "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                     "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                 }
                                             },
-                                            "id": 1158,
+                                            "id": 1321,
                                             "isConstant": false,
                                             "isLValue": true,
                                             "isPure": false,
@@ -919,20 +919,20 @@
                                             "memberLocation": "969:7:2",
                                             "memberName": "keyList",
                                             "nodeType": "MemberAccess",
-                                            "referencedDeclaration": 1091,
+                                            "referencedDeclaration": 1254,
                                             "src": "964:12:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                                 "typeString": "uint256[] storage ref"
                                             }
                                         },
-                                        "id": 1164,
+                                        "id": 1327,
                                         "indexExpression": {
                                             "commonType": {
                                                 "typeIdentifier": "t_uint256",
                                                 "typeString": "uint256"
                                             },
-                                            "id": 1163,
+                                            "id": 1326,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": false,
@@ -940,14 +940,14 @@
                                             "leftExpression": {
                                                 "arguments": [
                                                     {
-                                                        "id": 1160,
+                                                        "id": 1323,
                                                         "name": "self",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
-                                                        "referencedDeclaration": 1142,
+                                                        "referencedDeclaration": 1305,
                                                         "src": "983:4:2",
                                                         "typeDescriptions": {
-                                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                             "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                         }
                                                     }
@@ -955,22 +955,22 @@
                                                 "expression": {
                                                     "argumentTypes": [
                                                         {
-                                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                             "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                         }
                                                     ],
-                                                    "id": 1159,
+                                                    "id": 1322,
                                                     "name": "count",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1217,
+                                                    "referencedDeclaration": 1380,
                                                     "src": "977:5:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_function_internal_view$_t_struct$_Set_$1092_storage_ptr_$returns$_t_uint256_$",
+                                                        "typeIdentifier": "t_function_internal_view$_t_struct$_Set_$1255_storage_ptr_$returns$_t_uint256_$",
                                                         "typeString": "function (struct UnorderedKeySetLib.Set storage pointer) view returns (uint256)"
                                                     }
                                                 },
-                                                "id": 1161,
+                                                "id": 1324,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -990,7 +990,7 @@
                                             "operator": "-",
                                             "rightExpression": {
                                                 "hexValue": "31",
-                                                "id": 1162,
+                                                "id": 1325,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": true,
@@ -1026,17 +1026,17 @@
                                 },
                                 {
                                     "assignments": [
-                                        1167
+                                        1330
                                     ],
                                     "declarations": [
                                         {
                                             "constant": false,
-                                            "id": 1167,
+                                            "id": 1330,
                                             "mutability": "mutable",
                                             "name": "rowToReplace",
                                             "nameLocation": "1006:12:2",
                                             "nodeType": "VariableDeclaration",
-                                            "scope": 1202,
+                                            "scope": 1365,
                                             "src": "1001:17:2",
                                             "stateVariable": false,
                                             "storageLocation": "default",
@@ -1045,7 +1045,7 @@
                                                 "typeString": "uint256"
                                             },
                                             "typeName": {
-                                                "id": 1166,
+                                                "id": 1329,
                                                 "name": "uint",
                                                 "nodeType": "ElementaryTypeName",
                                                 "src": "1001:4:2",
@@ -1057,22 +1057,22 @@
                                             "visibility": "internal"
                                         }
                                     ],
-                                    "id": 1172,
+                                    "id": 1335,
                                     "initialValue": {
                                         "baseExpression": {
                                             "expression": {
-                                                "id": 1168,
+                                                "id": 1331,
                                                 "name": "self",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1142,
+                                                "referencedDeclaration": 1305,
                                                 "src": "1021:4:2",
                                                 "typeDescriptions": {
-                                                    "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                    "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                     "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                 }
                                             },
-                                            "id": 1169,
+                                            "id": 1332,
                                             "isConstant": false,
                                             "isLValue": true,
                                             "isPure": false,
@@ -1080,20 +1080,20 @@
                                             "memberLocation": "1026:11:2",
                                             "memberName": "keyPointers",
                                             "nodeType": "MemberAccess",
-                                            "referencedDeclaration": 1088,
+                                            "referencedDeclaration": 1251,
                                             "src": "1021:16:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
                                                 "typeString": "mapping(uint256 => uint256)"
                                             }
                                         },
-                                        "id": 1171,
+                                        "id": 1334,
                                         "indexExpression": {
-                                            "id": 1170,
+                                            "id": 1333,
                                             "name": "key",
                                             "nodeType": "Identifier",
                                             "overloadedDeclarations": [],
-                                            "referencedDeclaration": 1144,
+                                            "referencedDeclaration": 1307,
                                             "src": "1038:3:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
@@ -1116,7 +1116,7 @@
                                 },
                                 {
                                     "expression": {
-                                        "id": 1179,
+                                        "id": 1342,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -1124,18 +1124,18 @@
                                         "leftHandSide": {
                                             "baseExpression": {
                                                 "expression": {
-                                                    "id": 1173,
+                                                    "id": 1336,
                                                     "name": "self",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1142,
+                                                    "referencedDeclaration": 1305,
                                                     "src": "1052:4:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                         "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                     }
                                                 },
-                                                "id": 1176,
+                                                "id": 1339,
                                                 "isConstant": false,
                                                 "isLValue": true,
                                                 "isPure": false,
@@ -1143,20 +1143,20 @@
                                                 "memberLocation": "1057:11:2",
                                                 "memberName": "keyPointers",
                                                 "nodeType": "MemberAccess",
-                                                "referencedDeclaration": 1088,
+                                                "referencedDeclaration": 1251,
                                                 "src": "1052:16:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
                                                     "typeString": "mapping(uint256 => uint256)"
                                                 }
                                             },
-                                            "id": 1177,
+                                            "id": 1340,
                                             "indexExpression": {
-                                                "id": 1175,
+                                                "id": 1338,
                                                 "name": "keyToMove",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1156,
+                                                "referencedDeclaration": 1319,
                                                 "src": "1069:9:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
@@ -1177,11 +1177,11 @@
                                         "nodeType": "Assignment",
                                         "operator": "=",
                                         "rightHandSide": {
-                                            "id": 1178,
+                                            "id": 1341,
                                             "name": "rowToReplace",
                                             "nodeType": "Identifier",
                                             "overloadedDeclarations": [],
-                                            "referencedDeclaration": 1167,
+                                            "referencedDeclaration": 1330,
                                             "src": "1082:12:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
@@ -1194,13 +1194,13 @@
                                             "typeString": "uint256"
                                         }
                                     },
-                                    "id": 1180,
+                                    "id": 1343,
                                     "nodeType": "ExpressionStatement",
                                     "src": "1052:42:2"
                                 },
                                 {
                                     "expression": {
-                                        "id": 1187,
+                                        "id": 1350,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -1208,18 +1208,18 @@
                                         "leftHandSide": {
                                             "baseExpression": {
                                                 "expression": {
-                                                    "id": 1181,
+                                                    "id": 1344,
                                                     "name": "self",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1142,
+                                                    "referencedDeclaration": 1305,
                                                     "src": "1104:4:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                         "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                     }
                                                 },
-                                                "id": 1184,
+                                                "id": 1347,
                                                 "isConstant": false,
                                                 "isLValue": true,
                                                 "isPure": false,
@@ -1227,20 +1227,20 @@
                                                 "memberLocation": "1109:7:2",
                                                 "memberName": "keyList",
                                                 "nodeType": "MemberAccess",
-                                                "referencedDeclaration": 1091,
+                                                "referencedDeclaration": 1254,
                                                 "src": "1104:12:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                                     "typeString": "uint256[] storage ref"
                                                 }
                                             },
-                                            "id": 1185,
+                                            "id": 1348,
                                             "indexExpression": {
-                                                "id": 1183,
+                                                "id": 1346,
                                                 "name": "rowToReplace",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1167,
+                                                "referencedDeclaration": 1330,
                                                 "src": "1117:12:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
@@ -1261,11 +1261,11 @@
                                         "nodeType": "Assignment",
                                         "operator": "=",
                                         "rightHandSide": {
-                                            "id": 1186,
+                                            "id": 1349,
                                             "name": "keyToMove",
                                             "nodeType": "Identifier",
                                             "overloadedDeclarations": [],
-                                            "referencedDeclaration": 1156,
+                                            "referencedDeclaration": 1319,
                                             "src": "1133:9:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
@@ -1278,13 +1278,13 @@
                                             "typeString": "uint256"
                                         }
                                     },
-                                    "id": 1188,
+                                    "id": 1351,
                                     "nodeType": "ExpressionStatement",
                                     "src": "1104:38:2"
                                 },
                                 {
                                     "expression": {
-                                        "id": 1193,
+                                        "id": 1356,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -1296,18 +1296,18 @@
                                         "subExpression": {
                                             "baseExpression": {
                                                 "expression": {
-                                                    "id": 1189,
+                                                    "id": 1352,
                                                     "name": "self",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1142,
+                                                    "referencedDeclaration": 1305,
                                                     "src": "1159:4:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                         "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                     }
                                                 },
-                                                "id": 1190,
+                                                "id": 1353,
                                                 "isConstant": false,
                                                 "isLValue": true,
                                                 "isPure": false,
@@ -1315,20 +1315,20 @@
                                                 "memberLocation": "1164:11:2",
                                                 "memberName": "keyPointers",
                                                 "nodeType": "MemberAccess",
-                                                "referencedDeclaration": 1088,
+                                                "referencedDeclaration": 1251,
                                                 "src": "1159:16:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
                                                     "typeString": "mapping(uint256 => uint256)"
                                                 }
                                             },
-                                            "id": 1192,
+                                            "id": 1355,
                                             "indexExpression": {
-                                                "id": 1191,
+                                                "id": 1354,
                                                 "name": "key",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1144,
+                                                "referencedDeclaration": 1307,
                                                 "src": "1176:3:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
@@ -1351,7 +1351,7 @@
                                             "typeString": "tuple()"
                                         }
                                     },
-                                    "id": 1194,
+                                    "id": 1357,
                                     "nodeType": "ExpressionStatement",
                                     "src": "1152:28:2"
                                 },
@@ -1362,18 +1362,18 @@
                                             "argumentTypes": [],
                                             "expression": {
                                                 "expression": {
-                                                    "id": 1195,
+                                                    "id": 1358,
                                                     "name": "self",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1142,
+                                                    "referencedDeclaration": 1305,
                                                     "src": "1190:4:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                         "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                     }
                                                 },
-                                                "id": 1198,
+                                                "id": 1361,
                                                 "isConstant": false,
                                                 "isLValue": true,
                                                 "isPure": false,
@@ -1381,14 +1381,14 @@
                                                 "memberLocation": "1195:7:2",
                                                 "memberName": "keyList",
                                                 "nodeType": "MemberAccess",
-                                                "referencedDeclaration": 1091,
+                                                "referencedDeclaration": 1254,
                                                 "src": "1190:12:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                                     "typeString": "uint256[] storage ref"
                                                 }
                                             },
-                                            "id": 1199,
+                                            "id": 1362,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": false,
@@ -1402,7 +1402,7 @@
                                                 "typeString": "function (uint256[] storage pointer)"
                                             }
                                         },
-                                        "id": 1200,
+                                        "id": 1363,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -1418,13 +1418,13 @@
                                             "typeString": "tuple()"
                                         }
                                     },
-                                    "id": 1201,
+                                    "id": 1364,
                                     "nodeType": "ExpressionStatement",
                                     "src": "1190:18:2"
                                 }
                             ]
                         },
-                        "id": 1203,
+                        "id": 1366,
                         "implemented": true,
                         "kind": "function",
                         "modifiers": [],
@@ -1432,41 +1432,41 @@
                         "nameLocation": "799:6:2",
                         "nodeType": "FunctionDefinition",
                         "parameters": {
-                            "id": 1145,
+                            "id": 1308,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1142,
+                                    "id": 1305,
                                     "mutability": "mutable",
                                     "name": "self",
                                     "nameLocation": "818:4:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1203,
+                                    "scope": 1366,
                                     "src": "806:16:2",
                                     "stateVariable": false,
                                     "storageLocation": "storage",
                                     "typeDescriptions": {
-                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                         "typeString": "struct UnorderedKeySetLib.Set"
                                     },
                                     "typeName": {
-                                        "id": 1141,
+                                        "id": 1304,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
-                                            "id": 1140,
+                                            "id": 1303,
                                             "name": "Set",
                                             "nameLocations": [
                                                 "806:3:2"
                                             ],
                                             "nodeType": "IdentifierPath",
-                                            "referencedDeclaration": 1092,
+                                            "referencedDeclaration": 1255,
                                             "src": "806:3:2"
                                         },
-                                        "referencedDeclaration": 1092,
+                                        "referencedDeclaration": 1255,
                                         "src": "806:3:2",
                                         "typeDescriptions": {
-                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                             "typeString": "struct UnorderedKeySetLib.Set"
                                         }
                                     },
@@ -1474,12 +1474,12 @@
                                 },
                                 {
                                     "constant": false,
-                                    "id": 1144,
+                                    "id": 1307,
                                     "mutability": "mutable",
                                     "name": "key",
                                     "nameLocation": "832:3:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1203,
+                                    "scope": 1366,
                                     "src": "824:11:2",
                                     "stateVariable": false,
                                     "storageLocation": "default",
@@ -1488,7 +1488,7 @@
                                         "typeString": "uint256"
                                     },
                                     "typeName": {
-                                        "id": 1143,
+                                        "id": 1306,
                                         "name": "uint256",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "824:7:2",
@@ -1503,12 +1503,12 @@
                             "src": "805:31:2"
                         },
                         "returnParameters": {
-                            "id": 1146,
+                            "id": 1309,
                             "nodeType": "ParameterList",
                             "parameters": [],
                             "src": "846:0:2"
                         },
-                        "scope": 1287,
+                        "scope": 1450,
                         "src": "790:425:2",
                         "stateMutability": "nonpayable",
                         "virtual": false,
@@ -1516,7 +1516,7 @@
                     },
                     {
                         "body": {
-                            "id": 1216,
+                            "id": 1379,
                             "nodeType": "Block",
                             "src": "1282:44:2",
                             "statements": [
@@ -1526,18 +1526,18 @@
                                             {
                                                 "expression": {
                                                     "expression": {
-                                                        "id": 1211,
+                                                        "id": 1374,
                                                         "name": "self",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
-                                                        "referencedDeclaration": 1206,
+                                                        "referencedDeclaration": 1369,
                                                         "src": "1299:4:2",
                                                         "typeDescriptions": {
-                                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                             "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                         }
                                                     },
-                                                    "id": 1212,
+                                                    "id": 1375,
                                                     "isConstant": false,
                                                     "isLValue": true,
                                                     "isPure": false,
@@ -1545,14 +1545,14 @@
                                                     "memberLocation": "1304:7:2",
                                                     "memberName": "keyList",
                                                     "nodeType": "MemberAccess",
-                                                    "referencedDeclaration": 1091,
+                                                    "referencedDeclaration": 1254,
                                                     "src": "1299:12:2",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                                         "typeString": "uint256[] storage ref"
                                                     }
                                                 },
-                                                "id": 1213,
+                                                "id": 1376,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -1567,7 +1567,7 @@
                                                 }
                                             }
                                         ],
-                                        "id": 1214,
+                                        "id": 1377,
                                         "isConstant": false,
                                         "isInlineArray": false,
                                         "isLValue": false,
@@ -1580,14 +1580,14 @@
                                             "typeString": "uint256"
                                         }
                                     },
-                                    "functionReturnParameters": 1210,
-                                    "id": 1215,
+                                    "functionReturnParameters": 1373,
+                                    "id": 1378,
                                     "nodeType": "Return",
                                     "src": "1292:27:2"
                                 }
                             ]
                         },
-                        "id": 1217,
+                        "id": 1380,
                         "implemented": true,
                         "kind": "function",
                         "modifiers": [],
@@ -1595,41 +1595,41 @@
                         "nameLocation": "1230:5:2",
                         "nodeType": "FunctionDefinition",
                         "parameters": {
-                            "id": 1207,
+                            "id": 1370,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1206,
+                                    "id": 1369,
                                     "mutability": "mutable",
                                     "name": "self",
                                     "nameLocation": "1248:4:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1217,
+                                    "scope": 1380,
                                     "src": "1236:16:2",
                                     "stateVariable": false,
                                     "storageLocation": "storage",
                                     "typeDescriptions": {
-                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                         "typeString": "struct UnorderedKeySetLib.Set"
                                     },
                                     "typeName": {
-                                        "id": 1205,
+                                        "id": 1368,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
-                                            "id": 1204,
+                                            "id": 1367,
                                             "name": "Set",
                                             "nameLocations": [
                                                 "1236:3:2"
                                             ],
                                             "nodeType": "IdentifierPath",
-                                            "referencedDeclaration": 1092,
+                                            "referencedDeclaration": 1255,
                                             "src": "1236:3:2"
                                         },
-                                        "referencedDeclaration": 1092,
+                                        "referencedDeclaration": 1255,
                                         "src": "1236:3:2",
                                         "typeDescriptions": {
-                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                             "typeString": "struct UnorderedKeySetLib.Set"
                                         }
                                     },
@@ -1639,17 +1639,17 @@
                             "src": "1235:18:2"
                         },
                         "returnParameters": {
-                            "id": 1210,
+                            "id": 1373,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1209,
+                                    "id": 1372,
                                     "mutability": "mutable",
                                     "name": "",
                                     "nameLocation": "-1:-1:-1",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1217,
+                                    "scope": 1380,
                                     "src": "1276:4:2",
                                     "stateVariable": false,
                                     "storageLocation": "default",
@@ -1658,7 +1658,7 @@
                                         "typeString": "uint256"
                                     },
                                     "typeName": {
-                                        "id": 1208,
+                                        "id": 1371,
                                         "name": "uint",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "1276:4:2",
@@ -1672,7 +1672,7 @@
                             ],
                             "src": "1275:6:2"
                         },
-                        "scope": 1287,
+                        "scope": 1450,
                         "src": "1221:105:2",
                         "stateMutability": "view",
                         "virtual": false,
@@ -1680,7 +1680,7 @@
                     },
                     {
                         "body": {
-                            "id": 1245,
+                            "id": 1408,
                             "nodeType": "Block",
                             "src": "1407:117:2",
                             "statements": [
@@ -1690,7 +1690,7 @@
                                             "typeIdentifier": "t_uint256",
                                             "typeString": "uint256"
                                         },
-                                        "id": 1231,
+                                        "id": 1394,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -1698,18 +1698,18 @@
                                         "leftExpression": {
                                             "expression": {
                                                 "expression": {
-                                                    "id": 1227,
+                                                    "id": 1390,
                                                     "name": "self",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1220,
+                                                    "referencedDeclaration": 1383,
                                                     "src": "1420:4:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                         "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                     }
                                                 },
-                                                "id": 1228,
+                                                "id": 1391,
                                                 "isConstant": false,
                                                 "isLValue": true,
                                                 "isPure": false,
@@ -1717,14 +1717,14 @@
                                                 "memberLocation": "1425:7:2",
                                                 "memberName": "keyList",
                                                 "nodeType": "MemberAccess",
-                                                "referencedDeclaration": 1091,
+                                                "referencedDeclaration": 1254,
                                                 "src": "1420:12:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                                     "typeString": "uint256[] storage ref"
                                                 }
                                             },
-                                            "id": 1229,
+                                            "id": 1392,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": false,
@@ -1742,7 +1742,7 @@
                                         "operator": "==",
                                         "rightExpression": {
                                             "hexValue": "30",
-                                            "id": 1230,
+                                            "id": 1393,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": true,
@@ -1762,13 +1762,13 @@
                                             "typeString": "bool"
                                         }
                                     },
-                                    "id": 1234,
+                                    "id": 1397,
                                     "nodeType": "IfStatement",
                                     "src": "1417:41:2",
                                     "trueBody": {
                                         "expression": {
                                             "hexValue": "66616c7365",
-                                            "id": 1232,
+                                            "id": 1395,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": true,
@@ -1782,8 +1782,8 @@
                                             },
                                             "value": "false"
                                         },
-                                        "functionReturnParameters": 1226,
-                                        "id": 1233,
+                                        "functionReturnParameters": 1389,
+                                        "id": 1396,
                                         "nodeType": "Return",
                                         "src": "1446:12:2"
                                     }
@@ -1794,7 +1794,7 @@
                                             "typeIdentifier": "t_uint256",
                                             "typeString": "uint256"
                                         },
-                                        "id": 1243,
+                                        "id": 1406,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -1802,18 +1802,18 @@
                                         "leftExpression": {
                                             "baseExpression": {
                                                 "expression": {
-                                                    "id": 1235,
+                                                    "id": 1398,
                                                     "name": "self",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1220,
+                                                    "referencedDeclaration": 1383,
                                                     "src": "1475:4:2",
                                                     "typeDescriptions": {
-                                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                         "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                     }
                                                 },
-                                                "id": 1236,
+                                                "id": 1399,
                                                 "isConstant": false,
                                                 "isLValue": true,
                                                 "isPure": false,
@@ -1821,29 +1821,29 @@
                                                 "memberLocation": "1480:7:2",
                                                 "memberName": "keyList",
                                                 "nodeType": "MemberAccess",
-                                                "referencedDeclaration": 1091,
+                                                "referencedDeclaration": 1254,
                                                 "src": "1475:12:2",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                                     "typeString": "uint256[] storage ref"
                                                 }
                                             },
-                                            "id": 1241,
+                                            "id": 1404,
                                             "indexExpression": {
                                                 "baseExpression": {
                                                     "expression": {
-                                                        "id": 1237,
+                                                        "id": 1400,
                                                         "name": "self",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
-                                                        "referencedDeclaration": 1220,
+                                                        "referencedDeclaration": 1383,
                                                         "src": "1488:4:2",
                                                         "typeDescriptions": {
-                                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                             "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                         }
                                                     },
-                                                    "id": 1238,
+                                                    "id": 1401,
                                                     "isConstant": false,
                                                     "isLValue": true,
                                                     "isPure": false,
@@ -1851,20 +1851,20 @@
                                                     "memberLocation": "1493:11:2",
                                                     "memberName": "keyPointers",
                                                     "nodeType": "MemberAccess",
-                                                    "referencedDeclaration": 1088,
+                                                    "referencedDeclaration": 1251,
                                                     "src": "1488:16:2",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_mapping$_t_uint256_$_t_uint256_$",
                                                         "typeString": "mapping(uint256 => uint256)"
                                                     }
                                                 },
-                                                "id": 1240,
+                                                "id": 1403,
                                                 "indexExpression": {
-                                                    "id": 1239,
+                                                    "id": 1402,
                                                     "name": "key",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 1222,
+                                                    "referencedDeclaration": 1385,
                                                     "src": "1505:3:2",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_uint256",
@@ -1896,11 +1896,11 @@
                                         "nodeType": "BinaryOperation",
                                         "operator": "==",
                                         "rightExpression": {
-                                            "id": 1242,
+                                            "id": 1405,
                                             "name": "key",
                                             "nodeType": "Identifier",
                                             "overloadedDeclarations": [],
-                                            "referencedDeclaration": 1222,
+                                            "referencedDeclaration": 1385,
                                             "src": "1514:3:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
@@ -1913,14 +1913,14 @@
                                             "typeString": "bool"
                                         }
                                     },
-                                    "functionReturnParameters": 1226,
-                                    "id": 1244,
+                                    "functionReturnParameters": 1389,
+                                    "id": 1407,
                                     "nodeType": "Return",
                                     "src": "1468:49:2"
                                 }
                             ]
                         },
-                        "id": 1246,
+                        "id": 1409,
                         "implemented": true,
                         "kind": "function",
                         "modifiers": [],
@@ -1928,41 +1928,41 @@
                         "nameLocation": "1341:6:2",
                         "nodeType": "FunctionDefinition",
                         "parameters": {
-                            "id": 1223,
+                            "id": 1386,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1220,
+                                    "id": 1383,
                                     "mutability": "mutable",
                                     "name": "self",
                                     "nameLocation": "1360:4:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1246,
+                                    "scope": 1409,
                                     "src": "1348:16:2",
                                     "stateVariable": false,
                                     "storageLocation": "storage",
                                     "typeDescriptions": {
-                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                         "typeString": "struct UnorderedKeySetLib.Set"
                                     },
                                     "typeName": {
-                                        "id": 1219,
+                                        "id": 1382,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
-                                            "id": 1218,
+                                            "id": 1381,
                                             "name": "Set",
                                             "nameLocations": [
                                                 "1348:3:2"
                                             ],
                                             "nodeType": "IdentifierPath",
-                                            "referencedDeclaration": 1092,
+                                            "referencedDeclaration": 1255,
                                             "src": "1348:3:2"
                                         },
-                                        "referencedDeclaration": 1092,
+                                        "referencedDeclaration": 1255,
                                         "src": "1348:3:2",
                                         "typeDescriptions": {
-                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                             "typeString": "struct UnorderedKeySetLib.Set"
                                         }
                                     },
@@ -1970,12 +1970,12 @@
                                 },
                                 {
                                     "constant": false,
-                                    "id": 1222,
+                                    "id": 1385,
                                     "mutability": "mutable",
                                     "name": "key",
                                     "nameLocation": "1374:3:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1246,
+                                    "scope": 1409,
                                     "src": "1366:11:2",
                                     "stateVariable": false,
                                     "storageLocation": "default",
@@ -1984,7 +1984,7 @@
                                         "typeString": "uint256"
                                     },
                                     "typeName": {
-                                        "id": 1221,
+                                        "id": 1384,
                                         "name": "uint256",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "1366:7:2",
@@ -1999,17 +1999,17 @@
                             "src": "1347:31:2"
                         },
                         "returnParameters": {
-                            "id": 1226,
+                            "id": 1389,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1225,
+                                    "id": 1388,
                                     "mutability": "mutable",
                                     "name": "",
                                     "nameLocation": "-1:-1:-1",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1246,
+                                    "scope": 1409,
                                     "src": "1401:4:2",
                                     "stateVariable": false,
                                     "storageLocation": "default",
@@ -2018,7 +2018,7 @@
                                         "typeString": "bool"
                                     },
                                     "typeName": {
-                                        "id": 1224,
+                                        "id": 1387,
                                         "name": "bool",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "1401:4:2",
@@ -2032,7 +2032,7 @@
                             ],
                             "src": "1400:6:2"
                         },
-                        "scope": 1287,
+                        "scope": 1450,
                         "src": "1332:192:2",
                         "stateMutability": "view",
                         "virtual": false,
@@ -2040,7 +2040,7 @@
                     },
                     {
                         "body": {
-                            "id": 1261,
+                            "id": 1424,
                             "nodeType": "Block",
                             "src": "1611:43:2",
                             "statements": [
@@ -2048,18 +2048,18 @@
                                     "expression": {
                                         "baseExpression": {
                                             "expression": {
-                                                "id": 1256,
+                                                "id": 1419,
                                                 "name": "self",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1249,
+                                                "referencedDeclaration": 1412,
                                                 "src": "1628:4:2",
                                                 "typeDescriptions": {
-                                                    "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                    "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                     "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                 }
                                             },
-                                            "id": 1257,
+                                            "id": 1420,
                                             "isConstant": false,
                                             "isLValue": true,
                                             "isPure": false,
@@ -2067,20 +2067,20 @@
                                             "memberLocation": "1633:7:2",
                                             "memberName": "keyList",
                                             "nodeType": "MemberAccess",
-                                            "referencedDeclaration": 1091,
+                                            "referencedDeclaration": 1254,
                                             "src": "1628:12:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                                 "typeString": "uint256[] storage ref"
                                             }
                                         },
-                                        "id": 1259,
+                                        "id": 1422,
                                         "indexExpression": {
-                                            "id": 1258,
+                                            "id": 1421,
                                             "name": "index",
                                             "nodeType": "Identifier",
                                             "overloadedDeclarations": [],
-                                            "referencedDeclaration": 1251,
+                                            "referencedDeclaration": 1414,
                                             "src": "1641:5:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
@@ -2098,14 +2098,14 @@
                                             "typeString": "uint256"
                                         }
                                     },
-                                    "functionReturnParameters": 1255,
-                                    "id": 1260,
+                                    "functionReturnParameters": 1418,
+                                    "id": 1423,
                                     "nodeType": "Return",
                                     "src": "1621:26:2"
                                 }
                             ]
                         },
-                        "id": 1262,
+                        "id": 1425,
                         "implemented": true,
                         "kind": "function",
                         "modifiers": [],
@@ -2113,41 +2113,41 @@
                         "nameLocation": "1539:10:2",
                         "nodeType": "FunctionDefinition",
                         "parameters": {
-                            "id": 1252,
+                            "id": 1415,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1249,
+                                    "id": 1412,
                                     "mutability": "mutable",
                                     "name": "self",
                                     "nameLocation": "1562:4:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1262,
+                                    "scope": 1425,
                                     "src": "1550:16:2",
                                     "stateVariable": false,
                                     "storageLocation": "storage",
                                     "typeDescriptions": {
-                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                         "typeString": "struct UnorderedKeySetLib.Set"
                                     },
                                     "typeName": {
-                                        "id": 1248,
+                                        "id": 1411,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
-                                            "id": 1247,
+                                            "id": 1410,
                                             "name": "Set",
                                             "nameLocations": [
                                                 "1550:3:2"
                                             ],
                                             "nodeType": "IdentifierPath",
-                                            "referencedDeclaration": 1092,
+                                            "referencedDeclaration": 1255,
                                             "src": "1550:3:2"
                                         },
-                                        "referencedDeclaration": 1092,
+                                        "referencedDeclaration": 1255,
                                         "src": "1550:3:2",
                                         "typeDescriptions": {
-                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                             "typeString": "struct UnorderedKeySetLib.Set"
                                         }
                                     },
@@ -2155,12 +2155,12 @@
                                 },
                                 {
                                     "constant": false,
-                                    "id": 1251,
+                                    "id": 1414,
                                     "mutability": "mutable",
                                     "name": "index",
                                     "nameLocation": "1573:5:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1262,
+                                    "scope": 1425,
                                     "src": "1568:10:2",
                                     "stateVariable": false,
                                     "storageLocation": "default",
@@ -2169,7 +2169,7 @@
                                         "typeString": "uint256"
                                     },
                                     "typeName": {
-                                        "id": 1250,
+                                        "id": 1413,
                                         "name": "uint",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "1568:4:2",
@@ -2184,17 +2184,17 @@
                             "src": "1549:30:2"
                         },
                         "returnParameters": {
-                            "id": 1255,
+                            "id": 1418,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1254,
+                                    "id": 1417,
                                     "mutability": "mutable",
                                     "name": "",
                                     "nameLocation": "-1:-1:-1",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1262,
+                                    "scope": 1425,
                                     "src": "1602:7:2",
                                     "stateVariable": false,
                                     "storageLocation": "default",
@@ -2203,7 +2203,7 @@
                                         "typeString": "uint256"
                                     },
                                     "typeName": {
-                                        "id": 1253,
+                                        "id": 1416,
                                         "name": "uint256",
                                         "nodeType": "ElementaryTypeName",
                                         "src": "1602:7:2",
@@ -2217,7 +2217,7 @@
                             ],
                             "src": "1601:9:2"
                         },
-                        "scope": 1287,
+                        "scope": 1450,
                         "src": "1530:124:2",
                         "stateMutability": "view",
                         "virtual": false,
@@ -2225,25 +2225,25 @@
                     },
                     {
                         "body": {
-                            "id": 1274,
+                            "id": 1437,
                             "nodeType": "Block",
                             "src": "1734:36:2",
                             "statements": [
                                 {
                                     "expression": {
                                         "expression": {
-                                            "id": 1271,
+                                            "id": 1434,
                                             "name": "self",
                                             "nodeType": "Identifier",
                                             "overloadedDeclarations": [],
-                                            "referencedDeclaration": 1265,
+                                            "referencedDeclaration": 1428,
                                             "src": "1751:4:2",
                                             "typeDescriptions": {
-                                                "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                 "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                             }
                                         },
-                                        "id": 1272,
+                                        "id": 1435,
                                         "isConstant": false,
                                         "isLValue": true,
                                         "isPure": false,
@@ -2251,21 +2251,21 @@
                                         "memberLocation": "1756:7:2",
                                         "memberName": "keyList",
                                         "nodeType": "MemberAccess",
-                                        "referencedDeclaration": 1091,
+                                        "referencedDeclaration": 1254,
                                         "src": "1751:12:2",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
                                             "typeString": "uint256[] storage ref"
                                         }
                                     },
-                                    "functionReturnParameters": 1270,
-                                    "id": 1273,
+                                    "functionReturnParameters": 1433,
+                                    "id": 1436,
                                     "nodeType": "Return",
                                     "src": "1744:19:2"
                                 }
                             ]
                         },
-                        "id": 1275,
+                        "id": 1438,
                         "implemented": true,
                         "kind": "function",
                         "modifiers": [],
@@ -2273,41 +2273,41 @@
                         "nameLocation": "1669:6:2",
                         "nodeType": "FunctionDefinition",
                         "parameters": {
-                            "id": 1266,
+                            "id": 1429,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1265,
+                                    "id": 1428,
                                     "mutability": "mutable",
                                     "name": "self",
                                     "nameLocation": "1688:4:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1275,
+                                    "scope": 1438,
                                     "src": "1676:16:2",
                                     "stateVariable": false,
                                     "storageLocation": "storage",
                                     "typeDescriptions": {
-                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                         "typeString": "struct UnorderedKeySetLib.Set"
                                     },
                                     "typeName": {
-                                        "id": 1264,
+                                        "id": 1427,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
-                                            "id": 1263,
+                                            "id": 1426,
                                             "name": "Set",
                                             "nameLocations": [
                                                 "1676:3:2"
                                             ],
                                             "nodeType": "IdentifierPath",
-                                            "referencedDeclaration": 1092,
+                                            "referencedDeclaration": 1255,
                                             "src": "1676:3:2"
                                         },
-                                        "referencedDeclaration": 1092,
+                                        "referencedDeclaration": 1255,
                                         "src": "1676:3:2",
                                         "typeDescriptions": {
-                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                             "typeString": "struct UnorderedKeySetLib.Set"
                                         }
                                     },
@@ -2317,17 +2317,17 @@
                             "src": "1675:18:2"
                         },
                         "returnParameters": {
-                            "id": 1270,
+                            "id": 1433,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1269,
+                                    "id": 1432,
                                     "mutability": "mutable",
                                     "name": "",
                                     "nameLocation": "-1:-1:-1",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1275,
+                                    "scope": 1438,
                                     "src": "1716:16:2",
                                     "stateVariable": false,
                                     "storageLocation": "memory",
@@ -2337,7 +2337,7 @@
                                     },
                                     "typeName": {
                                         "baseType": {
-                                            "id": 1267,
+                                            "id": 1430,
                                             "name": "uint256",
                                             "nodeType": "ElementaryTypeName",
                                             "src": "1716:7:2",
@@ -2346,7 +2346,7 @@
                                                 "typeString": "uint256"
                                             }
                                         },
-                                        "id": 1268,
+                                        "id": 1431,
                                         "nodeType": "ArrayTypeName",
                                         "src": "1716:9:2",
                                         "typeDescriptions": {
@@ -2359,7 +2359,7 @@
                             ],
                             "src": "1715:18:2"
                         },
-                        "scope": 1287,
+                        "scope": 1450,
                         "src": "1660:110:2",
                         "stateMutability": "view",
                         "virtual": false,
@@ -2367,13 +2367,13 @@
                     },
                     {
                         "body": {
-                            "id": 1285,
+                            "id": 1448,
                             "nodeType": "Block",
                             "src": "1818:36:2",
                             "statements": [
                                 {
                                     "expression": {
-                                        "id": 1283,
+                                        "id": 1446,
                                         "isConstant": false,
                                         "isLValue": false,
                                         "isPure": false,
@@ -2384,18 +2384,18 @@
                                         "src": "1828:19:2",
                                         "subExpression": {
                                             "expression": {
-                                                "id": 1281,
+                                                "id": 1444,
                                                 "name": "self",
                                                 "nodeType": "Identifier",
                                                 "overloadedDeclarations": [],
-                                                "referencedDeclaration": 1278,
+                                                "referencedDeclaration": 1441,
                                                 "src": "1835:4:2",
                                                 "typeDescriptions": {
-                                                    "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                                    "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                                     "typeString": "struct UnorderedKeySetLib.Set storage pointer"
                                                 }
                                             },
-                                            "id": 1282,
+                                            "id": 1445,
                                             "isConstant": false,
                                             "isLValue": true,
                                             "isPure": false,
@@ -2403,7 +2403,7 @@
                                             "memberLocation": "1840:7:2",
                                             "memberName": "keyList",
                                             "nodeType": "MemberAccess",
-                                            "referencedDeclaration": 1091,
+                                            "referencedDeclaration": 1254,
                                             "src": "1835:12:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_array$_t_uint256_$dyn_storage",
@@ -2415,14 +2415,14 @@
                                             "typeString": "tuple()"
                                         }
                                     },
-                                    "id": 1284,
+                                    "id": 1447,
                                     "nodeType": "ExpressionStatement",
                                     "src": "1828:19:2"
                                 }
                             ]
                         },
                         "functionSelector": "c3e4a346",
-                        "id": 1286,
+                        "id": 1449,
                         "implemented": true,
                         "kind": "function",
                         "modifiers": [],
@@ -2430,41 +2430,41 @@
                         "nameLocation": "1785:7:2",
                         "nodeType": "FunctionDefinition",
                         "parameters": {
-                            "id": 1279,
+                            "id": 1442,
                             "nodeType": "ParameterList",
                             "parameters": [
                                 {
                                     "constant": false,
-                                    "id": 1278,
+                                    "id": 1441,
                                     "mutability": "mutable",
                                     "name": "self",
                                     "nameLocation": "1805:4:2",
                                     "nodeType": "VariableDeclaration",
-                                    "scope": 1286,
+                                    "scope": 1449,
                                     "src": "1793:16:2",
                                     "stateVariable": false,
                                     "storageLocation": "storage",
                                     "typeDescriptions": {
-                                        "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                        "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                         "typeString": "struct UnorderedKeySetLib.Set"
                                     },
                                     "typeName": {
-                                        "id": 1277,
+                                        "id": 1440,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
-                                            "id": 1276,
+                                            "id": 1439,
                                             "name": "Set",
                                             "nameLocations": [
                                                 "1793:3:2"
                                             ],
                                             "nodeType": "IdentifierPath",
-                                            "referencedDeclaration": 1092,
+                                            "referencedDeclaration": 1255,
                                             "src": "1793:3:2"
                                         },
-                                        "referencedDeclaration": 1092,
+                                        "referencedDeclaration": 1255,
                                         "src": "1793:3:2",
                                         "typeDescriptions": {
-                                            "typeIdentifier": "t_struct$_Set_$1092_storage_ptr",
+                                            "typeIdentifier": "t_struct$_Set_$1255_storage_ptr",
                                             "typeString": "struct UnorderedKeySetLib.Set"
                                         }
                                     },
@@ -2474,19 +2474,19 @@
                             "src": "1792:18:2"
                         },
                         "returnParameters": {
-                            "id": 1280,
+                            "id": 1443,
                             "nodeType": "ParameterList",
                             "parameters": [],
                             "src": "1818:0:2"
                         },
-                        "scope": 1287,
+                        "scope": 1450,
                         "src": "1776:78:2",
                         "stateMutability": "nonpayable",
                         "virtual": false,
                         "visibility": "public"
                     }
                 ],
-                "scope": 1288,
+                "scope": 1451,
                 "src": "353:1503:2",
                 "usedErrors": []
             }
