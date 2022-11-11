@@ -10,8 +10,6 @@ import { NFTStorage, File, Blob } from 'nft.storage';
 import { config } from "../config.js";
 import sharp from 'sharp';
 import { filesFromPath } from 'files-from-path';
-import * as ji from 'join-images';
-//const joinImages = require('join-images').default;
 
 
 const server = 'http://localhost:8999';
