@@ -55,6 +55,10 @@ function signin(req: Request, res: Response) {
 
         if (req.app.locals.passHash == "") {
             // The password has not been provided yet -> try to unlock the wallet
+            if(!fs.existsSync(config.walletFileName)) {
+                res.status(404).send({ error: { name: "noWallet", message: "no wallet has been setup"}})
+                return;
+            }
             let jsonWallet = fs.readFileSync(config.walletFileName);
 
             Wallet.fromEncryptedJson(jsonWallet.toString(), pass)
@@ -119,7 +123,7 @@ function signin(req: Request, res: Response) {
 async function loadWallet(w: Wallet, pass: string, app: any) {
     app.locals.wallet = w.connect(app.locals.ethProvider);
     app.locals.walletLoaded = true;
-    logger.info("server.signin.loadedWallet");
+    logger.info("server.signin.loadedWallet %s", w.address);
     app.locals.passHash = utils.keccak256(utils.toUtf8Bytes(pass));
 
     if(app.locals.token === undefined) return;
@@ -184,4 +188,4 @@ function registerPoS(device: DeviceServerSide & DeviceFromClient, pass: string, 
     }
 }
 
-export { signin };
+export { signin, loadWallet };
