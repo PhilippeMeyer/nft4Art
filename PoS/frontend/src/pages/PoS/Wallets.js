@@ -24,7 +24,6 @@ function Wallets() {
   const generate = () => {
     fetch(url + '?nbWallets=' + nbWallets, { headers: {"authorization": 'Bearer ' + jwt }})
     .then((resp) => {
-      console.log(resp)
       if (resp.ok) return resp.blob();
       else {
         enqueueSnackbar('Error connecting to server: ' + resp.status);

@@ -157,6 +157,12 @@ input[type="submit"]:hover {
   transform: translate(-50%, 0%);
 }
 
+.settingsButton {
+  position: absolute;
+  bottom: 1vh;
+  align-items: left;
+}
+
 .boxTitle {
   position: absolute;
   top: 2vh;

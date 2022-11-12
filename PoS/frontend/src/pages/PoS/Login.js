@@ -21,6 +21,8 @@ import logo from './nft2art.png';
 const httpServer = process.env.REACT_APP_SERVER;
 const deviceItemId = 'nft4ArtPosId';
 
+const cerateWalletUrl = httpServer + 'apiV1/token/createWallet';
+
 
 //
 // Login
@@ -41,9 +43,13 @@ const deviceItemId = 'nft4ArtPosId';
 
 
 function Login() {
-    const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
+  const [createWalletDialog, setCreateWalletDialog] = React.useState(false);
+
     const [password, setPassword] = React.useState();
     const [deviceId, setDeviceId] = React.useState();
+    const [pwd1, setPwd1] = useState('');
+    const [pwd2, setPwd2] = useState('');
     const [constructorHasRun, setConstructorHasRun] = useState(false);
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     
@@ -75,9 +81,12 @@ function Login() {
     const handleOpenDialog = () => {
       setOpen(true);
     };
+
+    const openCreateWalletDialog = () => { setCreateWalletDialog(true); }
   
     const handleClose = () => {
       setOpen(false);
+      setCreateWalletDialog(false);
     };
   
     const handleLogin = () => {
@@ -118,15 +127,49 @@ function Login() {
           console.error("Error connecting to server -" + error); 
         }
     }
+
+//TODO: change the button to icon and locate on the side
+//Manage the pdf returned by the server
+//Remove the dialog when done
+
+    const handleCreateWallet = () => {
+      if(pwd1 != pwd2) return;
+      if(pwd1 === undefined) return;
+
+      const obj = {password: pwd1};
+      console.log(obj);
+      fetch(cerateWalletUrl, { method: 'POST', body: JSON.stringify(obj), headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }})
+      .then((resp) => {
+        if (resp.ok) return resp.blob();
+        else {
+          enqueueSnackbar('Error connecting to server: ' + resp.status);
+          return null;
+        }
+      })
+      .then((data) => { 
+        if (data == null) return;
+        var a = document.createElement("a");
+        a.href = window.URL.createObjectURL(data);
+        a.download = "paperWallet.zip";
+        a.click(); 
+      })
+      .catch((e) => { enqueueSnackbar('Error connecting to server: ' + e);});
+    };
+  
     
     constructor();
 
     return (
+      <>
       <Box className="loginScreen">
         <img src={logo} className="App-logo" alt="logo" />
         <Box display="flex" justifyContent="space-evenly" >        
           <Button variant="contained" className="button" onClick={handleLogin}>Sales login</Button>
           <Button variant="contained" className="button" onClick={handleOpenDialog}>Admin login</Button>
+        </Box>
+        </Box>
+        <Box className="settingsButton">
+          <Button variant="contained"  sx={{display:"none"}} onClick={openCreateWalletDialog}>Create Wallet</Button>
         </Box>
 
         <Dialog open={open} onClose={handleClose} onKeyUp={(e) => { if(e.key =='Enter') handleLogin();}}>
@@ -151,7 +194,24 @@ function Login() {
             <Button type="submit" onClick={handleLogin}>Login</Button>
           </DialogActions>
         </Dialog>
-      </Box>
+
+        <Dialog open={createWalletDialog} onClose={handleClose}>
+          <DialogTitle>Create a new wallet</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              To create a new wallet, choose and keep safely the associated password.
+            </DialogContentText>
+            <Box sx={{ display: 'block', justifyContent: 'flex-start', mt:4}}>
+              <TextField sx={{mb:2, display:'block'}} id="password" label="Wallet password" variant="standard" onChange={(e) => { setPwd1(e.target.value) }} type="password"/>
+              <TextField sx={{mb:2, display:'block'}} id="password2" label="Password verification" variant="standard" onChange={(e) => { setPwd2(e.target.value)}} type="password"/>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleCreateWallet}>Create Wallet</Button>
+          </DialogActions>
+        </Dialog>
+        </>
     );
   }
   export default Login;
