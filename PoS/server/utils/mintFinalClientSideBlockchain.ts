@@ -1,19 +1,8 @@
 import fs from 'fs';
-import FormData from 'form-data';
-import fetch from 'node-fetch';
-import path from 'path';
-import os from 'os';
 import "dotenv/config";
-import mime from 'mime';
-import * as dbPos from "../services/db.js"
-import { NFTStorage, File, Blob } from 'nft.storage';
 import { config } from "../config.js";
-import sharp from 'sharp';
-import { filesFromPath } from 'files-from-path';
 import ethers from 'ethers';
 import { BigNumber, constants, Contract, ContractFactory, errors, providers, utils, Wallet } from "ethers";
-
-
 
 
 if (process.argv[2] === undefined) { console.error('No wallet filename provided'); process.exit(0);}
@@ -26,9 +15,8 @@ let wallet = ethers.Wallet.fromEncryptedJsonSync(data.toString(), process.argv[3
 const ethProvider = await new ethers.providers.InfuraProvider(config.network, config.infuraKey);
 const signer = wallet.connect(ethProvider);
 
-const contractAddress:string = '0x5A734B65251954E70102AFe9bbC4Ac767d07905A';
+const contractAddress:string = '0xbdFb21198B09B3d902C79C726B1dC18434106800';
 
-console.log(config.gvdNftAbiFile);
 let rawAbi = fs.readFileSync('../' + config.gvdNftAbiFile);
 const gvdNftDef = JSON.parse(rawAbi.toString());
 
@@ -122,7 +110,7 @@ async function mintSpheresFinal() {
     console.log(ids, qty);
     console.log('\n\nStarting the minting process...');
 
-    const txResp = await token.mintBatch(ids, qty, []);
+    const txResp = await token.mintBatch(ids, qty, [], { gasLimit: 5000000 });
     const txReceipt = await txResp.wait();
     console.log('Minted tokens #', ids.length);
 }
