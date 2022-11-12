@@ -5,7 +5,8 @@ config.secret = process.env.APP_SECRET;
 config.walletFileName = process.env.APP_WALLET_FILE;
 config.database = process.env.APP_DB_FILE;
 config.infuraKey = process.env.APP_INFURA_KEY;
-config.network = process.env.APP_NETWORK;
+//config.network = process.env.APP_NETWORK;
+config.network = "homestead";
 config.cacheFolder = process.env.APP_CACHE_FOLDER;
 config.invoiceFolder = process.env.APP_INVOICE_FOLDER;
 config.priceFeedETH = process.env.APP_PRICE_FEED_ETH;
@@ -26,5 +27,6 @@ config.nftSorageToken = process.env.APP_NFTSTORAGE_TOKEN;
 config.galleryLogo = process.env.APP_GALLERY_LOGO;
 config.urlAppInstallation = process.env.APP_WEBSITE + "/apiV1/information/installApp";
 config.redirectTo = "https://expo-app-eosin.vercel.app/";
+config.applicationLogo = "./public/nft2art.png"
 
 export { config };
