@@ -67,9 +67,9 @@ async function generateWallets(req: Request, res: Response) {
         doc.fontSize(8).text((i+1) + '/' + nbWallets, { align: "right" });
         doc.fontSize(12);
         doc.text('The Lighthouse', x, y).moveDown(0.3);
-        doc.text('Raemistrasse 5').moveDown(0.3);
+        doc.text('Raemistrasse 3').moveDown(0.3);
         doc.text('8001 Zürich').moveDown(0.3);
-        doc.text('mail@lighthouse.com').moveDown(0.3);
+        doc.text('mail@thelighthousezurich.com').moveDown(0.3);
         doc.moveDown(4);
         doc.font('fontBold').fontSize(30).text('Puzzle of a Maze', {align: 'center'});
         doc.fontSize(12).text('by Thomas Julier', {align: 'center'});
