@@ -42,6 +42,7 @@ import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endP
 import { sendVote, getVotes } from "./endPoints/vote/vote.js";
 import { transfer } from "./endPoints/sale/transfer.js"
 import { saleInvoice } from "./endPoints/sale/saleInvoice.js"
+import { listSaleEvents } from "./endPoints/sale/listSaleEvents.js";
 import { addSmartContract } from "./endPoints/token/addSmartContract.js";
 import { createWallet, changeWallet } from "./endPoints/auth/createWallet.js";
 import { listAllTokens, listFilteredTokens } from "./endPoints/token/listTokens.js";
@@ -261,6 +262,10 @@ app.get(['/apiV1/token/image', '/image'], function (req: Request, res: Response)
 app.get('/apiV1/token/resource', function (req: Request, res: Response) {
     res.type("jpeg");
     const resourceId:string = req.query.id as string + req.query.type as string;
+    if(!app.locals.icons.has(resourceId)) {
+        logger.warn('server.token.InvalidRessource %s', resourceId);
+        res.sendStatus(404);
+    }
     res.status(200).send(app.locals.icons.get(resourceId));
 });
 app.get('/apiV1/token/collections', function (req: Request, res: Response) {
@@ -334,6 +339,7 @@ app.post("/apiV1/sale/saleInvoice", verifyToken, saleInvoice);
 app.get("/apiV1/sale/listInvoices", verifyToken, listInvoices);
 app.get("/apiV1/sale/getInvoice", verifyToken, getPdfInvoice);
 app.post("/apiV1/sale/invoicePaid", verifyToken, invoicePaid);
+app.get("/apiV1/sale/listAllSaleEvents", verifyToken, listSaleEvents);
 
 //
 // /apiV1/token/mintIpfsFolder

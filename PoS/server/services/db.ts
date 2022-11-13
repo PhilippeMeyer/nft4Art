@@ -164,6 +164,10 @@ const findSaleEventByAddress = function(address:string, amount:number) {
     else return result[0];
 }
 
+const findAllSaleEvents = function() {
+    return db.prepare('SELECT typeMsg,id,price,isLocked,destinationAddr,isStored,isTransferred,isFinalized,txId,error FROM salesEvents').all([]);
+}
+
 const findNextInvoiceId = function() {
     const result = db.prepare('SELECT MAX(id) FROM invoices').all();
     if (result[0]['MAX(id)'] == null) return(1);
@@ -199,5 +203,5 @@ export {    initDb, closeDb,
             insertNewSmartContract, findAllSmartContracts,
             insertNewVote, findOneVote, findAllVote,
             insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire,
-            insertSaleEvent, findSaleEventByAddress,
+            insertSaleEvent, findSaleEventByAddress, findAllSaleEvents,
             findNextInvoiceId, insertInvoice, findAllInvoices, findInvoice, payInvoice, settleInvoice };
