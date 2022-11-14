@@ -1,0 +1,13 @@
+name: CI
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install modules
+        run: yarn
+        working-directory: PoS/server
+      - name: Build with tsc
+        run: yarn build
+        working-directory: PoS/server

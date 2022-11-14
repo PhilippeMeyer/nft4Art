@@ -6,6 +6,7 @@
     "type": "module",
     "scripts": {
         "start": "tsc && node index.js",
+        "build": "tsc",
         "test": "tsc && concurrently -n server,tests --kill-others \"npm start\" \"wait-on tcp:8999 && mocha ./test/*.js\"",
         "test:pos-signin": "tsc && concurrently -n server,tests --kill-others \"npm start\" \"wait-on tcp:8999 && mocha ./test/posLoginManager.js\"",
         "test:app-signin": "tsc && concurrently -n server,tests --kill-others \"npm start\" \"wait-on tcp:8999 && mocha ./test/appLogin.js\"",
