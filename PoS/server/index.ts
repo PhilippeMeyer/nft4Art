@@ -42,7 +42,7 @@ import { createQuestionnaire, getQuestionnaire, listQuestionnaire } from "./endP
 import { sendVote, getVotes } from "./endPoints/vote/vote.js";
 import { transfer } from "./endPoints/sale/transfer.js"
 import { saleInvoice } from "./endPoints/sale/saleInvoice.js"
-import { listSaleEvents } from "./endPoints/sale/listSaleEvents.js";
+//import { listSaleEvents } from "./endPoints/sale/listSaleEvents.js";
 import { addSmartContract } from "./endPoints/token/addSmartContract.js";
 import { createWallet, changeWallet } from "./endPoints/auth/createWallet.js";
 import { listAllTokens, listFilteredTokens } from "./endPoints/token/listTokens.js";
@@ -339,7 +339,7 @@ app.post("/apiV1/sale/saleInvoice", verifyToken, saleInvoice);
 app.get("/apiV1/sale/listInvoices", verifyToken, listInvoices);
 app.get("/apiV1/sale/getInvoice", verifyToken, getPdfInvoice);
 app.post("/apiV1/sale/invoicePaid", verifyToken, invoicePaid);
-app.get("/apiV1/sale/listAllSaleEvents", verifyToken, listSaleEvents);
+//app.get("/apiV1/sale/listAllSaleEvents", verifyToken, listSaleEvents);
 
 //
 // /apiV1/token/mintIpfsFolder
