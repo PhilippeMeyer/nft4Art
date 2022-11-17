@@ -43,7 +43,7 @@ function transferToken(tk:any, destinationAddr:string, app:any): Promise<string>
     if(tk.tokenIdNum == 1) {                                                    // Transfer of the video, only one token tranferred
         return new Promise<string>((resolve, reject) => {
             tokenWithSigner
-                .safeTransferFrom(app.locals.wallet.address, destinationAddr, tk.tokenId, 1, [], { gasLimit: 2000000 })
+                .safeTransferFrom(app.locals.wallet.address, destinationAddr, tk.tokenId, 1, [], { gasLimit: 200000 })
                 .then((transferResult: TransactionResponse) => {
                     
                     insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 1, 0, 0, '', '');
@@ -73,7 +73,7 @@ function transferToken(tk:any, destinationAddr:string, app:any): Promise<string>
     else {                                                                          // We distribute a video token (#1) for free
         return new Promise<string>((resolve, reject) => {
             tokenWithSigner
-                .safeBatchTransferFrom(app.locals.wallet.address, destinationAddr, [tk.tokenIdNum, 1], [1, 1], [], { gasLimit: 2000000 })
+                .safeBatchTransferFrom(app.locals.wallet.address, destinationAddr, [tk.tokenIdNum, 1], [1, 1], [], { gasLimit: 200000 })
                 .then((transferResult: TransactionResponse) => {
                     
                     insertSaleEvent("transferInitiated", tk.id, tk.price, 1, destinationAddr, 1, 0, 0, '', '');

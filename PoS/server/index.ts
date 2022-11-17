@@ -253,7 +253,7 @@ app.get(['/apiV1/token/token', '/token'], verifyToken, (req: Request, res: Respo
 });
 app.get(['/apiV1/token/icon', '/icon'], function (req: Request, res: Response) {
     res.type("png");
-    res.status(200).send(app.locals.icons.get(req.query.id));
+    res.status(200).send(app.locals.icons.get(req.query.id + 'image'));
 });
 app.get(['/apiV1/token/image', '/image'], function (req: Request, res: Response) {
     res.type("jpeg");

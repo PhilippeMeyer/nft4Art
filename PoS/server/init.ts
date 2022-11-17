@@ -235,11 +235,23 @@ async function loadToken(token: Contract, exApp:any ) {
                         // We try to find this cid in the cache
                         logger.info("server.init.loadResource.cache %s, %s, cid %s", meta.tokenIdStr, key, cid);
                         buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
+
+                        if ((key != 'video') && (key != 'model') && (key.indexOf('V') == -1)) {
+                            logger.info("server.init.resizeImage %s, %s, cid %s", meta.tokenIdStr, key, cid);
+                            const data = await sharp(buf).resize(1004, 1004, {fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 1 }})
+                            .extend({ top: 10, bottom: 10, left: 10, right: 10, background: { r: 255, g: 255, b: 255, alpha: 1 }})
+                            .png().toBuffer();
+                            icons.set(meta.id + key, data);
+                        }
+                        else
+                            icons.set(meta.id + key, buf);
+
                     } else {
                         // Not available in the cache, we get it from ipfs
                         logger.info("server.init.loadResource.ipfs %s, %s, cid %s", meta.tokenIdStr, key, cid);
                         const resp = await axios.get(icon, { responseType: "arraybuffer" });
                         buf = Buffer.from(resp.data, "binary");
+                        
                         if(key == 'model') {
                             fs.writeFileSync(cid + '.stl', buf, { flag: "w", encoding: "binary" }); // Save the file in cache
                             if(meta.tokenIdNum !=1) {
@@ -247,19 +259,22 @@ async function loadToken(token: Contract, exApp:any ) {
                                 await convertSTLIntoGLTF(cid + '.stl', cid + '.gltf');
                                 fs.renameSync(cid + '.gltf', cid);
                             }
-                        } else if (key != 'video') {
+                        } else if ((key != 'video') && (key.indexOf('V') == -1)) {
                             logger.info("server.init.resizeImage %s, %s, cid %s", meta.tokenIdStr, key, cid);
-                            sharp(buf).resize(1004, 1004, {fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 1 }})
+                            const data = await sharp(buf).resize(1004, 1004, {fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 1 }})
                             .extend({ top: 10, bottom: 10, left: 10, right: 10, background: { r: 255, g: 255, b: 255, alpha: 1 }})
-                            .png().withMetadata({ exif: { IFD0: { ImageDescription: meta.tokenIdStr + '-' + key }}}).toFile(cid);
-                        } else 
+                            .png().toBuffer(); 
+                            
+                            icons.set(meta.id + key, data);
+                            fs.writeFileSync(cid, data, { flag: "w", encoding: "binary" });
+                        } else {
                             fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" }); // Save the file in cache
+                            icons.set(meta.id + key, buf);
+                        }
                     }
                 } catch (error) {
                     logger.error("server.init.loadResource %s", error);
                 }
-
-                icons.set(meta.id + key, buf);
 
                 meta[key + 'Url'] = config.resourceUrl + meta.id + '&type=' + key;      // Reference the resource's url
 
@@ -276,32 +291,6 @@ async function loadToken(token: Contract, exApp:any ) {
         }),
     );
 
-    //
-    // Retrieve the images, looking at the cache in case the image has been already retrieved
-    //
-    // const getImages = Promise.all(
-    //     metas.map(async (meta: any) => {
-    //         let cid = config.cacheFolder + meta.image_raw.replace("ipfs://", "");
-    //         try {
-    //             if (fs.existsSync(cid)) {
-    //                 logger.info("server.init.loadImages.cache %s", cid);
-    //                 buf = Buffer.from(fs.readFileSync(cid, { encoding: "binary" }), "binary");
-    //             } else {
-    //                 logger.info("server.init.loadImages.ipfs %s", cid);
-    //                 let image = meta.image_raw.replace("ipfs", "https").concat(".ipfs.dweb.link");
-    //                 const resp = await axios.get(image, { responseType: "arraybuffer" });
-    //                 buf = Buffer.from(resp.data, "binary");
-    //                 fs.writeFileSync(cid, buf, { flag: "w", encoding: "binary" });
-    //             }
-
-    //             images.set(meta.id, buf);
-    //         } catch (error) {
-    //             logger.error("server.init.loadIcons %s", error);
-    //         }
-    //         meta.imgUrl = config.imgUrl + meta.id;
-    //     }),
-    // );
-
     await Promise.all([getIcons]);
 
     const imageProperties = ['iso1', 'bottom', 'iso2', 'right', 'front', 'left', 'iso3', 'top', 'iso4'];
@@ -311,7 +300,6 @@ async function loadToken(token: Contract, exApp:any ) {
         let key: string;
         let i:number = 0;
         let images = new Array<string>(imageProperties.length);
-        let views:boolean = true;
 
         for(key in meta) {
             const index = imageProperties.indexOf(key);                                              // Is this resource an image?
@@ -323,26 +311,6 @@ async function loadToken(token: Contract, exApp:any ) {
         if(i != 0) meta.images = images;
         else meta.images = [];
 
-        for(const view of imageProperties)
-            if(meta[view] === undefined) views = false;
-
-        if(views) {
-            let one, two, all, three:any;
-
-            logger.info("server.init.buildingOverview %s", meta.tokenIdStr);
-            one = await ji.joinImages([config.cacheFolder + meta['iso1'].replace("ipfs://", ""), config.cacheFolder + meta['iso2'].replace("ipfs://", ""), config.cacheFolder + meta['bottom'].replace("ipfs://", "")], {direction: 'horizontal', color:{ alpha: 1.0, b: 255, g: 255, r: 225 }, offset: 5, align: 'center'});
-            await one.toFile(config.cacheFolder + meta.tokenIdStr + '1.png');
-            two = await ji.joinImages([config.cacheFolder + meta['right'].replace("ipfs://", ""), config.cacheFolder + meta['front'].replace("ipfs://", ""), config.cacheFolder + meta['left'].replace("ipfs://", "")], {direction: 'horizontal', color:{ alpha: 1.0, b: 255, g: 255, r: 225 }, offset: 5, align: 'center'});
-            await two.toFile(config.cacheFolder + meta.tokenIdStr + '2.png');
-            three = await ji.joinImages([config.cacheFolder + meta['iso3'].replace("ipfs://", ""), config.cacheFolder + meta['top'].replace("ipfs://", ""), config.cacheFolder + meta['iso4'].replace("ipfs://", "")], {direction: 'horizontal', color:{ alpha: 1.0, b: 255, g: 255, r: 225 }, offset: 5, align: 'center'});
-            await three.toFile(config.cacheFolder + meta.tokenIdStr + '3.png');
-            all = await ji.joinImages([config.cacheFolder + meta.tokenIdStr + '1.png', config.cacheFolder + meta.tokenIdStr + '2.png', config.cacheFolder + meta.tokenIdStr + '3.png']);
-            meta.overview = config.cacheFolder + meta.tokenIdStr + '_overview.png';
-            meta.overviewUrl = config.resourceUrl + meta.id + '&type=overview'
-            //icons.set(meta.id + 'overview', await all.toFormat('png').toBuffer());
-            await all.toFile(meta.overview);
-            meta.image = meta.front;
-        }
     });
 
 
@@ -426,6 +394,31 @@ const loadVotes = async (exApp: any, voteId : BigNumber) => {
         const voteFullId:string = exApp.locals.token.address + voteId.toHexString();
         if(dbPos.findOneVote(voteFullId, ballots[i].from) == null)
             dbPos.insertNewVote(voteFullId, ballots[i].from, JSON.stringify({from: ballots[i].from, voteId: voteId, data: ballots[i].data }));
+    }
+}
+
+const buildOverview = async (meta:any, icons:any, imageProperties:string[]) => {
+    let views:boolean = true;
+
+    for(const view of imageProperties)
+    if(meta[view] === undefined) views = false;
+
+    if(views) {
+        let one, two, all, three:any;
+
+        logger.info("server.init.buildingOverview %s", meta.tokenIdStr);
+        one = await ji.joinImages([config.cacheFolder + meta['iso1'].replace("ipfs://", ""), config.cacheFolder + meta['iso2'].replace("ipfs://", ""), config.cacheFolder + meta['bottom'].replace("ipfs://", "")], {direction: 'horizontal', color:{ alpha: 1.0, b: 255, g: 255, r: 225 }, offset: 5, align: 'center'});
+        await one.toFile(config.cacheFolder + meta.tokenIdStr + '1.png');
+        two = await ji.joinImages([config.cacheFolder + meta['right'].replace("ipfs://", ""), config.cacheFolder + meta['front'].replace("ipfs://", ""), config.cacheFolder + meta['left'].replace("ipfs://", "")], {direction: 'horizontal', color:{ alpha: 1.0, b: 255, g: 255, r: 225 }, offset: 5, align: 'center'});
+        await two.toFile(config.cacheFolder + meta.tokenIdStr + '2.png');
+        three = await ji.joinImages([config.cacheFolder + meta['iso3'].replace("ipfs://", ""), config.cacheFolder + meta['top'].replace("ipfs://", ""), config.cacheFolder + meta['iso4'].replace("ipfs://", "")], {direction: 'horizontal', color:{ alpha: 1.0, b: 255, g: 255, r: 225 }, offset: 5, align: 'center'});
+        await three.toFile(config.cacheFolder + meta.tokenIdStr + '3.png');
+        all = await ji.joinImages([config.cacheFolder + meta.tokenIdStr + '1.png', config.cacheFolder + meta.tokenIdStr + '2.png', config.cacheFolder + meta.tokenIdStr + '3.png']);
+        meta.overview = config.cacheFolder + meta.tokenIdStr + '_overview.png';
+        meta.overviewUrl = config.resourceUrl + meta.id + '&type=overview'
+        icons.set(meta.id + 'overview', await all.toFormat('png').toBuffer());
+        await all.toFile(meta.overview);
+        meta.image = meta.front;
     }
 }
 

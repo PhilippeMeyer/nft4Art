@@ -12,6 +12,7 @@ const httpServer = process.env.REACT_APP_SERVER;
 const addSCUrl = httpServer + 'apiV1/token/addSmartContract?scAddress=';
 const deploySCUrl = httpServer + 'apiV1/token/createToken';
 const changeWalletUrl = httpServer + 'apiV1/auth/changeWallet';
+const generateWalletsUrl = httpServer + 'apiV1/information/generateWallets?nbWallets=';
 
 
 function Settings() {
@@ -22,6 +23,7 @@ function Settings() {
   const [pwd1, setPwd1] = useState('');
   const [pwd2, setPwd2] = useState('');
   const [paraphrase, setParaphrase] = useState('');
+  const [nbWallets, setNbWallets] = useState();
 
   const jwt = useSelector((state) => state.token.jwt);
 
@@ -48,8 +50,6 @@ function Settings() {
     .catch((e) => { enqueueSnackbar('Error connecting to server: ' + e);});
   }
 
-  const changeValue = (evt) => { setScAddress(evt.target.value)}
-
   const changeWallet = () => {
     if(pwd1 != pwd2) return;
     if(pwd1 === undefined) return;
@@ -66,6 +66,25 @@ function Settings() {
     })
 
   }
+  const generateWallets = () => {
+    fetch(generateWalletsUrl + nbWallets, { headers: {"authorization": 'Bearer ' + jwt }})
+    .then((resp) => {
+      if (resp.ok) return resp.blob();
+      else {
+        enqueueSnackbar('Error connecting to server: ' + resp.status);
+        return null;
+      }
+    })
+    .then((data) => { 
+      if (data == null) return;
+      var a = document.createElement("a");
+      a.href = window.URL.createObjectURL(data);
+      a.download = "paperWallet.zip";
+      a.click(); 
+    })
+    .catch((e) => { enqueueSnackbar('Error connecting to server: ' + e);});
+  };
+
 
   return (
       <main>
@@ -73,7 +92,7 @@ function Settings() {
         <Box sx={{ display: 'block', mt:4}}>
           <h1 className="title">Add an existing smart contract</h1>
           <h2 className="subTitle">This adds an existing smart contract to the database</h2>
-          <TextField id="scAddress" label="Smart Contract address" variant="standard" sx={{justifyContent: 'flex-end'}} onChange={changeValue}/>
+          <TextField id="scAddress" label="Smart Contract address" variant="standard" sx={{justifyContent: 'flex-end'}} onChange={(e) => { setScAddress(e.target.value) }}/>
           <Button sx={{ ml:10, mt:3}} onClick={generate}>Add</Button>
         </Box>
         <Box sx={{ display: 'block', justifyContent: 'flex-start', mt:4}}>
@@ -87,7 +106,15 @@ function Settings() {
           <TextField sx={{mb:2, display:'block'}} id="password" label="Wallet password" variant="standard" onChange={(e) => { setPwd1(e.target.value) }} type="password"/>
           <TextField sx={{mb:2, display:'block'}} id="password2" label="Password verification" variant="standard" onChange={(e) => { setPwd2(e.target.value)}} type="password"/>
           <Button sx={{ ml:10, mt:3}} onClick={changeWallet}>Change Wallet</Button>
+        </Box>
+        <Box>
+          <h1 className="title">Generate paper wallets for the customers</h1>
+          <h2 className="subTitle">After specifying the number of wallets required, those will be directly dowloaded in a zip file containing the paper wallets and their enveloppes, ready to be printed</h2>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt:4}}>
+            <TextField id="nbWallets" label="Nb wallets to create" variant="standard" type="number" sx={{justifyContent: 'flex-end'}} onChange={(e) => { setNbWallets(e.target.value) }}/>
+            <Button sx={{ ml:10, mt:3}} onClick={generate}>Generate</Button>
           </Box>
+        </Box>
 
         <NavbarManager />
       </main>

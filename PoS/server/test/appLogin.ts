@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 const server = 'http://localhost:8999';
+//const server = 'https://nft2art.com';
 const appId = uuidv4();
 
 //const server = 'https://nft4artpos.glitch.me';
@@ -13,6 +14,7 @@ const appId = uuidv4();
 const url = server + '/apiV1/auth/appLogin';
 const urlDrop = server + '/apiV1/auth/appLoginDrop';
 //const wallet: Wallet = Wallet.createRandom();
+//const wallet: Wallet = Wallet.fromMnemonic('sadness bone buffalo display exercise easy engine evidence debate clip remove bone');
 const wallet: Wallet = Wallet.fromMnemonic('ski ring tiny nephew beauty develop diesel gadget defense discover border cactus');
 const wallet2: Wallet = Wallet.fromMnemonic('romance sniff swing side fresh dish easy vast evolve obey wrap pioneer');
 
@@ -50,6 +52,7 @@ describe('Testing logging in as a mobile app', function() {
             },
             body: JSON.stringify(msg)
         }); 
+
 
         const ret = await res.json();
         expect(res.status).to.equal(200);

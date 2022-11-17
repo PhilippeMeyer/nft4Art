@@ -32,7 +32,10 @@ async function appLogin(req: Request, res: Response) {
     logger.info('server.loginApp %s', login.message.address);
 
     let app = dbPos.findAppId(login.message.address);
-    if (app == null) dbPos.insertNewAppId(login.message);
+    if (app == null) {
+        if (dbPos.findAppIdById(login.message.appId) != null) dbPos.removeAppId(login.message.appId);
+        dbPos.insertNewAppId(login.message);
+    }
     else {
         
 /*  Section removed for now. Removing this we enable two different appId to connect with the same ethereum address. 

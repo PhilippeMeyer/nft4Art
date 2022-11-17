@@ -93,6 +93,10 @@ const findAppId = function(addr: string) {
     return findOne('appIds', 'addressEth', addr);
 }
 
+const findAppIdById = function(id: string) {
+    return findOne('appIds', 'appId', id);
+}
+
 const insertNewAppId = function(appIdRecord: any) {
     const {appId, address, nonce} = appIdRecord;
     const stmt = db.prepare('INSERT INTO appIds(appId, addressEth, nonce) VALUES (?, ?, ?)');
@@ -199,7 +203,7 @@ const settleInvoice = function(invoiceNumber: string) {
 export {    initDb, closeDb, 
             findRegisteredPos, findRegisteredPosByIp, insertNewPos, updateIpRegisteredPos, updateAuthorizedRegisteredPos, updateConnectedRegisteredPos, findAllRegisteredPos,
             findToken, insertNewToken, updatePriceToken, updateLockToken, findAllTokens, updateQuantityToken,
-            findAppId, insertNewAppId, updateNonceAppId, removeAppId,
+            findAppId, insertNewAppId, updateNonceAppId, removeAppId, findAppIdById,
             insertNewSmartContract, findAllSmartContracts,
             insertNewVote, findOneVote, findAllVote,
             insertNewQuestionnaire, findOneQuestionnaire, findAllQuestionnaire,
